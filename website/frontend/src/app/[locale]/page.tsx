@@ -3,6 +3,7 @@ import TypingText from '@/components/effects/TypingText';
 import CounterAnimation from '@/components/effects/CounterAnimation';
 import ScrollAnimation from '@/components/effects/ScrollAnimation';
 import { Link } from '@/i18n/navigation';
+import BusinessDiagram3D from '@/components/sections/home/BusinessDiagram3D';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -148,7 +149,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
-      {/* Business Flow Section */}
+      {/* Platform Architecture Section - 3D Diagram */}
       <section className="section" id="business-flow">
         <div className="container">
           <ScrollAnimation>
@@ -158,50 +159,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <p>{t('businessFlow.desc')}</p>
             </div>
           </ScrollAnimation>
-          <ScrollAnimation>
-            <div className="business-flow">
-              <div className="flow-item">
-                <div className="flow-item-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                </div>
-                <h3>{t('businessFlow.user')}</h3>
-                <p>{t('businessFlow.userDesc')}</p>
-              </div>
-              <div className="flow-connector">
-                <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                  <path d="M0 12h32M28 6l6 6-6 6" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div className="flow-item">
-                <div className="flow-item-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <rect x="2" y="3" width="20" height="14" rx="2" />
-                    <line x1="8" y1="21" x2="16" y2="21" />
-                    <line x1="12" y1="17" x2="12" y2="21" />
-                  </svg>
-                </div>
-                <h3>{t('businessFlow.merchant')}</h3>
-                <p>{t('businessFlow.merchantDesc')}</p>
-              </div>
-              <div className="flow-connector">
-                <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                  <path d="M0 12h32M28 6l6 6-6 6" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div className="flow-item">
-                <div className="flow-item-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                  </svg>
-                </div>
-                <h3>{t('businessFlow.pile')}</h3>
-                <p>{t('businessFlow.pileDesc')}</p>
-              </div>
-            </div>
-          </ScrollAnimation>
+          <BusinessDiagram3D />
           <ScrollAnimation>
             <div style={{ textAlign: 'center', marginTop: 16 }}>
               <Link href="/product" className="btn btn-primary">{t('businessFlow.cta')}</Link>

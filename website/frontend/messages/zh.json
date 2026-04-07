@@ -26,15 +26,17 @@
     "stat3": "覆盖国家"
   },
   "businessFlow": {
-    "label": "业务流程",
-    "title": "自营业务流程",
-    "desc": "从用户到充电桩的无缝充电体验",
-    "user": "用户",
-    "userDesc": "用户通过H5或者APP扫码付款",
-    "merchant": "充电商户",
-    "merchantDesc": "选择不同的充电运营商",
-    "pile": "充电桩",
-    "pileDesc": "启动对应的充电桩充电",
+    "label": "平台架构",
+    "title": "GCSS 如何连接一切",
+    "desc": "交互式展示车主、充电桩、运营商与GCSS平台的协作流程",
+    "dragHint": "拖拽旋转图表",
+    "gcss": "GCSS 平台",
+    "server": "服务器",
+    "driver": "车主",
+    "charger": "充电桩",
+    "cpo": "CPO",
+    "money": "支付",
+    "data": "数据",
     "cta": "了解更多产品"
   },
   "models": {

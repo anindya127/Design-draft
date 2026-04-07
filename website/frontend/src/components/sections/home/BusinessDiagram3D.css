@@ -1,0 +1,352 @@
+/* === 3D DIAGRAM WRAPPER === */
+.diagram3d-wrapper {
+  position: relative;
+  width: 100%;
+  padding: 20px 0 40px;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.diagram3d-wrapper.diagram3d-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.diagram3d-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-tertiary, #999);
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+/* === VIEWPORT === */
+.diagram3d-viewport {
+  width: 100%;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+/* === 3D SCENE === */
+.diagram3d-scene {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  transform-style: preserve-3d;
+  cursor: grab;
+  transition: transform 0.05s linear;
+}
+
+/* === NODE POSITIONING === */
+.diagram3d-node {
+  position: absolute;
+  transform-style: preserve-3d;
+  opacity: 0;
+  animation: nodeAppear 0.6s ease forwards;
+  animation-delay: var(--delay, 0s);
+}
+.diagram3d-visible .diagram3d-node {
+  opacity: 0;
+  animation: nodeAppear 0.6s ease forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes nodeAppear {
+  from { opacity: 0; transform: translateZ(-40px) scale(0.8); }
+  to { opacity: 1; transform: translateZ(0) scale(1); }
+}
+
+/* Center - GCSS */
+.node-gcss {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+/* Top - Server */
+.node-server {
+  left: 50%;
+  top: 5%;
+  transform: translate(-50%, 0);
+}
+/* Left - Driver */
+.node-driver {
+  left: 5%;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+/* Bottom - Charger */
+.node-charger {
+  left: 50%;
+  bottom: 5%;
+  transform: translate(-50%, 0);
+}
+/* Right - CPO */
+.node-cpo {
+  right: 5%;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+/* === 3D NODE BODY === */
+.node-3d-body {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+.node-3d-body:hover {
+  transform: translateZ(12px);
+}
+
+/* Top face of the 3D box */
+.node-3d-top {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  transform: translateZ(20px);
+}
+.node-gcss .node-3d-top {
+  background: linear-gradient(135deg, var(--primary, #F57C00), #FF9800);
+  box-shadow: 0 0 30px rgba(245, 124, 0, 0.3);
+}
+.node-server .node-3d-top {
+  background: linear-gradient(135deg, #5C6BC0, #7986CB);
+  box-shadow: 0 0 20px rgba(92, 107, 192, 0.3);
+}
+.node-driver .node-3d-top {
+  background: linear-gradient(135deg, #26A69A, #4DB6AC);
+  box-shadow: 0 0 20px rgba(38, 166, 154, 0.3);
+}
+.node-charger .node-3d-top {
+  background: linear-gradient(135deg, #42A5F5, #64B5F6);
+  box-shadow: 0 0 20px rgba(66, 165, 245, 0.3);
+}
+.node-cpo .node-3d-top {
+  background: linear-gradient(135deg, #AB47BC, #CE93D8);
+  box-shadow: 0 0 20px rgba(171, 71, 188, 0.3);
+}
+
+/* Front face */
+.node-3d-front {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 24px;
+  min-width: 110px;
+  border-radius: 14px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: var(--glass-bg, rgba(255,255,255,0.85));
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.2));
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  z-index: 2;
+}
+
+[data-theme="dark"] .node-3d-front,
+.dark .node-3d-front {
+  background: rgba(39, 35, 32, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.node-gcss .node-3d-front {
+  min-width: 140px;
+  padding: 24px 28px;
+}
+
+.node-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.node-gcss .node-icon {
+  background: rgba(245, 124, 0, 0.12);
+  color: var(--primary, #F57C00);
+}
+.node-server .node-icon {
+  background: rgba(92, 107, 192, 0.12);
+  color: #5C6BC0;
+}
+.node-driver .node-icon {
+  background: rgba(38, 166, 154, 0.12);
+  color: #26A69A;
+}
+.node-charger .node-icon {
+  background: rgba(66, 165, 245, 0.12);
+  color: #42A5F5;
+}
+.node-cpo .node-icon {
+  background: rgba(171, 71, 188, 0.12);
+  color: #AB47BC;
+}
+
+.node-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary, #1a1a1a);
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+/* === CONNECTION LINES === */
+.diagram3d-line {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.line-money {
+  stroke: #FF9800;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  opacity: 0.6;
+}
+.line-data {
+  stroke: #42A5F5;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  opacity: 0.6;
+}
+
+.particle-money { fill: #FF9800; }
+.particle-data { fill: #42A5F5; }
+
+/* Line positioning */
+.line-driver-charger {
+  left: 12%;
+  bottom: 15%;
+  width: 30%;
+  height: 30%;
+  transform: rotate(45deg);
+}
+.line-charger-gcss {
+  left: 35%;
+  top: 42%;
+  width: 20%;
+  height: 20%;
+  transform: rotate(-30deg);
+}
+.line-gcss-server {
+  left: 42%;
+  top: 15%;
+  width: 20%;
+  height: 20%;
+  transform: rotate(-80deg);
+}
+.line-cpo-gcss {
+  right: 18%;
+  top: 42%;
+  width: 20%;
+  height: 20%;
+  transform: rotate(150deg);
+}
+.line-driver-cpo {
+  left: 20%;
+  top: 15%;
+  width: 60%;
+  height: 10%;
+}
+
+/* Line labels */
+.line-label {
+  position: absolute;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+}
+.label-driver-charger {
+  left: 15%;
+  bottom: 30%;
+  color: #FF9800;
+  background: rgba(245, 124, 0, 0.1);
+}
+.label-charger-gcss {
+  left: 35%;
+  top: 58%;
+  color: #42A5F5;
+  background: rgba(66, 165, 245, 0.1);
+}
+.label-gcss-server {
+  left: 40%;
+  top: 22%;
+  color: #42A5F5;
+  background: rgba(66, 165, 245, 0.1);
+}
+.label-cpo-gcss {
+  right: 22%;
+  top: 42%;
+  color: #FF9800;
+  background: rgba(245, 124, 0, 0.1);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .diagram3d-scene {
+    width: 360px;
+    height: 360px;
+  }
+  .diagram3d-viewport {
+    min-height: 400px;
+  }
+  .node-3d-front {
+    padding: 14px 16px;
+    min-width: 85px;
+  }
+  .node-gcss .node-3d-front {
+    min-width: 110px;
+    padding: 18px 20px;
+  }
+  .node-icon {
+    width: 38px;
+    height: 38px;
+  }
+  .node-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .node-label {
+    font-size: 0.75rem;
+  }
+  .line-label {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .diagram3d-scene {
+    width: 300px;
+    height: 300px;
+  }
+  .diagram3d-viewport {
+    min-height: 340px;
+  }
+  .node-3d-front {
+    padding: 10px 12px;
+    min-width: 70px;
+  }
+  .node-gcss .node-3d-front {
+    min-width: 90px;
+    padding: 14px 16px;
+  }
+  .node-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .node-label {
+    font-size: 0.65rem;
+  }
+}

@@ -26,15 +26,17 @@
     "stat3": "Countries"
   },
   "businessFlow": {
-    "label": "Business Flow",
-    "title": "Self-Operated Business Flow",
-    "desc": "A seamless charging experience from user to charger",
-    "user": "User",
-    "userDesc": "Scan QR code via H5 or APP to pay",
-    "merchant": "Charging Merchant",
-    "merchantDesc": "Select from different charging operators",
-    "pile": "Charging Pile",
-    "pileDesc": "Start charging on the corresponding charger",
+    "label": "Platform Architecture",
+    "title": "How GCSS Connects Everything",
+    "desc": "An interactive overview of how drivers, chargers, operators, and the GCSS platform work together",
+    "dragHint": "Drag to rotate the diagram",
+    "gcss": "GCSS Platform",
+    "server": "Server",
+    "driver": "Driver",
+    "charger": "EV Charger",
+    "cpo": "CPO",
+    "money": "Payment",
+    "data": "Data",
     "cta": "Learn More About Products"
   },
   "models": {
