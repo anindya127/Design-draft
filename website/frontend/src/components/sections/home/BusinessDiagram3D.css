@@ -27,6 +27,7 @@
   align-items: center;
   justify-content: center;
   overflow: visible;
+  perspective: 1200px;
 }
 
 /* === 3D SCENE === */
@@ -39,55 +40,22 @@
   transition: transform 0.05s linear;
 }
 
-/* === NODE POSITIONING === */
+/* === NODES - absolute positioned by inline style (left/top) === */
 .diagram3d-node {
   position: absolute;
+  transform: translate(-50%, -50%);
   transform-style: preserve-3d;
   opacity: 0;
-  animation: nodeAppear 0.6s ease forwards;
-  animation-delay: var(--delay, 0s);
+  z-index: 5;
 }
 .diagram3d-visible .diagram3d-node {
-  opacity: 0;
   animation: nodeAppear 0.6s ease forwards;
   animation-delay: var(--delay, 0s);
 }
 
 @keyframes nodeAppear {
-  from { opacity: 0; transform: translateZ(-40px) scale(0.8); }
-  to { opacity: 1; transform: translateZ(0) scale(1); }
-}
-
-/* Center - GCSS */
-.node-gcss {
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-}
-/* Top - Server */
-.node-server {
-  left: 50%;
-  top: 5%;
-  transform: translate(-50%, 0);
-}
-/* Left - Driver */
-.node-driver {
-  left: 5%;
-  top: 50%;
-  transform: translate(0, -50%);
-}
-/* Bottom - Charger */
-.node-charger {
-  left: 50%;
-  bottom: 5%;
-  transform: translate(-50%, 0);
-}
-/* Right - CPO */
-.node-cpo {
-  right: 5%;
-  top: 50%;
-  transform: translate(0, -50%);
+  from { opacity: 0; transform: translate(-50%, -50%) translateZ(-40px) scale(0.8); }
+  to { opacity: 1; transform: translate(-50%, -50%) translateZ(0) scale(1); }
 }
 
 /* === 3D NODE BODY === */
@@ -198,97 +166,71 @@
   letter-spacing: 0.2px;
 }
 
-/* === CONNECTION LINES === */
-.diagram3d-line {
+/* === CONNECTION LINES (HTML divs) === */
+.diagram3d-conn {
   position: absolute;
-  overflow: visible;
+  height: 2px;
   pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+.conn-data {
+  background: repeating-linear-gradient(
+    90deg,
+    #42A5F5 0px, #42A5F5 8px,
+    transparent 8px, transparent 13px
+  );
+  opacity: 0.5;
+}
+.conn-money {
+  background: repeating-linear-gradient(
+    90deg,
+    #FF9800 0px, #FF9800 8px,
+    transparent 8px, transparent 13px
+  );
+  opacity: 0.5;
 }
 
-.line-money {
-  stroke: #FF9800;
-  stroke-width: 2;
-  stroke-dasharray: 6 4;
-  opacity: 0.6;
-}
-.line-data {
-  stroke: #42A5F5;
-  stroke-width: 2;
-  stroke-dasharray: 6 4;
-  opacity: 0.6;
-}
-
-.particle-money { fill: #FF9800; }
-.particle-data { fill: #42A5F5; }
-
-/* Line positioning */
-.line-driver-charger {
-  left: 12%;
-  bottom: 15%;
-  width: 30%;
-  height: 30%;
-  transform: rotate(45deg);
-}
-.line-charger-gcss {
-  left: 35%;
-  top: 42%;
-  width: 20%;
-  height: 20%;
-  transform: rotate(-30deg);
-}
-.line-gcss-server {
-  left: 42%;
-  top: 15%;
-  width: 20%;
-  height: 20%;
-  transform: rotate(-80deg);
-}
-.line-cpo-gcss {
-  right: 18%;
-  top: 42%;
-  width: 20%;
-  height: 20%;
-  transform: rotate(150deg);
-}
-.line-driver-cpo {
-  left: 20%;
-  top: 15%;
-  width: 60%;
-  height: 10%;
-}
-
-/* Line labels */
-.line-label {
+/* Animated particle traveling along the line */
+.conn-particle {
   position: absolute;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: particleMove 2s linear infinite;
+}
+.particle-data {
+  background: #42A5F5;
+  box-shadow: 0 0 8px #42A5F5;
+}
+.particle-money {
+  background: #FF9800;
+  box-shadow: 0 0 8px #FF9800;
+}
+
+@keyframes particleMove {
+  0% { left: 0%; }
+  100% { left: calc(100% - 8px); }
+}
+
+/* Connection labels */
+.conn-label {
+  position: absolute;
+  transform: translate(-50%, -20px);
   font-size: 0.7rem;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 8px;
   white-space: nowrap;
   pointer-events: none;
-  z-index: 5;
+  z-index: 3;
 }
-.label-driver-charger {
-  left: 15%;
-  bottom: 30%;
-  color: #FF9800;
-  background: rgba(245, 124, 0, 0.1);
-}
-.label-charger-gcss {
-  left: 35%;
-  top: 58%;
+.conn-label-data {
   color: #42A5F5;
   background: rgba(66, 165, 245, 0.1);
 }
-.label-gcss-server {
-  left: 40%;
-  top: 22%;
-  color: #42A5F5;
-  background: rgba(66, 165, 245, 0.1);
-}
-.label-cpo-gcss {
-  right: 22%;
-  top: 42%;
+.conn-label-money {
   color: #FF9800;
   background: rgba(245, 124, 0, 0.1);
 }
@@ -298,6 +240,7 @@
   .diagram3d-scene {
     width: 360px;
     height: 360px;
+    transform: scale(0.72) rotateX(-20deg) rotateZ(45deg);
   }
   .diagram3d-viewport {
     min-height: 400px;
@@ -321,7 +264,7 @@
   .node-label {
     font-size: 0.75rem;
   }
-  .line-label {
+  .conn-label {
     font-size: 0.6rem;
   }
 }
@@ -330,6 +273,7 @@
   .diagram3d-scene {
     width: 300px;
     height: 300px;
+    transform: scale(0.6) rotateX(-20deg) rotateZ(45deg);
   }
   .diagram3d-viewport {
     min-height: 340px;
