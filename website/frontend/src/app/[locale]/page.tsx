@@ -377,13 +377,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </ul>
               </div>
               <div className="image-container">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/analytics.jpg"
-                  alt="Data Analytics Dashboard"
-                  className="ai-image"
-                  style={{ aspectRatio: '4/3' }}
-                />
+                <div className="ai-image" style={{ aspectRatio: '4/3', background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 16, color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
               </div>
             </div>
           </ScrollAnimation>
@@ -402,13 +396,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </ul>
               </div>
               <div className="image-container">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/mobile-app.jpg"
-                  alt="Mobile App Experience"
-                  className="ai-image"
-                  style={{ aspectRatio: '4/3' }}
-                />
+                <div className="ai-image" style={{ aspectRatio: '4/3', background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 16, color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
               </div>
             </div>
           </ScrollAnimation>
@@ -528,12 +516,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </ScrollAnimation>
           <ScrollAnimation>
             <div className="map-container" style={{ background: 'linear-gradient(135deg, #0B1120 0%, #1a1a3e 50%, #0B1120 100%)' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/global-expansion.jpg"
-                alt="World Map"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4, position: 'absolute', inset: 0 }}
-              />
+              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, rgba(26,26,62,0.4), rgba(11,17,32,0.4))', position: 'absolute', inset: 0 }} />
               <div className="map-placeholder-text" style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
                 <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white', marginBottom: 8 }}>100+</div>
                 <div style={{ color: '#94A3B8' }}>Countries &amp; Growing</div>

@@ -31,11 +31,7 @@ export default function LoginPage() {
       {/* Left: Visual Side */}
       <div className="auth-visual auth-visual-gradient">
         <div className="auth-visual-content">
-          <img
-            src="/images/ev-charging.jpg"
-            alt="EV Charging"
-            style={{ width: '100%', maxWidth: 400, borderRadius: 16, boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
-          />
+          <div style={{ width: '100%', maxWidth: 400, aspectRatio: '4/3', borderRadius: 16, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
           <h2>{t('login.visual.title')}</h2>
           <div className="auth-visual-qr">
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none">

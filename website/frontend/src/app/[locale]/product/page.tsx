@@ -218,7 +218,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
             <div style={{ marginTop: 80 }}>
               <div className="feature-row">
                 <div className="feature-image-placeholder">
-                  <img src="/images/dashboard-ui.jpg" alt="Dashboard UI" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit', position: 'absolute', top: 0, left: 0, zIndex: 1 }} />
+                  <div style={{ width: '100%', height: '100%', borderRadius: 'inherit', position: 'absolute', top: 0, left: 0, zIndex: 1, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)' }} />
                   <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 20 }}>
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ margin: '0 auto 12px' }}>
                       <rect width="48" height="48" rx="12" fill="rgba(255,255,255,0.1)" />
@@ -415,7 +415,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
             <div style={{ marginTop: 80 }}>
               <div className="feature-row">
                 <div className="feature-image-placeholder">
-                  <img src="/images/mobile-app.jpg" alt="Mobile App" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit', position: 'absolute', top: 0, left: 0, zIndex: 1 }} />
+                  <div style={{ width: '100%', height: '100%', borderRadius: 'inherit', position: 'absolute', top: 0, left: 0, zIndex: 1, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)' }} />
                   <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 20 }}>
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ margin: '0 auto 12px' }}>
                       <rect x="12" y="4" width="24" height="40" rx="4" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" />
@@ -461,7 +461,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
             <div style={{ marginTop: 40 }}>
               <div className="feature-row reverse">
                 <div className="feature-image-placeholder">
-                  <img src="/images/analytics.jpg" alt="Smart Analytics" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit', position: 'absolute', top: 0, left: 0, zIndex: 1 }} />
+                  <div style={{ width: '100%', height: '100%', borderRadius: 'inherit', position: 'absolute', top: 0, left: 0, zIndex: 1, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)' }} />
                   <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 20 }}>
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ margin: '0 auto 12px' }}>
                       <rect width="48" height="48" rx="12" fill="rgba(255,255,255,0.1)" />

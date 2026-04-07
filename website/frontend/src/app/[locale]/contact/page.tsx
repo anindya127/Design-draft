@@ -173,7 +173,7 @@ export default function ContactPage() {
                 </div>
 
                 <div style={{ marginTop: 32 }}>
-                  <img src="/images/office-team.jpg" alt="Our Team" style={{ width: '100%', borderRadius: 16, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }} />
+                  <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: 16, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
                 </div>
               </div>
 
@@ -258,21 +258,21 @@ export default function ContactPage() {
 
               <div className="offices-grid">
                 <div className="office-card">
-                  <img src="/images/hong-kong.jpg" alt="Hong Kong" className="office-img" />
+                  <div className="office-img" style={{ background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
                   <div className="office-info">
                     <h4>{t('contact.office.hk.title')}</h4>
                     <p>{t('contact.office.hk.desc')}</p>
                   </div>
                 </div>
                 <div className="office-card">
-                  <img src="/images/shenzhen.jpg" alt="Shenzhen" className="office-img" />
+                  <div className="office-img" style={{ background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
                   <div className="office-info">
                     <h4>{t('contact.office.cn.title')}</h4>
                     <p>{t('contact.office.cn.desc')}</p>
                   </div>
                 </div>
                 <div className="office-card">
-                  <img src="/images/southeast-asia.jpg" alt="Southeast Asia" className="office-img" />
+                  <div className="office-img" style={{ background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
                   <div className="office-info">
                     <h4>{t('contact.office.sea.title')}</h4>
                     <p>{t('contact.office.sea.desc')}</p>
