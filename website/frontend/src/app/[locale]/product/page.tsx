@@ -494,10 +494,6 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
                       <CheckIcon />
                       <span>{t('product.ops.li4')}</span>
                     </li>
-                    <li>
-                      <CheckIcon />
-                      <span>{t('product.ops.li5')}</span>
-                    </li>
                   </ul>
                 </div>
               </div>
