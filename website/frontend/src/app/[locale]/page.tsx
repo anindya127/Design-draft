@@ -149,6 +149,23 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
+      {/* EV Charger Manufacturers Bar */}
+      <section className="trusted-bar">
+        <div className="container">
+          <p className="trusted-label">{t('manufacturers.label')}</p>
+          <div className="marquee">
+  <div className="marquee-track marquee-track-reverse">
+    {['Star Charge', 'TELD', 'YKC', 'Sinexcel', 'EN+', 'KSTAR', 'Winline', 'UUGreenPower', 'Growatt', 'Infypower', 'Pilot', 'Hopewind'].map((name) => (
+      <span key={name} className="marquee-item">{name}</span>
+    ))}
+    {['Star Charge', 'TELD', 'YKC', 'Sinexcel', 'EN+', 'KSTAR', 'Winline', 'UUGreenPower', 'Growatt', 'Infypower', 'Pilot', 'Hopewind'].map((name) => (
+      <span key={`${name}-dup`} className="marquee-item">{name}</span>
+    ))}
+  </div>
+</div>
+        </div>
+      </section>
+
       {/* Platform Architecture Section - 3D Diagram */}
       <section className="section" id="business-flow">
         <div className="container">

@@ -144,6 +144,9 @@
   "trusted": {
     "label": "深受全球领先运营商信赖"
   },
+  "manufacturers": {
+    "label": "兼容中国顶级充电桩制造商"
+  },
   "steps": {
     "label": "使用流程",
     "title": "3 步快速上线",

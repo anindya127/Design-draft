@@ -144,6 +144,9 @@
   "trusted": {
     "label": "Trusted by leading operators worldwide"
   },
+  "manufacturers": {
+    "label": "Compatible with top EV charger manufacturers in China"
+  },
   "steps": {
     "label": "How It Works",
     "title": "Go Live in 3 Simple Steps",
