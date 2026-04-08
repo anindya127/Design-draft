@@ -35,14 +35,14 @@ const nodeColors: Record<string, string> = {
   server: '#10b981', operator: '#a78bfa', admin: '#f59e0b',
 };
 
-const nodeDescs: Record<string, string> = {
-  user: 'Initiates charging session via QR scan. Receives status updates from server.',
-  qr: 'QR code scanned by the user to identify and connect to the charger.',
-  hardware: 'Physical EV charging unit. Communicates power delivery data to the server.',
-  server: 'Central orchestration engine. Manages authentication, sessions, and data routing.',
-  operator: 'Charge Point Operator. Manages infrastructure and receives revenue flows.',
-  admin: 'Super Admin layer. Oversees multiple CPOs and global system health.',
-};
+/* ── i18n labels/descs passed as props ──── */
+interface I18nStrings {
+  labels: Record<string, string>;
+  descs: Record<string, string>;
+  dataFlow: string;
+  revenueFlow: string;
+  sysViz: string;
+}
 
 /* ── Theme detection ──────────────────────── */
 function useIsDark() {
@@ -70,7 +70,7 @@ function useWindowWidth() {
 }
 
 /* ── D3 Diagram ────────────────────────────── */
-function DiagramCanvas({ type }: { type: 'B2C' | 'B2B' }) {
+function DiagramCanvas({ type, i18n }: { type: 'B2C' | 'B2B'; i18n: I18nStrings }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const isDark = useIsDark();
@@ -102,21 +102,22 @@ function DiagramCanvas({ type }: { type: 'B2C' | 'B2B' }) {
     const shadowFilter = isDark ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' : 'drop-shadow(0 4px 12px rgba(0,0,0,0.1))';
 
     // Nodes
+    const L = i18n.labels;
     const nodes: Node[] = type === 'B2C' ? [
-      { id: 'user', label: 'User / Driver', type: 'user' },
-      { id: 'qr', label: 'QR Code', type: 'qr' },
-      { id: 'charger', label: 'EV Charger', type: 'hardware' },
-      { id: 'server', label: 'Server', type: 'server' },
+      { id: 'user', label: L.user, type: 'user' },
+      { id: 'qr', label: L.qr, type: 'qr' },
+      { id: 'charger', label: L.charger, type: 'hardware' },
+      { id: 'server', label: L.server, type: 'server' },
       { id: 'cpo', label: 'CPO', type: 'operator' },
     ] : [
-      { id: 'user', label: 'User / Driver', type: 'user' },
-      { id: 'qr', label: 'QR Code', type: 'qr' },
-      { id: 'charger', label: 'EV Charger', type: 'hardware' },
-      { id: 'server', label: 'Server', type: 'server' },
+      { id: 'user', label: L.user, type: 'user' },
+      { id: 'qr', label: L.qr, type: 'qr' },
+      { id: 'charger', label: L.charger, type: 'hardware' },
+      { id: 'server', label: L.server, type: 'server' },
       { id: 'cpo1', label: 'CPO 1', type: 'operator' },
       { id: 'cpo2', label: 'CPO 2', type: 'operator' },
       { id: 'cpo3', label: 'CPO 3', type: 'operator' },
-      { id: 'admin', label: 'Super Admin', type: 'admin' },
+      { id: 'admin', label: L.admin, type: 'admin' },
     ];
 
     const links: Link[] = type === 'B2C' ? [
@@ -282,7 +283,7 @@ function DiagramCanvas({ type }: { type: 'B2C' | 'B2B' }) {
     });
 
     return () => { simulation.stop(); particles.interrupt(); };
-  }, [type, isDark, isMobile, isSmall]);
+  }, [type, isDark, isMobile, isSmall, i18n.labels.user]);
 
   return (
     <div className="dia-container">
@@ -293,7 +294,7 @@ function DiagramCanvas({ type }: { type: 'B2C' | 'B2B' }) {
           <div className="dia-title-dot" />
           <h4>{type === 'B2C' ? 'B2C_ECOSYSTEM' : 'B2B_ENTERPRISE'}</h4>
         </div>
-        <p>System Architecture Visualization</p>
+        <p>{i18n.sysViz}</p>
       </div>
 
       <svg ref={svgRef} style={{ width: '100%', height: '100%' }} />
@@ -301,11 +302,11 @@ function DiagramCanvas({ type }: { type: 'B2C' | 'B2B' }) {
       <div className="dia-legend">
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6' }} />
-          <span>Data Flow</span>
+          <span>{i18n.dataFlow}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
-          <span>Revenue Flow</span>
+          <span>{i18n.revenueFlow}</span>
         </div>
       </div>
 
@@ -327,7 +328,7 @@ function DiagramCanvas({ type }: { type: 'B2C' | 'B2B' }) {
             <div className="dia-popup-bar">
               <motion.div style={{ height: '100%', background: nodeColors[selectedNode.type] }} initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ duration: 0.8 }} />
             </div>
-            <p className="dia-popup-desc">{nodeDescs[selectedNode.type] || ''}</p>
+            <p className="dia-popup-desc">{i18n.descs[selectedNode.type] || ''}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -343,6 +344,27 @@ export default function BusinessDiagram3D() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [tab, setTab] = useState<'B2C' | 'B2B'>('B2C');
+
+  const i18n: I18nStrings = {
+    labels: {
+      user: t('driver'),
+      qr: t('qrCode'),
+      charger: t('charger'),
+      server: t('server'),
+      admin: t('superAdmin'),
+    },
+    descs: {
+      user: t('descUser'),
+      qr: t('descQr'),
+      hardware: t('descCharger'),
+      server: t('descServer'),
+      operator: t('descCpo'),
+      admin: t('descAdmin'),
+    },
+    dataFlow: t('dataFlow'),
+    revenueFlow: t('revenueFlow'),
+    sysViz: t('sysViz'),
+  };
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.1 });
@@ -379,7 +401,7 @@ export default function BusinessDiagram3D() {
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             style={{ position: 'relative', zIndex: 1 }}
           >
-            <DiagramCanvas type={tab} />
+            <DiagramCanvas type={tab} i18n={i18n} />
           </motion.div>
         </AnimatePresence>
       </div>

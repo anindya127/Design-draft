@@ -41,6 +41,15 @@
     "scan": "Scan",
     "b2cModel": "B2C Model",
     "b2b2cModel": "B2B2C Model",
+    "dataFlow": "Data Flow",
+    "revenueFlow": "Revenue Flow",
+    "sysViz": "System Architecture Visualization",
+    "descUser": "Initiates charging session via QR scan. Receives status updates from server.",
+    "descQr": "QR code scanned by the user to identify and connect to the charger.",
+    "descCharger": "Physical EV charging unit. Communicates power delivery data to the server.",
+    "descServer": "Central orchestration engine. Manages authentication, sessions, and data routing.",
+    "descCpo": "Charge Point Operator. Manages infrastructure and receives revenue flows.",
+    "descAdmin": "Super Admin layer. Oversees multiple CPOs and global system health.",
     "cta": "Learn More About Products"
   },
   "models": {

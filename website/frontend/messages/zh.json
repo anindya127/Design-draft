@@ -41,6 +41,15 @@
     "scan": "扫码",
     "b2cModel": "B2C 模式",
     "b2b2cModel": "B2B2C 模式",
+    "dataFlow": "数据流",
+    "revenueFlow": "收益流",
+    "sysViz": "系统架构可视化",
+    "descUser": "通过扫码发起充电会话，从服务器接收状态更新。",
+    "descQr": "用户扫描二维码以识别并连接到充电桩。",
+    "descCharger": "物理充电设备，将充电数据传输至服务器。",
+    "descServer": "中央调度引擎，管理认证、会话和数据路由。",
+    "descCpo": "充电桩运营商，管理基础设施并接收收益。",
+    "descAdmin": "超级管理员，监管多个 CPO 及全局系统运行。",
     "cta": "了解更多产品"
   },
   "models": {
