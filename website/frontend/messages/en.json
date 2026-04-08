@@ -330,7 +330,7 @@
     },
     "ff1": {
       "title": "Instant Scan to Start",
-      "desc": "Users scan a QR code and begin charging instantly. No app download required with H5 web support."
+      "desc": "Users scan a QR code and begin charging instantly."
     },
     "ff2": {
       "title": "Smart Health Monitor",
