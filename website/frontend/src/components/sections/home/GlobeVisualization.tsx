@@ -78,7 +78,7 @@ export default function GlobeVisualization() {
 
     // Projection
     const projection = d3.geoOrthographic()
-      .scale(Math.min(w, h) / 2.3)
+      .scale(Math.min(w, h) / 1.7)
       .center([0, 0])
       .translate([w / 2, h / 2])
       .clipAngle(90);
