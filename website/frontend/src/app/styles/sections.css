@@ -9,6 +9,18 @@
   padding: 120px 0 100px;
 }
 
+/* Hero themed background */
+.hero-themed-bg {
+  background-image: url(/images/hero_liht.png);
+  background-position: center 40%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+[data-theme="dark"] .hero-themed-bg {
+  background-image: url(/images/hero-dark.png);
+}
+
 /* Hero EV Charging Illustration */
 .hero-illustration {
   position: absolute;

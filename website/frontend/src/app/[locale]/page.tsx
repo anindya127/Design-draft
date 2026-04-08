@@ -36,7 +36,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <>
       {/* Hero Section */}
-      <section className="hero" style={{ backgroundImage: 'url(/images/hero-bg.webp)', backgroundPosition: 'center 40%', backgroundRepeat: 'no-repeat' }}>
+      <section className="hero hero-themed-bg">
         <div className="container">
           <div className="hero-content hero-split">
             <div className="hero-text">
