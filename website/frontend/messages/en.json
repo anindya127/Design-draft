@@ -67,19 +67,19 @@
     },
     "f2": {
       "title": "Smart Rate Management",
-      "desc": "Flexible TOU pricing strategies. Define peak/off-peak rates to maximize revenue while optimizing grid load."
+      "desc": "Flexible time-of-use pricing strategies. Customize rates to easily boost revenue during peak hours."
     },
     "f3": {
       "title": "Fault Alerts",
-      "desc": "Automatic fault detection for network outages, overcurrent, and hardware failures. Instant push notifications."
+      "desc": "Automatic fault detection for network outages and hardware failures. Instant push notifications to admins."
     },
     "f4": {
       "title": "RFID Card Support",
-      "desc": "Issue VIP or fleet RFID cards. Manage account balances and track offline consumption records."
+      "desc": "Issue VIP or fleet RFID cards. Easily manage account balances."
     },
     "f5": {
       "title": "OTA Firmware Updates",
-      "desc": "Remotely upgrade charger firmware. Keep your entire network on the latest version without physical intervention."
+      "desc": "Remote charger firmware upgrades with no manual intervention. Simpler update operations."
     },
     "f6": {
       "title": "Analytics Dashboard",
