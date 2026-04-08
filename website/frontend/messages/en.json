@@ -457,7 +457,21 @@
     "changelog": {
       "label": "Changelog",
       "title": "Release History",
-      "desc": "Stay up to date with the latest improvements and features."
+      "desc": "Stay up to date with the latest improvements and features.",
+      "r1date": "February 26, 2026",
+      "r1title": "GCSS 3.0.1",
+      "r1f1": "Resolved WebSocket reconnection issue for OCPP connections",
+      "r1f2": "Added support for Thai and Khmer languages",
+      "r1f3": "Improved dashboard loading performance by 40%",
+      "r1f4": "Fixed payment callback handling for GrabPay",
+      "r2date": "January 16, 2026",
+      "r2title": "GCSS 3.0.0",
+      "r2f1": "Major platform redesign with new UI/UX",
+      "r2f2": "Multi-tenant B2B2C architecture support",
+      "r2f3": "OCPP Visual Command interface",
+      "r2f4": "Smart fault prediction engine",
+      "r2f5": "Expanded payment support to 100+ currencies",
+      "r2f6": "Added 10+ new language translations"
     },
     "gallery": {
       "label": "Gallery",

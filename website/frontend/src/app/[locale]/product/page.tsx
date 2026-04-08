@@ -581,44 +581,44 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
           <ScrollAnimation>
             <div className="timeline" style={{ maxWidth: 700, margin: '0 auto' }}>
               <div className="timeline-item">
-                <div className="timeline-date">February 26, 2026</div>
-                <div className="timeline-title" style={{ color: 'var(--white)' }}>GCSS 3.0.1</div>
+                <div className="timeline-date">{t('product.changelog.r1date')}</div>
+                <div className="timeline-title" style={{ color: 'var(--white)' }}>{t('product.changelog.r1title')}</div>
                 <ul style={{ marginTop: 12, paddingLeft: 0 }}>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#10B981', fontWeight: 700, flexShrink: 0 }}>FIX</span> Resolved WebSocket reconnection issue for OCPP connections
+                    <span style={{ color: '#10B981', fontWeight: 700, flexShrink: 0 }}>FIX</span> {t('product.changelog.r1f1')}
                   </li>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> Added support for Thai and Khmer languages
+                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> {t('product.changelog.r1f2')}
                   </li>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#F59E0B', fontWeight: 700, flexShrink: 0 }}>UPD</span> Improved dashboard loading performance by 40%
+                    <span style={{ color: '#F59E0B', fontWeight: 700, flexShrink: 0 }}>UPD</span> {t('product.changelog.r1f3')}
                   </li>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#10B981', fontWeight: 700, flexShrink: 0 }}>FIX</span> Fixed payment callback handling for GrabPay
+                    <span style={{ color: '#10B981', fontWeight: 700, flexShrink: 0 }}>FIX</span> {t('product.changelog.r1f4')}
                   </li>
                 </ul>
               </div>
               <div className="timeline-item">
-                <div className="timeline-date">January 16, 2026</div>
-                <div className="timeline-title" style={{ color: 'var(--white)' }}>GCSS 3.0.0</div>
+                <div className="timeline-date">{t('product.changelog.r2date')}</div>
+                <div className="timeline-title" style={{ color: 'var(--white)' }}>{t('product.changelog.r2title')}</div>
                 <ul style={{ marginTop: 12, paddingLeft: 0 }}>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> Major platform redesign with new UI/UX
+                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> {t('product.changelog.r2f1')}
                   </li>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> Multi-tenant B2B2C architecture support
+                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> {t('product.changelog.r2f2')}
                   </li>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> OCPP Visual Command interface
+                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> {t('product.changelog.r2f3')}
                   </li>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> Smart fault prediction engine
+                    <span style={{ color: '#E6A817', fontWeight: 700, flexShrink: 0 }}>NEW</span> {t('product.changelog.r2f4')}
                   </li>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#F59E0B', fontWeight: 700, flexShrink: 0 }}>UPD</span> Expanded payment support to 150+ currencies
+                    <span style={{ color: '#F59E0B', fontWeight: 700, flexShrink: 0 }}>UPD</span> {t('product.changelog.r2f5')}
                   </li>
                   <li style={{ padding: '4px 0', fontSize: '0.9rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: '#F59E0B', fontWeight: 700, flexShrink: 0 }}>UPD</span> Added 10+ new language translations
+                    <span style={{ color: '#F59E0B', fontWeight: 700, flexShrink: 0 }}>UPD</span> {t('product.changelog.r2f6')}
                   </li>
                 </ul>
               </div>
