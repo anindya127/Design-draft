@@ -81,7 +81,17 @@
       "Bash(npm uninstall:*)",
       "Bash(find:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(apt-get install:*)",
+      "Bash(pacman -S sshpass)",
+      "Bash(choco install:*)",
+      "Bash(NEXT_FONT_GOOGLE_MOCKED=1 npx next build)",
+      "Bash(rm -f public/images/ev-charging.jpg public/images/dashboard-ui.jpg public/images/mobile-app.jpg public/images/office-team.jpg public/images/shenzhen.jpg public/images/southeast-asia.jpg public/images/revenue-models.jpg public/images/global-expansion.jpg public/images/analytics.jpg public/images/hong-kong.jpg public/images/hero-ev-charging.png)",
+      "Bash(rm -f out/images/ev-charging.jpg out/images/dashboard-ui.jpg out/images/mobile-app.jpg out/images/office-team.jpg out/images/shenzhen.jpg out/images/southeast-asia.jpg out/images/revenue-models.jpg out/images/global-expansion.jpg out/images/analytics.jpg out/images/hong-kong.jpg out/images/hero-ev-charging.png)"
     ]
   }
 }

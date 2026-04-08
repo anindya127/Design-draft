@@ -74,6 +74,7 @@ async function deploy() {
     console.log('Scanning local files...');
     const files = getAllFiles(LOCAL_DIR);
     const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+    
     console.log(`Found ${files.length} files (${formatSize(totalSize)})\n`);
 
     // Upload with progress

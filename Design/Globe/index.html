@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Global Reach Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        margin: 0;
+        background-color: #020617; /* Slate 950 */
+        overflow: hidden;
+      }
+      /* Custom glowing effects */
+      .glow-text {
+        text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "d3": "https://esm.sh/d3@^7.9.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "geojson": "https://esm.sh/geojson@^0.5.0",
+    "topojson-client": "https://esm.sh/topojson-client@^3.1.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

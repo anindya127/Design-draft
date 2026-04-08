@@ -1,0 +1,5 @@
+{
+  "name": "Global Reach Visualizer",
+  "description": "A 3D interactive globe visualization demonstrating connectivity from China to various global destinations using D3.js and React.",
+  "requestFramePermissions": []
+}

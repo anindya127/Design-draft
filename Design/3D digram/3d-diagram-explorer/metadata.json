@@ -1,0 +1,5 @@
+{
+  "name": "3D Diagram Explorer",
+  "description": "Interactive 3D-styled B2C and B2B2C business model diagrams built with D3.js and React.",
+  "requestFramePermissions": []
+}
