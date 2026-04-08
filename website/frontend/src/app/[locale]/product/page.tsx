@@ -26,7 +26,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
       <SubNav />
 
       {/* ==================== Section 1: System Overview (Hero) ==================== */}
-      <section className="hero mesh-bg product-hero product-hero-bg" id="overview">
+      <section className="hero mesh-bg product-hero" id="overview">
         <div className="container">
           <div className="hero-content hero-split">
             <div className="hero-text">

@@ -18,23 +18,6 @@
   background: url(/images/hero-dark.png) center 40% / cover no-repeat !important;
 }
 
-/* B2C Product page hero background */
-.product-hero-bg {
-  position: relative;
-}
-.product-hero-bg::before {
-  content: '' !important;
-  display: block !important;
-  position: absolute;
-  inset: 0;
-  background: url(/images/b2c_bg.svg) center center / cover no-repeat;
-  opacity: 0.15;
-  z-index: 0;
-  pointer-events: none;
-}
-[data-theme="dark"] .product-hero-bg::before {
-  opacity: 0.08;
-}
 
 /* Hero EV Charging Illustration */
 .hero-illustration {
