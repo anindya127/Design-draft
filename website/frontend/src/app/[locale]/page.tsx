@@ -648,6 +648,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
+      {/* Global Map Section */}
+      <section className="map-section">
+        <div className="container">
+          <ScrollAnimation>
+            <div className="section-header">
+              <span className="section-label">{t('map.label')}</span>
+              <h2>{t('map.title')}</h2>
+              <p>{t('map.desc')}</p>
+            </div>
+          </ScrollAnimation>
+          <GlobeVisualization />
+        </div>
+      </section>
+
       {/* Multi-Language Section */}
       <section className="section">
         <div className="container">
@@ -695,20 +709,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <Link href="/product" className="btn btn-secondary">{t('lang.viewMore')}</Link>
             </div>
           </ScrollAnimation>
-        </div>
-      </section>
-
-      {/* Global Map Section */}
-      <section className="map-section">
-        <div className="container">
-          <ScrollAnimation>
-            <div className="section-header">
-              <span className="section-label">{t('map.label')}</span>
-              <h2>{t('map.title')}</h2>
-              <p>{t('map.desc')}</p>
-            </div>
-          </ScrollAnimation>
-          <GlobeVisualization />
         </div>
       </section>
 

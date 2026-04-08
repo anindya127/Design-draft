@@ -275,6 +275,8 @@ export default function GlobeVisualization() {
         borderRadius: '16px',
         overflow: 'hidden',
         background: 'radial-gradient(circle at center, #1e3a8a 0%, #020617 70%)',
+        boxShadow: '0 0 60px rgba(30, 58, 138, 0.4), 0 0 120px rgba(30, 58, 138, 0.2), 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 80px rgba(2, 6, 23, 0.5)',
+        border: '1px solid rgba(96, 165, 250, 0.15)',
       }}
     >
       {!worldData && isVisible && (
