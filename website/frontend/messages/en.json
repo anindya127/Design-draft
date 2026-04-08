@@ -148,7 +148,7 @@
   "payment": {
     "label": "Payments",
     "title": "Global Payment Matrix",
-    "desc": "150+ currencies supported with PCI-DSS certified security. Direct settlement to local bank accounts."
+    "desc": "100+ currencies supported with PCI-DSS certified security. Direct settlement to local bank accounts."
   },
   "trusted": {
     "label": "Trusted by leading operators worldwide"
@@ -309,7 +309,7 @@
     },
     "f3": {
       "title": "30+ Country Payments",
-      "desc": "Accept payments globally with support for 150+ currencies across major payment gateways and local methods."
+      "desc": "Accept payments globally with support for 100+ currencies across major payment gateways and local methods."
     },
     "f4": {
       "title": "Brand Customization",
@@ -378,7 +378,7 @@
     "pay": {
       "label": "Payments",
       "title": "Global Payment Matrix",
-      "desc": "150+ currencies supported with PCI-DSS certified security. Direct settlement to local bank accounts.",
+      "desc": "100+ currencies supported with PCI-DSS certified security. Direct settlement to local bank accounts.",
       "asia": "Asia",
       "europe": "Europe",
       "oceania": "Oceania",

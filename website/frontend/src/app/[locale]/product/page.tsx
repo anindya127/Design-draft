@@ -132,7 +132,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
               </span>
               <span className="hero-footer-label">{t('product.stat1')}</span>
-              <span className="hero-footer-value"><CounterAnimation target={3850} suffix="+" /></span>
+              <span className="hero-footer-value"><CounterAnimation target={1000} suffix="+" /></span>
             </div>
             <div className="hero-footer-divider" />
             <div className="hero-footer-stat">
@@ -140,7 +140,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>
               </span>
               <span className="hero-footer-label">{t('product.stat2')}</span>
-              <span className="hero-footer-value"><CounterAnimation target={47} suffix="+" /></span>
+              <span className="hero-footer-value"><CounterAnimation target={100} suffix="+" /></span>
             </div>
             <div className="hero-footer-divider" />
             <div className="hero-footer-stat">
@@ -148,7 +148,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
               </span>
               <span className="hero-footer-label">{t('product.stat3')}</span>
-              <span className="hero-footer-value"><CounterAnimation target={150} suffix="+" /></span>
+              <span className="hero-footer-value"><CounterAnimation target={100} suffix="+" /></span>
             </div>
           </div>
         </div>
