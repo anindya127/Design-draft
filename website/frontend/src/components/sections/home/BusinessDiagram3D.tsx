@@ -220,51 +220,51 @@ export default function BusinessDiagram3D() {
         <line x1="60" y1="338" x2="740" y2="338" stroke="var(--bf-divider, #CBD5E1)" strokeWidth="1" strokeDasharray="4 4" opacity="0.6" />
 
         {/* Money (green): Server → CPO 1 */}
-        <path id="b-sc1g" d="M 288,305 Q 215,345 162,378" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
+        <path id="b-sc1g" d="M 288,305 L 112,378" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
         <FlowDot pathId="b-sc1g" color="#10B981" dur="1.8s" />
 
         {/* Data (blue): Server → CPO 1 */}
-        <path id="b-sc1b" d="M 296,305 Q 225,345 172,378" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
+        <path id="b-sc1b" d="M 296,305 L 120,378" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
         <FlowDot pathId="b-sc1b" color="#3B82F6" dur="2s" />
 
         {/* Money: Server → CPO 2 */}
-        <path id="b-sc2g" d="M 316,305 L 336,378" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
+        <path id="b-sc2g" d="M 335,305 L 395,378" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
         <FlowDot pathId="b-sc2g" color="#10B981" dur="1.5s" />
 
         {/* Data: Server → CPO 2 */}
-        <path id="b-sc2b" d="M 326,305 L 346,378" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
+        <path id="b-sc2b" d="M 345,305 L 405,378" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
         <FlowDot pathId="b-sc2b" color="#3B82F6" dur="1.7s" />
 
         {/* Money: Server → CPO 3 */}
-        <path id="b-sc3g" d="M 354,305 Q 435,345 518,378" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
+        <path id="b-sc3g" d="M 360,305 L 628,378" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
         <FlowDot pathId="b-sc3g" color="#10B981" dur="1.8s" />
 
         {/* Data: Server → CPO 3 */}
-        <path id="b-sc3b" d="M 362,305 Q 443,345 528,378" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
+        <path id="b-sc3b" d="M 368,305 L 636,378" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
         <FlowDot pathId="b-sc3b" color="#3B82F6" dur="2s" />
 
         {/* Money: CPO 1 → Super Admin */}
-        <path id="b-ca1g" d="M 157,460 Q 225,480 298,500" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
+        <path id="b-ca1g" d="M 118,460 L 365,505" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
         <FlowDot pathId="b-ca1g" color="#10B981" dur="1.8s" />
 
         {/* Data: CPO 1 → Super Admin */}
-        <path id="b-ca1b" d="M 167,465 Q 233,485 306,505" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
+        <path id="b-ca1b" d="M 126,465 L 373,510" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
         <FlowDot pathId="b-ca1b" color="#3B82F6" dur="2s" />
 
         {/* Money: CPO 2 → Super Admin */}
-        <path id="b-ca2g" d="M 336,460 L 336,500" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
+        <path id="b-ca2g" d="M 395,460 L 395,505" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
         <FlowDot pathId="b-ca2g" color="#10B981" dur="1.2s" />
 
         {/* Data: CPO 2 → Super Admin */}
-        <path id="b-ca2b" d="M 346,460 L 346,500" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
+        <path id="b-ca2b" d="M 405,460 L 405,505" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
         <FlowDot pathId="b-ca2b" color="#3B82F6" dur="1.4s" />
 
         {/* Money: CPO 3 → Super Admin */}
-        <path id="b-ca3g" d="M 523,460 Q 450,480 382,500" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
+        <path id="b-ca3g" d="M 632,460 L 435,505" fill="none" stroke="#10B981" strokeWidth="2" markerEnd="url(#b-ag)" opacity="0.8" />
         <FlowDot pathId="b-ca3g" color="#10B981" dur="1.8s" />
 
         {/* Data: CPO 3 → Super Admin */}
-        <path id="b-ca3b" d="M 513,465 Q 442,485 374,505" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
+        <path id="b-ca3b" d="M 640,465 L 443,510" fill="none" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#b-ab)" opacity="0.8" />
         <FlowDot pathId="b-ca3b" color="#3B82F6" dur="2s" />
       </svg>
 
@@ -313,7 +313,7 @@ export default function BusinessDiagram3D() {
       {/* ── B2B2C Extension Nodes ── */}
 
       {/* CPO 1 */}
-      <div className="bf-node bf-c-purple" style={{ left: 145, top: 420, animationDelay: '0.32s' }}>
+      <div className="bf-node bf-c-purple" style={{ left: 100, top: 420, animationDelay: '0.32s' }}>
         <div className="bf-3d-top" />
         <div className="bf-3d-right" />
         <div className="bf-front">
@@ -323,7 +323,7 @@ export default function BusinessDiagram3D() {
       </div>
 
       {/* CPO 2 */}
-      <div className="bf-node bf-c-purple" style={{ left: 340, top: 420, animationDelay: '0.38s' }}>
+      <div className="bf-node bf-c-purple" style={{ left: 400, top: 420, animationDelay: '0.38s' }}>
         <div className="bf-3d-top" />
         <div className="bf-3d-right" />
         <div className="bf-front">
@@ -333,7 +333,7 @@ export default function BusinessDiagram3D() {
       </div>
 
       {/* CPO 3 */}
-      <div className="bf-node bf-c-purple" style={{ left: 535, top: 420, animationDelay: '0.44s' }}>
+      <div className="bf-node bf-c-purple" style={{ left: 650, top: 420, animationDelay: '0.44s' }}>
         <div className="bf-3d-top" />
         <div className="bf-3d-right" />
         <div className="bf-front">
@@ -343,7 +343,7 @@ export default function BusinessDiagram3D() {
       </div>
 
       {/* Super Admin */}
-      <div className="bf-node bf-c-orange" style={{ left: 340, top: 548, animationDelay: '0.52s' }}>
+      <div className="bf-node bf-c-orange" style={{ left: 400, top: 548, animationDelay: '0.52s' }}>
         <div className="bf-3d-top" />
         <div className="bf-3d-right" />
         <div className="bf-front bf-front-lg">
