@@ -90,16 +90,16 @@
     "label": "Feature Support",
     "title": "Comprehensive Feature Coverage",
     "desc": "From mobile apps to platform management, every aspect of your charging business is covered.",
+    "more": "more...",
     "app": {
-      "title": "APP",
+      "title": "APP/H5 User Client",
       "li1": "QR Code Scan to Charge",
       "li2": "RFID Card Activation",
-      "li3": "VIN Code Auto-Start",
-      "li4": "Google Maps Navigation",
-      "li5": "Multiple Login Methods",
-      "li6": "Reservation Charging",
-      "li7": "Multi-Language Switching",
-      "li8": "Push Notifications"
+      "li3": "Google Maps Navigation",
+      "li4": "Multiple Login Methods",
+      "li5": "Reservation Charging",
+      "li6": "Multi-Language Switching",
+      "li7": "Push Notifications"
     },
     "cpms": {
       "title": "CPMS",

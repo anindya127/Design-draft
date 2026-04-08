@@ -602,9 +602,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <li>{t('matrix.app.li3')}</li>
                     <li>{t('matrix.app.li4')}</li>
                     <li>{t('matrix.app.li5')}</li>
-                    <li>{t('matrix.app.li6')}</li>
-                    <li>{t('matrix.app.li7')}</li>
-                    <li>{t('matrix.app.li8')}</li>
+                    <li style={{ color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{t('matrix.more')}</li>
                   </ul>
                 </div>
               </div>
@@ -619,12 +617,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <li>{t('matrix.cpms.li3')}</li>
                     <li>{t('matrix.cpms.li4')}</li>
                     <li>{t('matrix.cpms.li5')}</li>
-                    <li>{t('matrix.cpms.li6')}</li>
-                    <li>{t('matrix.cpms.li7')}</li>
-                    <li>{t('matrix.cpms.li8')}</li>
-                    <li>{t('matrix.cpms.li9')}</li>
-                    <li>{t('matrix.cpms.li10')}</li>
-                    <li>{t('matrix.cpms.li11')}</li>
+                    <li style={{ color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{t('matrix.more')}</li>
                   </ul>
                 </div>
               </div>
@@ -639,7 +632,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <li>{t('matrix.platform.li3')}</li>
                     <li>{t('matrix.platform.li4')}</li>
                     <li>{t('matrix.platform.li5')}</li>
-                    <li>{t('matrix.platform.li6')}</li>
+                    <li style={{ color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }}>{t('matrix.more')}</li>
                   </ul>
                 </div>
               </div>
