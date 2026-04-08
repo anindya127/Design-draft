@@ -766,6 +766,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="grid grid-3">
             <ScrollAnimation>
               <div className="testimonial-card">
+                <div className="testimonial-video">
+                  <div className="testimonial-video-placeholder">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="11" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
+                      <polygon points="10,8 17,12 10,16" fill="rgba(255,255,255,0.7)" />
+                    </svg>
+                  </div>
+                </div>
                 <div className="testimonial-stars">
                   <StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon />
                 </div>
@@ -781,6 +789,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </ScrollAnimation>
             <ScrollAnimation>
               <div className="testimonial-card">
+                <div className="testimonial-video">
+                  <div className="testimonial-video-placeholder">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="11" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
+                      <polygon points="10,8 17,12 10,16" fill="rgba(255,255,255,0.7)" />
+                    </svg>
+                  </div>
+                </div>
                 <div className="testimonial-stars">
                   <StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon />
                 </div>
@@ -796,6 +812,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </ScrollAnimation>
             <ScrollAnimation>
               <div className="testimonial-card">
+                <div className="testimonial-video">
+                  <div className="testimonial-video-placeholder">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="11" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
+                      <polygon points="10,8 17,12 10,16" fill="rgba(255,255,255,0.7)" />
+                    </svg>
+                  </div>
+                </div>
                 <div className="testimonial-stars">
                   <StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon />
                 </div>
