@@ -87,7 +87,7 @@ export default function Header() {
             height={32}
             style={{ borderRadius: '8px' }}
           />
-          G<span>CSS</span>
+          <span>GCSS</span>
         </Link>
 
         <nav className={`nav${mobileOpen ? ' mobile-open' : ''}`} id="primary-navigation">
