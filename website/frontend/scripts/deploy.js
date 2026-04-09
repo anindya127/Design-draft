@@ -79,8 +79,7 @@ async function deploy() {
     try {
       await sftp.mkdir(REMOTE_DIR, true);
     } catch (e) {
-         ██████████░░░░░░░░░░░░░░░ 43% (112/258 files)
-      Size: 6.42 MB / 14.69 MB uploaded   // Directory may already exist
+      // Directory may already exist
     }
 
     // Scan local files
