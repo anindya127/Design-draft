@@ -3,7 +3,7 @@ import TypingText from '@/components/effects/TypingText';
 import CounterAnimation from '@/components/effects/CounterAnimation';
 import ScrollAnimation from '@/components/effects/ScrollAnimation';
 import { Link } from '@/i18n/navigation';
-import BusinessDiagram3D from '@/components/sections/home/BusinessDiagram3D';
+import DiagramModal from '@/components/sections/home/DiagramModal';
 import GlobeVisualization from '@/components/sections/home/GlobeVisualization';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -167,25 +167,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
-      {/* Platform Architecture Section - 3D Diagram */}
-      <section className="section" id="business-flow">
-        <div className="container">
-          <ScrollAnimation>
-            <div className="section-header">
-              <span className="section-label">{t('businessFlow.label')}</span>
-              <h2>{t('businessFlow.title')}</h2>
-              <p>{t('businessFlow.desc')}</p>
-            </div>
-          </ScrollAnimation>
-          <BusinessDiagram3D />
-          <ScrollAnimation>
-            <div style={{ textAlign: 'center', marginTop: 16 }}>
-              <Link href="/product" className="btn btn-primary">{t('businessFlow.cta')}</Link>
-            </div>
-          </ScrollAnimation>
-        </div>
-      </section>
-
       {/* Business Models Section */}
       <section className="section section-alt" id="models">
         <div className="container">
@@ -207,7 +188,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </div>
                 <h3>{t('models.b2c.title')}</h3>
                 <p>{t('models.b2c.desc')}</p>
-                <Link href="/product" className="btn btn-accent" style={{ marginTop: 12 }}>{t('models.learnmore')}</Link>
+                <button
+                  className="btn btn-accent"
+                  style={{ marginTop: 12 }}
+                  onClick={() => window.openDiagramModal?.()}
+                >
+                  {t('models.learnmore')}
+                </button>
               </div>
             </ScrollAnimation>
             <ScrollAnimation>
@@ -221,7 +208,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </div>
                 <h3>{t('models.b2b.title')}</h3>
                 <p>{t('models.b2b.desc')}</p>
-                <Link href="/b2b" className="btn btn-accent" style={{ marginTop: 12 }}>{t('models.learnmore')}</Link>
+                <button
+                  className="btn btn-accent"
+                  style={{ marginTop: 12 }}
+                  onClick={() => window.openDiagramModal?.()}
+                >
+                  {t('models.learnmore')}
+                </button>
               </div>
             </ScrollAnimation>
           </div>
@@ -886,6 +879,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </ScrollAnimation>
         </div>
       </section>
+
+      {/* Diagram Modal - Client Component */}
+      <DiagramModal />
     </>
   );
 }
