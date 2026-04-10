@@ -535,7 +535,7 @@
       },
       "tab": {
         "live": "Live Demo",
-        "access": "Access Link",
+        "merchant": "Merchant & Access",
         "credentials": "Login Credentials"
       },
       "tab1": "Live Demo",
@@ -565,10 +565,12 @@
       "h5": {
         "title": "H5 Web Experience",
         "desc": "Scan to open H5 web app",
-        "scan": "Scan to open H5 web app"
+        "scan": "Scan to open H5 web app",
+        "btn": "Open H5 App"
       },
-      "mobileapp": {
-        "scan": "Scan to download the demo app"
+      "app": {
+        "title": "APP Experience",
+        "desc": "Scan to download the demo app"
       },
       "links": "Demo Access Links",
       "visit": "Visit",

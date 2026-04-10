@@ -738,26 +738,6 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
             </div>
           </ScrollAnimation>
 
-          {/* B2C / B2B2C Demo Selection */}
-          <ScrollAnimation>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 40, flexWrap: 'wrap' }}>
-              <a href="#demo" className="card glass-card" style={{ textAlign: 'center', padding: '24px 40px', flex: '0 1 280px', border: '2px solid var(--primary)' }}>
-                <div style={{ fontSize: '2rem', marginBottom: 8 }}>
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.5"><rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
-                </div>
-                <h4 style={{ marginBottom: 4 }}>{t('product.demo.b2c.title')}</h4>
-                <p style={{ fontSize: '0.8rem' }}>{t('product.demo.b2c.desc')}</p>
-              </a>
-              <a href="#demo" className="card glass-card" style={{ textAlign: 'center', padding: '24px 40px', flex: '0 1 280px', border: '2px solid var(--primary)' }}>
-                <div style={{ fontSize: '2rem', marginBottom: 8 }}>
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="4" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" /></svg>
-                </div>
-                <h4 style={{ marginBottom: 4 }}>{t('product.demo.b2b.title')}</h4>
-                <p style={{ fontSize: '0.8rem' }}>{t('product.demo.b2b.desc')}</p>
-              </a>
-            </div>
-          </ScrollAnimation>
-
           <ScrollAnimation>
             <div style={{ maxWidth: 800, margin: '0 auto' }}>
               {/* Tabs */}
