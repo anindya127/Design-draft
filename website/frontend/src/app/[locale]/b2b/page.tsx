@@ -229,56 +229,8 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: st
                 </div>
               </ScrollAnimation>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== Section 6: System Advantages ==================== */}
-      <section className="section" id="advantages">
-        <div className="container">
-          <ScrollAnimation>
-            <div className="section-header">
-              <span className="section-label">{t('b2b.nav.advantages')}</span>
-              <h2>{t('b2b.advantages.title')}</h2>
-              <p>{t('b2b.advantages.desc')}</p>
-            </div>
-          </ScrollAnimation>
-          <div className="grid-2" style={{ gap: 48, alignItems: 'start' }}>
-            <ScrollAnimation>
-              <div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 10 }}>{t('b2b.advantages.buildTitle')}</h3>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: 32 }}>{t('b2b.advantages.buildDesc')}</p>
-                <div className="b2b-adv-item">
-                  <div className="b2b-adv-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" /></svg>
-                  </div>
-                  <div>
-                    <h4 style={{ fontWeight: 700, marginBottom: 4 }}>{t('b2b.advantages.unlimited')}</h4>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>{t('b2b.advantages.unlimitedDesc')}</p>
-                  </div>
-                </div>
-                <div className="b2b-adv-item">
-                  <div className="b2b-adv-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>
-                  </div>
-                  <div>
-                    <h4 style={{ fontWeight: 700, marginBottom: 4 }}>{t('b2b.advantages.autoBilling')}</h4>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>{t('b2b.advantages.autoBillingDesc')}</p>
-                  </div>
-                </div>
-                <div className="b2b-adv-item">
-                  <div className="b2b-adv-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                  </div>
-                  <div>
-                    <h4 style={{ fontWeight: 700, marginBottom: 4 }}>{t('b2b.advantages.superAdmin')}</h4>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>{t('b2b.advantages.superAdminDesc')}</p>
-                  </div>
-                </div>
-              </div>
-            </ScrollAnimation>
-            <ScrollAnimation style={{ transitionDelay: '0.15s' }}>
-              <div className="glass-card" style={{ padding: 28, borderRadius: 'var(--radius-lg)' }}>
+            <ScrollAnimation style={{ transitionDelay: `${feats.length * 0.1}s` }}>
+              <div className="glass-card" style={{ padding: 28, borderRadius: 'var(--radius-lg)', marginTop: 32 }}>
                 <h4 style={{ fontWeight: 700, marginBottom: 20 }}>Payment Flow</h4>
                 {[t('b2b.advantages.payment1'), t('b2b.advantages.payment2'), t('b2b.advantages.payment3')].map((step, i) => (
                   <div key={i} className="b2b-payment-step">
