@@ -1335,9 +1335,7 @@
         "Remote Diagnostics",
         "Alarm Notifications",
         "Firmware Upgrades",
-        "System Log Diagnostics",
-        "Coupon Management",
-        "Fleet Management"
+        "System Log Diagnostics"
       ],
       "adminFeatures": [
         "Platform Statistics",
@@ -1345,6 +1343,7 @@
         "Operator Management",
         "Permission Control",
         "User Management",
+        "Financial Management",
         "System Log Queries"
       ]
     },
