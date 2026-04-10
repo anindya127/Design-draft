@@ -249,7 +249,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
           <div className="grid grid-3">
             <ScrollAnimation>
-              <div className="card card-with-img">
+              <div className="card card-with-img" style={{ height: '100%' }}>
                 <div className="card-img-placeholder">
                   <svg viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="20" y="20" width="240" height="120" rx="8" stroke="var(--text-tertiary)" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4" />
@@ -263,14 +263,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <circle cx="230" cy="58" r="4" fill="var(--text-tertiary)" opacity="0.4" />
                     <rect x="40" y="100" width="220" height="6" rx="3" fill="var(--primary-dim)" opacity="0.4" />
                     <rect x="40" y="112" width="140" height="6" rx="3" fill="var(--primary-dim)" opacity="0.25" />
-                  </svg>
-                </div>
-                <div className="card-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="3" width="7" height="7" rx="1" />
-                    <rect x="14" y="3" width="7" height="7" rx="1" />
-                    <rect x="3" y="14" width="7" height="7" rx="1" />
-                    <rect x="14" y="14" width="7" height="7" rx="1" />
                   </svg>
                 </div>
                 <h3>{t('features.f1.title')}</h3>
@@ -294,17 +286,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <rect x="40" y="115" width="80" height="5" rx="2.5" fill="var(--primary-dim)" opacity="0.2" />
                   </svg>
                 </div>
-                <div className="card-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                  </svg>
-                </div>
                 <h3>{t('features.f2.title')}</h3>
                 <p>{t('features.f2.desc')}</p>
               </div>
             </ScrollAnimation>
             <ScrollAnimation>
-              <div className="card card-with-img">
+              <div className="card card-with-img" style={{ height: '100%' }}>
                 <div className="card-img-placeholder">
                   <svg viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="20" y="20" width="240" height="120" rx="8" stroke="var(--text-tertiary)" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4" />
@@ -318,19 +305,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <circle cx="210" cy="55" r="6" fill="#EF4444" stroke="#EF4444" strokeWidth="1" opacity="0.3" />
                   </svg>
                 </div>
-                <div className="card-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                    <line x1="12" y1="9" x2="12" y2="13" />
-                    <line x1="12" y1="17" x2="12.01" y2="17" />
-                  </svg>
-                </div>
                 <h3>{t('features.f3.title')}</h3>
                 <p>{t('features.f3.desc')}</p>
               </div>
             </ScrollAnimation>
             <ScrollAnimation>
-              <div className="card card-with-img">
+              <div className="card card-with-img" style={{ height: '100%' }}>
                 <div className="card-img-placeholder">
                   <svg viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="20" y="20" width="240" height="120" rx="8" stroke="var(--text-tertiary)" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4" />
@@ -345,18 +325,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <rect x="60" y="118" width="100" height="4" rx="2" fill="var(--primary-dim)" opacity="0.2" />
                   </svg>
                 </div>
-                <div className="card-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="2" y="5" width="20" height="14" rx="2" />
-                    <line x1="2" y1="10" x2="22" y2="10" />
-                  </svg>
-                </div>
                 <h3>{t('features.f4.title')}</h3>
                 <p>{t('features.f4.desc')}</p>
               </div>
             </ScrollAnimation>
             <ScrollAnimation>
-              <div className="card card-with-img">
+              <div className="card card-with-img" style={{ height: '100%' }}>
                 <div className="card-img-placeholder">
                   <svg viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="20" y="20" width="240" height="120" rx="8" stroke="var(--text-tertiary)" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4" />
@@ -370,19 +344,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <path d="M132 118 l4-4 8 8" stroke="#10B981" strokeWidth="1.5" fill="none" opacity="0.5" />
                   </svg>
                 </div>
-                <div className="card-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                </div>
                 <h3>{t('features.f5.title')}</h3>
                 <p>{t('features.f5.desc')}</p>
               </div>
             </ScrollAnimation>
             <ScrollAnimation>
-              <div className="card card-with-img">
+              <div className="card card-with-img" style={{ height: '100%' }}>
                 <div className="card-img-placeholder">
                   <svg viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="20" y="20" width="240" height="120" rx="8" stroke="var(--text-tertiary)" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4" />
@@ -395,11 +362,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <line x1="40" y1="125" x2="250" y2="125" stroke="var(--text-tertiary)" strokeWidth="1" opacity="0.3" />
                     <polyline points="45 85 80 70 115 55 150 75 185 42 220 58" stroke="var(--primary)" strokeWidth="1.5" fill="none" opacity="0.5" />
                     <circle cx="185" cy="42" r="3" fill="var(--primary)" opacity="0.6" />
-                  </svg>
-                </div>
-                <div className="card-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                   </svg>
                 </div>
                 <h3>{t('features.f6.title')}</h3>
