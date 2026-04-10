@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import InteractiveDiagram from './InteractiveDiagram';
+import Diagram3D from './Diagram3D';
 import './DiagramModal.css';
 
 type DiagramType = 'B2C' | 'B2B' | null;
@@ -52,7 +52,7 @@ export default function DiagramModal() {
                             </h2>
                         </div>
                         <div className="diagram-modal-body">
-                            <InteractiveDiagram type={diagramType} />
+                            <Diagram3D type={diagramType} />
                         </div>
                     </div>
                 </div>
