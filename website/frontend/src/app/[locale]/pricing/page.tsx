@@ -171,11 +171,11 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
                 <thead>
                   <tr>
                     <th>{t('pricing.table.feature')}</th>
-                    <th>H5 Free<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$0</small></th>
-                    <th>H5 Enterprise<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$300 + $1,200/yr</small></th>
-                    <th>APP Enterprise<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$13,900</small></th>
-                    <th>H5 Platform<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$18,800</small></th>
-                    <th>APP Platform<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$34,200</small></th>
+                    <th>{t('pricing.h5free.name')}<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$0</small></th>
+                    <th>{t('pricing.h5ent.name')}<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$300 + $1,200/yr</small></th>
+                    <th>{t('pricing.appent.name')}<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$13,900</small></th>
+                    <th>{t('pricing.h5plat.name')}<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$18,800</small></th>
+                    <th>{t('pricing.appplat.name')}<br /><small style={{ fontWeight: 500, color: 'var(--gray-500)' }}>$34,200</small></th>
                   </tr>
                 </thead>
                 <tbody>
