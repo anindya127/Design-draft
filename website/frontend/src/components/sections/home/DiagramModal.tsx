@@ -1,21 +1,27 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import BusinessDiagram3D from './BusinessDiagram3D';
+import InteractiveDiagram from './InteractiveDiagram';
 import './DiagramModal.css';
+
+type DiagramType = 'B2C' | 'B2B' | null;
 
 declare global {
     interface Window {
-        openDiagramModal?: () => void;
+        openDiagramModal?: (type: DiagramType) => void;
     }
 }
 
 export default function DiagramModal() {
     const [isOpen, setIsOpen] = useState(false);
+    const [diagramType, setDiagramType] = useState<DiagramType>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        window.openDiagramModal = () => setIsOpen(true);
+        window.openDiagramModal = (type: DiagramType) => {
+            setDiagramType(type);
+            setIsOpen(true);
+        };
         return () => {
             delete window.openDiagramModal;
         };
@@ -30,7 +36,7 @@ export default function DiagramModal() {
             />
 
             {/* Modal */}
-            {isOpen && (
+            {isOpen && diagramType && (
                 <div className="diagram-modal-overlay" onClick={() => setIsOpen(false)}>
                     <div className="diagram-modal-content" onClick={(e) => e.stopPropagation()}>
                         <button
@@ -40,8 +46,13 @@ export default function DiagramModal() {
                         >
                             ✕
                         </button>
+                        <div className="diagram-modal-header">
+                            <h2 className="diagram-modal-title">
+                                {diagramType === 'B2C' ? 'B2C Model - Direct Operator Ecosystem' : 'B2B2C Model - Platform / Franchise Ecosystem'}
+                            </h2>
+                        </div>
                         <div className="diagram-modal-body">
-                            <BusinessDiagram3D />
+                            <InteractiveDiagram type={diagramType} />
                         </div>
                     </div>
                 </div>

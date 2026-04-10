@@ -30,7 +30,7 @@ export default function BusinessModelsSection() {
                             <button
                                 className="btn btn-accent"
                                 style={{ marginTop: 12 }}
-                                onClick={() => window.openDiagramModal?.()}
+                                onClick={() => window.openDiagramModal?.('B2C')}
                             >
                                 {t('models.learnmore')}
                             </button>
@@ -50,7 +50,7 @@ export default function BusinessModelsSection() {
                             <button
                                 className="btn btn-accent"
                                 style={{ marginTop: 12 }}
-                                onClick={() => window.openDiagramModal?.()}
+                                onClick={() => window.openDiagramModal?.('B2B')}
                             >
                                 {t('models.learnmore')}
                             </button>

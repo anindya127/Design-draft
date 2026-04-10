@@ -14,12 +14,15 @@
     backdrop-filter: blur(4px);
 }
 
-.diagram-modal-trigger {
-    position: absolute;
-    width: 0;
-    height: 0;
-    opacity: 0;
-    pointer-events: none;
+.diagram-modal-content {
+    position: relative;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
     animation: slideUp 0.3s ease-out;
 }
 
@@ -33,7 +36,22 @@
 @media (min-width: 1024px) {
     .diagram-modal-content {
         max-width: 70%;
+        max-height: 80vh;
     }
+}
+
+.diagram-modal-header {
+    padding: 24px 32px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+.diagram-modal-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.5px;
 }
 
 .diagram-modal-close {
@@ -58,10 +76,19 @@
 .diagram-modal-close:hover {
     background: rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
 }
 
 .diagram-modal-body {
     padding: 24px;
+    height: calc(90vh - 120px);
+    overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+    .diagram-modal-body {
+        height: calc(80vh - 120px);
+    }
 }
 
 @keyframes fadeIn {

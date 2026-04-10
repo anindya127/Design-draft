@@ -1,24 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import './BusinessDiagram3D.css';
 
-// Simple SVG Icons
-const Icons = {
-  CreditCard: () => <span className="icon-svg">💳</span>,
-  Smartphone: () => <span className="icon-svg">📱</span>,
-  Server: () => <span className="icon-svg">🖥️</span>,
-  QrCode: () => <span className="icon-svg">📲</span>,
-  Zap: () => <span className="icon-svg">⚡</span>,
-  Users: () => <span className="icon-svg">👥</span>,
-  Monitor: () => <span className="icon-svg">💻</span>,
-};
-
 export default function BusinessDiagram3D() {
-  const [tab, setTab] = useState<'B2C' | 'B2B'>('B2C');
   const t = useTranslations();
+
+  const handleLearnMore = (type: 'B2C' | 'B2B') => {
+    if (typeof window !== 'undefined' && window.openDiagramModal) {
+      window.openDiagramModal(type);
+    }
+  };
 
   return (
     <motion.div
@@ -26,199 +19,113 @@ export default function BusinessDiagram3D() {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
       viewport={{ once: true, margin: '0px 0px -100px 0px' }}
-      className="architecture-container"
+      className="business-models-container"
     >
-      {/* Tab Navigation */}
-      <div className="diagram-tabs">
-        <button
-          onClick={() => setTab('B2C')}
-          className={`tab-button ${tab === 'B2C' ? 'active' : ''}`}
+      <div className="models-grid">
+        {/* B2C Model */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          viewport={{ once: true }}
+          className="model-card b2c-card"
         >
-          <span>B2C Model</span>
-        </button>
-        <button
-          onClick={() => setTab('B2B')}
-          className={`tab-button ${tab === 'B2B' ? 'active' : ''}`}
+          <div className="model-header">
+            <div className="model-icon b2c-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div className="model-title-group">
+              <span className="model-badge b2c-badge">B2C MODEL</span>
+              <h3 className="model-title">{t('models.b2c.title')}</h3>
+            </div>
+          </div>
+
+          <div className="model-detail">
+            <p className="model-label">{t('models.b2c.detail')}</p>
+          </div>
+
+          <p className="model-description">{t('models.b2c.desc')}</p>
+
+          <div className="model-flow">
+            <h4 className="flow-title">Transaction Flow:</h4>
+            <ul className="flow-list">
+              {Array.isArray(t.raw('models.b2c.flow')) ? (
+                (t.raw('models.b2c.flow') as string[]).map((step, idx) => (
+                  <li key={idx} className="flow-item">{step}</li>
+                ))
+              ) : null}
+            </ul>
+          </div>
+
+          <div className="model-summary">
+            <p>{t('models.b2c.summary')}</p>
+          </div>
+
+          <button
+            onClick={() => handleLearnMore('B2C')}
+            className="learn-more-btn b2c-btn"
+          >
+            {t('models.learnmore')} →
+          </button>
+        </motion.div>
+
+        {/* B2B Model */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="model-card b2b-card"
         >
-          <span>B2B Enterprise Network</span>
-        </button>
+          <div className="model-header">
+            <div className="model-icon b2b-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                <circle cx="18" cy="8" r="1"></circle>
+                <circle cx="6" cy="8" r="1"></circle>
+              </svg>
+            </div>
+            <div className="model-title-group">
+              <span className="model-badge b2b-badge">B2B2C MODEL</span>
+              <h3 className="model-title">{t('models.b2b.title')}</h3>
+            </div>
+          </div>
+
+          <div className="model-detail">
+            <p className="model-label">{t('models.b2b.detail')}</p>
+          </div>
+
+          <p className="model-description">{t('models.b2b.desc')}</p>
+
+          <div className="model-flow">
+            <h4 className="flow-title">Transaction Flow:</h4>
+            <ul className="flow-list">
+              {Array.isArray(t.raw('models.b2b.flow')) ? (
+                (t.raw('models.b2b.flow') as string[]).map((step, idx) => (
+                  <li key={idx} className="flow-item">{step}</li>
+                ))
+              ) : null}
+            </ul>
+          </div>
+
+          <div className="model-summary">
+            <p>{t('models.b2b.summary')}</p>
+          </div>
+
+          <button
+            onClick={() => handleLearnMore('B2B')}
+            className="learn-more-btn b2b-btn"
+          >
+            {t('models.learnmore')} →
+          </button>
+        </motion.div>
       </div>
-
-      {/* Diagram Content */}
-      <motion.div
-        key={tab}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="diagram-content"
-      >
-        {tab === 'B2C' ? <B2CDiagram /> : <B2BDiagram />}
-      </motion.div>
-
-      {/* Detailed Explanation */}
-      <motion.div
-        key={`explain-${tab}`}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        className="diagram-explanation"
-      >
-        <div className="explanation-header">
-          <h3>{t(`models.${tab === 'B2C' ? 'b2c' : 'b2b'}.detail`)}</h3>
-        </div>
-        <div className="explanation-flow">
-          {Array.isArray(t.raw(`models.${tab === 'B2C' ? 'b2c' : 'b2b'}.flow`)) ? (
-            (t.raw(`models.${tab === 'B2C' ? 'b2c' : 'b2b'}.flow`) as string[]).map((item, idx) => (
-              <p key={idx}>{item}</p>
-            ))
-          ) : (
-            <p>{t(`models.${tab === 'B2C' ? 'b2c' : 'b2b'}.flow`)}</p>
-          )}
-        </div>
-        <div className="explanation-summary">
-          <p>{t(`models.${tab === 'B2C' ? 'b2c' : 'b2b'}.summary`)}</p>
-        </div>
-      </motion.div>
     </motion.div>
-  );
-}
-
-/** B2C Simple Architecture */
-function B2CDiagram() {
-  return (
-    <div className="diagram-grid b2c-grid">
-      {/* Top Section: User Payment */}
-      <div className="diagram-section top-section">
-        <div className="payment-box">
-          <Icons.CreditCard />
-          <span>Card Payment</span>
-        </div>
-        <div className="arrow down" />
-        <div className="payment-box">
-          <Icons.Smartphone />
-          <span>Mobile Payment</span>
-        </div>
-      </div>
-
-      {/* Middle Section: Server & QR */}
-      <div className="diagram-section middle-section">
-        <div className="flow-item">
-          <div className="box server-box">
-            <Icons.Server />
-            <span>Server</span>
-          </div>
-          <div className="arrow right" />
-        </div>
-
-        <div className="flow-item">
-          <div className="box qr-box">
-            <Icons.QrCode />
-            <span>QR Code</span>
-          </div>
-          <div className="arrow right" />
-        </div>
-
-        <div className="flow-item">
-          <div className="box charger-box">
-            <Icons.Zap />
-            <span>Charger</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Section: Driver & CPO */}
-      <div className="diagram-section bottom-section">
-        <div className="actor-box">
-          <Icons.Users />
-          <span>Driver</span>
-        </div>
-        <div className="arrow right" />
-        <div className="cpo-box">
-          <Icons.Monitor />
-          <span>CPO Dashboard</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** B2B Enterprise Architecture */
-function B2BDiagram() {
-  return (
-    <div className="diagram-grid b2b-grid">
-      {/* Top: Payment Input */}
-      <div className="diagram-section payment-section">
-        <div className="payment-input">
-          <Icons.CreditCard />
-          <span>Payment</span>
-        </div>
-        <div className="payment-input">
-          <Icons.Smartphone />
-          <span>Mobile</span>
-        </div>
-      </div>
-
-      {/* Middle: Server Gateway */}
-      <div className="diagram-section gateway-section">
-        <div className="gateway-box">
-          <Icons.Server />
-          <span className="label">Central Server</span>
-          <span className="sublabel">Transaction Hub</span>
-        </div>
-      </div>
-
-      {/* QR & Chargers */}
-      <div className="diagram-section hardware-section">
-        <div className="hardware-item">
-          <Icons.QrCode />
-          <span>QR Codes</span>
-        </div>
-        <div className="divider" />
-        <div className="hardware-item">
-          <Icons.Zap />
-          <span>Chargers</span>
-        </div>
-      </div>
-
-      {/* Multiple CPO Network */}
-      <div className="diagram-section cpo-section">
-        <div className="cpo-network-title">Multi-CPO Network</div>
-        <div className="cpo-grid">
-          <div className="cpo-item">
-            <Icons.Monitor />
-            <span>CPO 1</span>
-          </div>
-          <div className="cpo-item">
-            <Icons.Monitor />
-            <span>CPO 2</span>
-          </div>
-          <div className="cpo-item">
-            <Icons.Monitor />
-            <span>CPO 3</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Admin Dashboard */}
-      <div className="diagram-section admin-section">
-        <div className="admin-box">
-          <Icons.Monitor />
-          <span>CPO Manager</span>
-          <span className="sublabel">Central Management</span>
-        </div>
-      </div>
-
-      {/* Data Flows */}
-      <div className="data-flows">
-        <div className="flow-label">
-          <span className="flow-dot blue" />
-          Data Flow
-        </div>
-        <div className="flow-label">
-          <span className="flow-dot green" />
-          Transaction Flow
-        </div>
-      </div>
-    </div>
   );
 }
