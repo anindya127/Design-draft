@@ -186,6 +186,7 @@
     "desc": "Our platform serves operators in 100+ countries, supporting localized payments, languages, and compliance requirements.",
     "countries": {
       "china": "China",
+      "hongKong": "Hong Kong",
       "frenchPolynesia": "French Polynesia",
       "cambodia": "Cambodia",
       "singapore": "Singapore",
@@ -202,7 +203,8 @@
       "thailand": "Thailand",
       "sriLanka": "Sri Lanka",
       "india": "India",
-      "indonesia": "Indonesia"
+      "indonesia": "Indonesia",
+      "ethiopia": "Ethiopia"
     }
   },
   "lang": {

@@ -8,14 +8,16 @@ import { useLocale, useTranslations } from 'next-intl';
 
 const WORLD_ATLAS_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
-// Canonical English property name on the world-atlas GeoJSON — used to
-// match the China polygon regardless of UI locale (TopoJSON properties
-// are always English).
-const CHINA_GEO_NAME = 'China';
+// Canonical English property names on the world-atlas GeoJSON — used to
+// match polygons regardless of UI locale (TopoJSON properties are always
+// English). Hong Kong is not a separate feature in Natural Earth
+// countries-110m, so the origin polygon highlight falls on mainland China
+// which contains it.
+const ORIGIN_GEO_NAME = 'China';
 const CANONICAL_TARGET_NAMES = new Set([
   'French Polynesia', 'Cambodia', 'Singapore', 'Belgium', 'France', 'Italy',
   'Russia', 'Brazil', 'Malaysia', 'Philippines', 'Vietnam', 'United Arab Emirates',
-  'Saudi Arabia', 'Thailand', 'Sri Lanka', 'India', 'Indonesia',
+  'Saudi Arabia', 'Thailand', 'Sri Lanka', 'India', 'Indonesia', 'Ethiopia',
 ]);
 
 export default function GlobeVisualization() {
@@ -35,7 +37,7 @@ export default function GlobeVisualization() {
   // given locale, and the effect dep on `locale` avoids "array changed
   // size between renders" errors under Turbopack HMR.
   const origin = useMemo(
-    () => ({ name: t('map.countries.china'), lat: 35.86, lng: 104.20 }),
+    () => ({ name: t('map.countries.hongKong'), lat: 22.3193, lng: 114.1694 }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [locale]
   );
@@ -59,6 +61,7 @@ export default function GlobeVisualization() {
       { name: t('map.countries.sriLanka'), lat: 7.87, lng: 80.77 },
       { name: t('map.countries.india'), lat: 20.59, lng: 78.96 },
       { name: t('map.countries.indonesia'), lat: -0.79, lng: 113.92 },
+      { name: t('map.countries.ethiopia'), lat: 9.145, lng: 40.4897 },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [locale]
@@ -179,7 +182,7 @@ export default function GlobeVisualization() {
       .attr('d', path as any)
       .attr('fill', (d: any) => {
         const n = d.properties?.name;
-        if (n === CHINA_GEO_NAME) return '#C07F00';
+        if (n === ORIGIN_GEO_NAME) return '#C07F00';
         if (CANONICAL_TARGET_NAMES.has(n)) return '#6b5540';
         return 'url(#gcss-land-2d)';
       })

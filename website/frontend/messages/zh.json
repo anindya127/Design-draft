@@ -186,6 +186,7 @@
     "desc": "我们的平台服务于 100+ 国家的运营商，支持本地化支付、语言和合规要求。",
     "countries": {
       "china": "中国",
+      "hongKong": "中国香港",
       "frenchPolynesia": "法属波利尼西亚",
       "cambodia": "柬埔寨",
       "singapore": "新加坡",
@@ -202,7 +203,8 @@
       "thailand": "泰国",
       "sriLanka": "斯里兰卡",
       "india": "印度",
-      "indonesia": "印度尼西亚"
+      "indonesia": "印度尼西亚",
+      "ethiopia": "埃塞俄比亚"
     }
   },
   "lang": {
