@@ -160,72 +160,60 @@ export default function GlobeVisualization() {
         d3.select(this).attr('stroke-opacity', 0.35).attr('stroke-width', 0.4);
       });
 
-    // Arcs — pick the short-way direction (unwrap longitudes so the
-    // endpoint is within 180° of the origin), linearly interpolate in
-    // lng/lat space, then split at the antimeridian so e.g. China →
-    // French Polynesia draws eastward across the Pacific instead of
-    // backward across the entire map.
-    const buildArc = (
+    // Arcs — work entirely in screen-space pixels. Project both endpoints,
+    // measure the actual horizontal pixel gap, and if it exceeds half the
+    // world width, render two arcs in shifted "world copies" (one exits
+    // off-screen right, one enters from off-screen left). The SVG clip
+    // hides the off-screen halves, leaving a visual wrap-around.
+    const proj180 = projection([180, 0]);
+    const projNeg180 = projection([-180, 0]);
+    const worldWidth = (proj180?.[0] ?? 0) - (projNeg180?.[0] ?? 0);
+
+    const bezierPath = (
       a: [number, number],
       b: [number, number]
-    ): GeoJSON.MultiLineString => {
-      const [lng1, lat1] = a;
-      let [lng2, lat2] = b;
-      // Unwrap: force lng2 into [lng1 - 180, lng1 + 180]
-      while (lng2 - lng1 > 180) lng2 -= 360;
-      while (lng1 - lng2 > 180) lng2 += 360;
-
-      const steps = 96;
-      const raw: [number, number][] = [];
-      for (let i = 0; i <= steps; i++) {
-        const t = i / steps;
-        // Lat curve: slight arch for a nicer flight-path look
-        const arch = Math.sin(Math.PI * t) * 6;
-        raw.push([
-          lng1 + (lng2 - lng1) * t,
-          lat1 + (lat2 - lat1) * t + arch,
-        ]);
-      }
-
-      // Normalize into (-180, 180] and split whenever the normalized
-      // longitude wraps.
-      const normalize = (lng: number) => ((((lng + 180) % 360) + 360) % 360) - 180;
-
-      const segments: [number, number][][] = [[]];
-      let prevNorm: [number, number] | null = null;
-      for (const p of raw) {
-        const np: [number, number] = [normalize(p[0]), p[1]];
-        if (prevNorm && Math.abs(np[0] - prevNorm[0]) > 180) {
-          const sign = prevNorm[0] > 0 ? 1 : -1;
-          const midLat = (prevNorm[1] + np[1]) / 2;
-          segments[segments.length - 1].push([sign * 180, midLat]);
-          segments.push([[-sign * 180, midLat]]);
-        }
-        segments[segments.length - 1].push(np);
-        prevNorm = np;
-      }
-      return { type: 'MultiLineString', coordinates: segments };
+    ): string => {
+      const ddx = b[0] - a[0];
+      const ddy = b[1] - a[1];
+      const dist = Math.sqrt(ddx * ddx + ddy * ddy);
+      const mx = (a[0] + b[0]) / 2;
+      const my = (a[1] + b[1]) / 2;
+      // Always arch upward (toward smaller y) for a flight-path look
+      const arch = Math.min(dist * 0.18, 70);
+      return `M ${a[0]} ${a[1]} Q ${mx} ${my - arch} ${b[0]} ${b[1]}`;
     };
 
-    const arcsGroup = root.append('g').attr('class', 'arcs');
-
-    // Flatten each arc's MultiLineString into independent segments so
-    // each segment is its own simple path — no subpath-animation quirks,
-    // and the antimeridian split renders reliably.
-    type ArcSegment = { coords: [number, number][]; name: string; parentIdx: number };
+    type ArcSegment = { d: string; name: string; parentIdx: number };
     const arcSegments: ArcSegment[] = [];
-    COUNTRIES.forEach((t, i) => {
-      const ml = buildArc([ORIGIN.lng, ORIGIN.lat], [t.lng, t.lat]);
-      ml.coordinates.forEach(seg => {
-        if (seg.length >= 2) arcSegments.push({ coords: seg as [number, number][], name: t.name, parentIdx: i });
+
+    const p1 = projection([ORIGIN.lng, ORIGIN.lat]);
+    if (p1) {
+      COUNTRIES.forEach((t, i) => {
+        const p2 = projection([t.lng, t.lat]);
+        if (!p2) return;
+        const dx = p2[0] - p1[0];
+        const needsWrap = worldWidth > 0 && Math.abs(dx) > worldWidth / 2;
+
+        if (!needsWrap) {
+          arcSegments.push({ d: bezierPath(p1 as [number, number], p2 as [number, number]), name: t.name, parentIdx: i });
+        } else {
+          // Wrap east if target is left of origin (dx<0), else wrap west
+          const sign = dx < 0 ? 1 : -1;
+          const p2Unwrapped: [number, number] = [p2[0] + sign * worldWidth, p2[1]];
+          const p1Unwrapped: [number, number] = [p1[0] - sign * worldWidth, p1[1]];
+          arcSegments.push({ d: bezierPath(p1 as [number, number], p2Unwrapped), name: t.name, parentIdx: i });
+          arcSegments.push({ d: bezierPath(p1Unwrapped, p2 as [number, number]), name: t.name, parentIdx: i });
+        }
       });
-    });
+    }
+
+    const arcsGroup = root.append('g').attr('class', 'arcs');
 
     const arcs = arcsGroup.selectAll('.arc')
       .data(arcSegments)
       .enter().append('path')
       .attr('class', 'arc')
-      .attr('d', (d) => path({ type: 'LineString', coordinates: d.coords } as any))
+      .attr('d', (d) => d.d)
       .attr('fill', 'none')
       .attr('stroke', '#FFD95A')
       .attr('stroke-width', 1.4)
@@ -368,7 +356,9 @@ export default function GlobeVisualization() {
         ref={svgRef}
         width={dims.w}
         height={dims.h}
-        style={{ position: 'relative', zIndex: 10, display: 'block', cursor: 'grab' }}
+        viewBox={`0 0 ${dims.w} ${dims.h}`}
+        preserveAspectRatio="xMidYMid meet"
+        style={{ position: 'relative', zIndex: 10, display: 'block', cursor: 'grab', overflow: 'hidden' }}
       />
 
       {tooltip && (
