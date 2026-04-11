@@ -1068,6 +1068,9 @@
         "li4": "Connect chargers via OCPP protocol",
         "li5": "Customize branding and language settings"
       }
+    },
+    "dashboard": {
+      "desc": "The main dashboard provides real-time analytics and management controls for monitoring your charging infrastructure and operations."
     }
   },
   "login": {

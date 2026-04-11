@@ -160,11 +160,22 @@ export default function GlobeVisualization() {
         d3.select(this).attr('stroke-opacity', 0.35).attr('stroke-width', 0.4);
       });
 
-    // Arcs
+    // Arcs — densify each route along the great circle so d3.geoPath
+    // automatically splits at the antimeridian. Without this, two-point
+    // LineStrings render as straight lines in lat/lng space, which makes
+    // routes like China → French Polynesia draw the wrong way across
+    // Europe/Africa instead of east across the Pacific.
+    const densify = (a: [number, number], b: [number, number], steps = 64): [number, number][] => {
+      const interp = d3.geoInterpolate(a, b);
+      const pts: [number, number][] = [];
+      for (let i = 0; i <= steps; i++) pts.push(interp(i / steps) as [number, number]);
+      return pts;
+    };
+
     const arcsGroup = root.append('g').attr('class', 'arcs');
     const links = COUNTRIES.map(t => ({
       type: 'LineString' as const,
-      coordinates: [[ORIGIN.lng, ORIGIN.lat], [t.lng, t.lat]],
+      coordinates: densify([ORIGIN.lng, ORIGIN.lat], [t.lng, t.lat]),
       name: t.name,
     }));
 

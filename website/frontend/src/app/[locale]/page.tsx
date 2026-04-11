@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import Image from 'next/image';
 import TypingText from '@/components/effects/TypingText';
 import CounterAnimation from '@/components/effects/CounterAnimation';
 import ScrollAnimation from '@/components/effects/ScrollAnimation';
@@ -351,9 +352,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <ScrollAnimation>
               <div className="card card-with-img" style={{ height: '100%' }}>
                 <div className="card-img-placeholder">
-                  <img
+                  <Image
                     src="/images/dashboard-home.png"
                     alt="Analytics Dashboard"
+                    width={1920}
+                    height={1080}
+                    sizes="(max-width: 768px) 100vw, 400px"
                     className="card-image"
                   />
                 </div>
