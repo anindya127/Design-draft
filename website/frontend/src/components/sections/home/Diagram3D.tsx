@@ -13,6 +13,7 @@ import {
     Grid,
 } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
+import { useTranslations } from 'next-intl';
 import { User, QrCode, Zap, Server, Building2, ShieldCheck, Wallet, CreditCard } from 'lucide-react';
 import * as THREE from 'three';
 
@@ -20,12 +21,11 @@ interface DiagramProps {
     type: 'B2C' | 'B2B';
 }
 
-// GCSS warm palette — every glow stays in the gold/amber family so the
-// diagram reads as part of the site, not a Tron overlay.
-const GOLD_BRIGHT = '#FFD95A';   // data / user-facing
-const GOLD_PRIMARY = '#FEBF1D';  // infra / hardware
-const GOLD_AMBER = '#F59E0B';    // money / payment
-const GOLD_DEEP = '#C07F00';     // business entities (CPO, admin)
+// GCSS warm palette — every glow stays in the gold/amber family.
+const GOLD_BRIGHT = '#FFD95A';
+const GOLD_PRIMARY = '#FEBF1D';
+const GOLD_AMBER = '#F59E0B';
+const GOLD_DEEP = '#C07F00';
 const CREAM = '#FFF7D4';
 const BG_DEEP = '#120a08';
 
@@ -37,36 +37,14 @@ type NodeData = {
     color: string;
 };
 
-const b2cNodes: NodeData[] = [
-    { id: 'user', label: 'User (车手)', icon: User, pos: [-10, 0, 4], color: GOLD_BRIGHT },
-    { id: 'qr', label: 'QR Code', icon: QrCode, pos: [-4, 4, 2], color: GOLD_BRIGHT },
-    { id: 'charger', label: 'EV Charger', icon: Zap, pos: [2, 4, 0], color: GOLD_PRIMARY },
-    { id: 'wallet_user', label: 'Wallet', icon: Wallet, pos: [-4, -4, 4], color: GOLD_AMBER },
-    { id: 'payment', label: 'Payment Co.', icon: CreditCard, pos: [2, -4, 2], color: GOLD_AMBER },
-    { id: 'server', label: 'Server', icon: Server, pos: [8, 0, -2], color: GOLD_PRIMARY },
-    { id: 'cpo', label: 'CPO', icon: Building2, pos: [14, 0, 0], color: GOLD_DEEP },
-];
-
-const b2bNodes: NodeData[] = [
-    { id: 'user', label: 'User (车手)', icon: User, pos: [-12, 0, 4], color: GOLD_BRIGHT },
-    { id: 'qr', label: 'QR Code', icon: QrCode, pos: [-6, 4, 2], color: GOLD_BRIGHT },
-    { id: 'charger', label: 'EV Charger', icon: Zap, pos: [0, 4, 0], color: GOLD_PRIMARY },
-    { id: 'wallet_user', label: 'Wallet', icon: Wallet, pos: [-6, -4, 4], color: GOLD_AMBER },
-    { id: 'payment', label: 'Payment Co.', icon: CreditCard, pos: [0, -4, 2], color: GOLD_AMBER },
-    { id: 'server', label: 'Server', icon: Server, pos: [6, 0, -2], color: GOLD_PRIMARY },
-    { id: 'cpo1', label: 'CPO 1', icon: Building2, pos: [12, 5, 0], color: GOLD_DEEP },
-    { id: 'cpo2', label: 'CPO 2', icon: Building2, pos: [12, 0, 0], color: GOLD_DEEP },
-    { id: 'cpo3', label: 'CPO 3', icon: Building2, pos: [12, -5, 0], color: GOLD_DEEP },
-    { id: 'wallet_cpo', label: 'Wallet (Fee)', icon: Wallet, pos: [16, 8, 0], color: GOLD_AMBER },
-    { id: 'admin', label: 'GCSS Super Admin', icon: ShieldCheck, pos: [20, 0, -4], color: GOLD_DEEP },
-];
-
 type LinkType = {
     start: string;
     end: string;
     color: string;
     dashed: boolean;
-    curveOffset?: [number, number, number];
+    // Parallel Y-shift for duplicate routes (same endpoints, different flow
+    // type) so the two straight lines don't collide.
+    offsetY?: number;
 };
 
 const b2cLinks: LinkType[] = [
@@ -89,11 +67,13 @@ const b2bLinks: LinkType[] = [
     { start: 'payment', end: 'server', color: 'money', dashed: false },
     { start: 'cpo1', end: 'wallet_cpo', color: 'revenue', dashed: false },
     { start: 'wallet_cpo', end: 'admin', color: 'revenue', dashed: false },
-    { start: 'cpo1', end: 'admin', color: 'data', dashed: false, curveOffset: [0, 0, -2] },
-    { start: 'cpo2', end: 'admin', color: 'data', dashed: false, curveOffset: [0, 3, -1] },
-    { start: 'cpo2', end: 'admin', color: 'revenue', dashed: false, curveOffset: [0, -3, -1] },
-    { start: 'cpo3', end: 'admin', color: 'data', dashed: false, curveOffset: [0, 3, -1] },
-    { start: 'cpo3', end: 'admin', color: 'revenue', dashed: false, curveOffset: [0, -3, -1] },
+    { start: 'cpo1', end: 'admin', color: 'data', dashed: false },
+    // cpo2 → admin has two flow types, offset in Y so both stay straight & visible
+    { start: 'cpo2', end: 'admin', color: 'data', dashed: false, offsetY: 0.55 },
+    { start: 'cpo2', end: 'admin', color: 'revenue', dashed: false, offsetY: -0.55 },
+    // cpo3 → admin same treatment
+    { start: 'cpo3', end: 'admin', color: 'data', dashed: false, offsetY: 0.55 },
+    { start: 'cpo3', end: 'admin', color: 'revenue', dashed: false, offsetY: -0.55 },
 ];
 
 const flowColor = (role: string) => {
@@ -103,7 +83,7 @@ const flowColor = (role: string) => {
     return GOLD_BRIGHT;
 };
 
-// ---- Ambient background glow blobs (slow oscillation for depth) ----
+// ---- Ambient background glow blobs ----
 interface BlobLightProps {
     position: [number, number, number];
     color: string;
@@ -131,21 +111,21 @@ const BlobLight: React.FC<BlobLightProps> = ({ position, color, scale, speed, am
     );
 };
 
-// ---- Edge arrow head ----
+// ---- Arrow head ----
 const ArrowHead = ({
-    mid,
+    start,
     end,
     color,
 }: {
-    mid: [number, number, number];
+    start: [number, number, number];
     end: [number, number, number];
     color: string;
 }) => {
     const hex = flowColor(color);
-    const midVec = new THREE.Vector3(...mid);
+    const startVec = new THREE.Vector3(...start);
     const endVec = new THREE.Vector3(...end);
 
-    const direction = new THREE.Vector3().subVectors(endVec, midVec).normalize();
+    const direction = new THREE.Vector3().subVectors(endVec, startVec).normalize();
     const arrowPos = endVec.clone().sub(direction.clone().multiplyScalar(2.2));
 
     if (direction.lengthSq() === 0) direction.set(0, 1, 0);
@@ -162,22 +142,27 @@ const ArrowHead = ({
     );
 };
 
-// ---- Animated flow edge ----
+// ---- Animated straight edge ----
 interface EdgeProps {
     startPos: [number, number, number];
     endPos: [number, number, number];
     color: string;
     dashed: boolean;
-    curveOffset?: [number, number, number];
+    offsetY?: number;
     reducedMotion: boolean;
 }
-const Edge = ({ startPos, endPos, color, dashed, curveOffset = [0, 0, 0], reducedMotion }: EdgeProps) => {
+const Edge = ({ startPos, endPos, color, dashed, offsetY = 0, reducedMotion }: EdgeProps) => {
     const lineRef = useRef<any>(null);
 
-    const midPos: [number, number, number] = [
-        (startPos[0] + endPos[0]) / 2 + curveOffset[0],
-        (startPos[1] + endPos[1]) / 2 + curveOffset[1],
-        (startPos[2] + endPos[2]) / 2 + curveOffset[2],
+    // Apply Y offset to both endpoints so the line stays perfectly straight
+    const s: [number, number, number] = [startPos[0], startPos[1] + offsetY, startPos[2]];
+    const e: [number, number, number] = [endPos[0], endPos[1] + offsetY, endPos[2]];
+
+    // Exact midpoint → QuadraticBezierLine degenerates to a straight line
+    const mid: [number, number, number] = [
+        (s[0] + e[0]) / 2,
+        (s[1] + e[1]) / 2,
+        (s[2] + e[2]) / 2,
     ];
 
     const hex = flowColor(color);
@@ -192,9 +177,9 @@ const Edge = ({ startPos, endPos, color, dashed, curveOffset = [0, 0, 0], reduce
         <group>
             <QuadraticBezierLine
                 ref={lineRef}
-                start={startPos}
-                end={endPos}
-                mid={midPos}
+                start={s}
+                end={e}
+                mid={mid}
                 color={hex}
                 lineWidth={3}
                 dashed={true}
@@ -202,12 +187,12 @@ const Edge = ({ startPos, endPos, color, dashed, curveOffset = [0, 0, 0], reduce
                 dashSize={dashed ? 0.5 : 2}
                 gapSize={dashed ? 0.5 : 0.2}
             />
-            <ArrowHead mid={midPos} end={endPos} color={color} />
+            <ArrowHead start={s} end={e} color={color} />
         </group>
     );
 };
 
-// ---- 3D node card with hover + entrance animation ----
+// ---- 3D node card ----
 interface NodeCardProps {
     node: NodeData;
     index: number;
@@ -219,7 +204,6 @@ const NodeCard = ({ node, index, reducedMotion }: NodeCardProps) => {
     const scaleRef = useRef(reducedMotion ? 1 : 0);
     const targetScale = useRef(1);
 
-    // Stagger entrance: each node starts slightly later
     const entranceDelay = useRef(reducedMotion ? 0 : 0.12 + index * 0.08);
     const elapsedRef = useRef(0);
 
@@ -227,14 +211,11 @@ const NodeCard = ({ node, index, reducedMotion }: NodeCardProps) => {
         if (!groupRef.current) return;
         elapsedRef.current += delta;
 
-        // Entrance scale animation (spring-ish ease-out)
         if (elapsedRef.current > entranceDelay.current && scaleRef.current < 1) {
             const t = Math.min(1, (elapsedRef.current - entranceDelay.current) / 0.6);
-            // cubic-bezier(0.16, 1, 0.3, 1) approximation
             scaleRef.current = 1 - Math.pow(1 - t, 3);
         }
 
-        // Hover scale lerp (on top of entrance)
         const desiredHover = hovered ? 1.08 : 1;
         targetScale.current = THREE.MathUtils.lerp(targetScale.current, desiredHover, 0.15);
 
@@ -257,7 +238,6 @@ const NodeCard = ({ node, index, reducedMotion }: NodeCardProps) => {
                     document.body.style.cursor = '';
                 }}
             >
-                {/* Soft back-glow under each node */}
                 <mesh position={[0, 0, -0.3]}>
                     <planeGeometry args={[5.5, 3.5]} />
                     <meshBasicMaterial
@@ -267,7 +247,6 @@ const NodeCard = ({ node, index, reducedMotion }: NodeCardProps) => {
                     />
                 </mesh>
 
-                {/* 3D glass card */}
                 <RoundedBox args={[4, 2, 0.22]} radius={0.14} smoothness={4}>
                     <meshPhysicalMaterial
                         color="#2a1f18"
@@ -280,14 +259,9 @@ const NodeCard = ({ node, index, reducedMotion }: NodeCardProps) => {
                         clearcoatRoughness={0.18}
                         reflectivity={0.6}
                     />
-                    <Edges
-                        scale={1.01}
-                        threshold={15}
-                        color={hovered ? CREAM : node.color}
-                    />
+                    <Edges scale={1.01} threshold={15} color={hovered ? CREAM : node.color} />
                 </RoundedBox>
 
-                {/* HTML overlay: icon + label */}
                 <Html transform distanceFactor={10} position={[0, 0, 0.12]} center zIndexRange={[100, 0]}>
                     <div
                         style={{
@@ -298,7 +272,7 @@ const NodeCard = ({ node, index, reducedMotion }: NodeCardProps) => {
                             width: '168px',
                             color: CREAM,
                             pointerEvents: 'none',
-                            fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+                            fontFamily: '"Inter", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
                             textShadow: `0 0 14px ${node.color}`,
                             transition: 'text-shadow 240ms cubic-bezier(0.16, 1, 0.3, 1)',
                         }}
@@ -316,7 +290,7 @@ const NodeCard = ({ node, index, reducedMotion }: NodeCardProps) => {
                             style={{
                                 fontSize: '13px',
                                 fontWeight: 700,
-                                letterSpacing: '0.09em',
+                                letterSpacing: '0.08em',
                                 textTransform: 'uppercase',
                                 textAlign: 'center',
                             }}
@@ -330,8 +304,14 @@ const NodeCard = ({ node, index, reducedMotion }: NodeCardProps) => {
     );
 };
 
-// ---- Main scene ----
-const Scene = ({ type, reducedMotion }: DiagramProps & { reducedMotion: boolean }) => {
+// ---- Scene ----
+interface SceneProps {
+    nodes: NodeData[];
+    links: LinkType[];
+    type: 'B2C' | 'B2B';
+    reducedMotion: boolean;
+}
+const Scene = ({ nodes, links, type, reducedMotion }: SceneProps) => {
     const groupRef = useRef<THREE.Group>(null);
 
     useFrame((state) => {
@@ -339,9 +319,6 @@ const Scene = ({ type, reducedMotion }: DiagramProps & { reducedMotion: boolean 
         groupRef.current.rotation.y = Math.sin(state.clock.getElapsedTime() * 0.1) * 0.04;
         groupRef.current.rotation.x = Math.cos(state.clock.getElapsedTime() * 0.1) * 0.015;
     });
-
-    const nodes = type === 'B2C' ? b2cNodes : b2bNodes;
-    const links = type === 'B2C' ? b2cLinks : b2bLinks;
 
     const getNodePos = (id: string): [number, number, number] => {
         const node = nodes.find((n) => n.id === id);
@@ -360,7 +337,7 @@ const Scene = ({ type, reducedMotion }: DiagramProps & { reducedMotion: boolean 
                     endPos={getNodePos(link.end)}
                     color={link.color}
                     dashed={link.dashed}
-                    curveOffset={link.curveOffset}
+                    offsetY={link.offsetY}
                     reducedMotion={reducedMotion}
                 />
             ))}
@@ -372,7 +349,6 @@ const Scene = ({ type, reducedMotion }: DiagramProps & { reducedMotion: boolean 
     );
 };
 
-// ---- Legend row helpers ----
 const legendRowStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
@@ -388,6 +364,7 @@ const legendLineStyle = (color: string): React.CSSProperties => ({
 
 // ---- Root component ----
 export default function Diagram3D({ type }: DiagramProps) {
+    const t = useTranslations();
     const [reducedMotion, setReducedMotion] = useState(false);
 
     useEffect(() => {
@@ -399,7 +376,40 @@ export default function Diagram3D({ type }: DiagramProps) {
         return () => mq.removeEventListener('change', handler);
     }, []);
 
-    // Memoize blob positions so they don't reshuffle every render
+    // Localized node arrays — recomputed only when translation function changes
+    const b2cNodes = useMemo<NodeData[]>(
+        () => [
+            { id: 'user', label: t('models.diagram.nodes.user'), icon: User, pos: [-10, 0, 4], color: GOLD_BRIGHT },
+            { id: 'qr', label: t('models.diagram.nodes.qr'), icon: QrCode, pos: [-4, 4, 2], color: GOLD_BRIGHT },
+            { id: 'charger', label: t('models.diagram.nodes.charger'), icon: Zap, pos: [2, 4, 0], color: GOLD_PRIMARY },
+            { id: 'wallet_user', label: t('models.diagram.nodes.wallet'), icon: Wallet, pos: [-4, -4, 4], color: GOLD_AMBER },
+            { id: 'payment', label: t('models.diagram.nodes.payment'), icon: CreditCard, pos: [2, -4, 2], color: GOLD_AMBER },
+            { id: 'server', label: t('models.diagram.nodes.server'), icon: Server, pos: [8, 0, -2], color: GOLD_PRIMARY },
+            { id: 'cpo', label: t('models.diagram.nodes.cpo'), icon: Building2, pos: [14, 0, 0], color: GOLD_DEEP },
+        ],
+        [t]
+    );
+
+    const b2bNodes = useMemo<NodeData[]>(
+        () => [
+            { id: 'user', label: t('models.diagram.nodes.user'), icon: User, pos: [-12, 0, 4], color: GOLD_BRIGHT },
+            { id: 'qr', label: t('models.diagram.nodes.qr'), icon: QrCode, pos: [-6, 4, 2], color: GOLD_BRIGHT },
+            { id: 'charger', label: t('models.diagram.nodes.charger'), icon: Zap, pos: [0, 4, 0], color: GOLD_PRIMARY },
+            { id: 'wallet_user', label: t('models.diagram.nodes.wallet'), icon: Wallet, pos: [-6, -4, 4], color: GOLD_AMBER },
+            { id: 'payment', label: t('models.diagram.nodes.payment'), icon: CreditCard, pos: [0, -4, 2], color: GOLD_AMBER },
+            { id: 'server', label: t('models.diagram.nodes.server'), icon: Server, pos: [6, 0, -2], color: GOLD_PRIMARY },
+            { id: 'cpo1', label: t('models.diagram.nodes.cpo1'), icon: Building2, pos: [12, 5, 0], color: GOLD_DEEP },
+            { id: 'cpo2', label: t('models.diagram.nodes.cpo2'), icon: Building2, pos: [12, 0, 0], color: GOLD_DEEP },
+            { id: 'cpo3', label: t('models.diagram.nodes.cpo3'), icon: Building2, pos: [12, -5, 0], color: GOLD_DEEP },
+            { id: 'wallet_cpo', label: t('models.diagram.nodes.walletFee'), icon: Wallet, pos: [16, 8, 0], color: GOLD_AMBER },
+            { id: 'admin', label: t('models.diagram.nodes.admin'), icon: ShieldCheck, pos: [20, 0, -4], color: GOLD_DEEP },
+        ],
+        [t]
+    );
+
+    const nodes = type === 'B2C' ? b2cNodes : b2bNodes;
+    const links = type === 'B2C' ? b2cLinks : b2bLinks;
+
     const blobs = useMemo(
         () => [
             { position: [-18, 8, -12] as [number, number, number], color: GOLD_PRIMARY, scale: 9, speed: 0.08, amplitude: 2.2 },
@@ -425,19 +435,16 @@ export default function Diagram3D({ type }: DiagramProps) {
                 <color attach="background" args={[BG_DEEP]} />
                 <fog attach="fog" args={[BG_DEEP, 30, 70]} />
 
-                {/* Lighting — warm key + amber fill + rim */}
                 <ambientLight intensity={0.32} />
                 <directionalLight position={[10, 20, 15]} intensity={1.5} color="#fff5d6" />
                 <pointLight position={[-10, -10, -10]} intensity={0.45} color={GOLD_DEEP} distance={45} decay={1.5} />
                 <pointLight position={[0, 0, 12]} intensity={0.35} color={GOLD_BRIGHT} distance={40} decay={1.5} />
                 <pointLight position={[18, 10, -6]} intensity={0.3} color={GOLD_AMBER} distance={35} decay={1.5} />
 
-                {/* Ambient blob lights — slow drifting depth */}
                 {blobs.map((b, i) => (
                     <BlobLight key={i} {...b} reducedMotion={reducedMotion} />
                 ))}
 
-                {/* Subtle grid floor for spatial grounding */}
                 <Grid
                     position={[0, -8, 0]}
                     args={[80, 80]}
@@ -452,7 +459,7 @@ export default function Diagram3D({ type }: DiagramProps) {
                     infiniteGrid={false}
                 />
 
-                <Scene type={type} reducedMotion={reducedMotion} />
+                <Scene nodes={nodes} links={links} type={type} reducedMotion={reducedMotion} />
 
                 <EffectComposer>
                     <Bloom luminanceThreshold={0.15} mipmapBlur intensity={1.8} radius={0.85} />
@@ -491,7 +498,7 @@ export default function Diagram3D({ type }: DiagramProps) {
                     gap: '11px',
                     pointerEvents: 'none',
                     minWidth: '188px',
-                    fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+                    fontFamily: '"Inter", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
                 }}
             >
                 <h4
@@ -506,19 +513,25 @@ export default function Diagram3D({ type }: DiagramProps) {
                         textShadow: `0 0 10px ${GOLD_BRIGHT}`,
                     }}
                 >
-                    Flow Legend
+                    {t('models.diagram.legend.title')}
                 </h4>
                 <div style={legendRowStyle}>
                     <div style={legendLineStyle(GOLD_BRIGHT)} />
-                    <span style={{ fontSize: '11px', fontWeight: 500, color: CREAM }}>Data Flow</span>
+                    <span style={{ fontSize: '11px', fontWeight: 500, color: CREAM }}>
+                        {t('models.diagram.legend.data')}
+                    </span>
                 </div>
                 <div style={legendRowStyle}>
                     <div style={legendLineStyle(GOLD_AMBER)} />
-                    <span style={{ fontSize: '11px', fontWeight: 500, color: CREAM }}>Money Flow</span>
+                    <span style={{ fontSize: '11px', fontWeight: 500, color: CREAM }}>
+                        {t('models.diagram.legend.money')}
+                    </span>
                 </div>
                 <div style={legendRowStyle}>
                     <div style={legendLineStyle(GOLD_DEEP)} />
-                    <span style={{ fontSize: '11px', fontWeight: 500, color: CREAM }}>Revenue Flow</span>
+                    <span style={{ fontSize: '11px', fontWeight: 500, color: CREAM }}>
+                        {t('models.diagram.legend.revenue')}
+                    </span>
                 </div>
                 <div
                     style={{
@@ -536,7 +549,7 @@ export default function Diagram3D({ type }: DiagramProps) {
                         }}
                     />
                     <span style={{ fontSize: '11px', fontWeight: 500, color: 'rgba(255, 247, 212, 0.7)' }}>
-                        Indirect / Scan
+                        {t('models.diagram.legend.indirect')}
                     </span>
                 </div>
                 <div
@@ -549,7 +562,7 @@ export default function Diagram3D({ type }: DiagramProps) {
                         letterSpacing: '0.05em',
                     }}
                 >
-                    Drag to rotate • Scroll to zoom • Hover a node
+                    {t('models.diagram.legend.hint')}
                 </div>
             </div>
         </div>

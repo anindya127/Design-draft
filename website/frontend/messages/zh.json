@@ -82,7 +82,35 @@
       ],
       "summary": "这是一种层级关系。您的 B2B 客户（超级管理员）充当平台提供方。他们为多个独立 CPO 提供网络/软件基础设施。作为回报，超级管理员获得汇总的系统范围数据，并收取来自其下属所有子运营商产生的收益的佣金/提成。"
     },
-    "learnmore": "了解更多"
+    "learnmore": "了解更多",
+    "modalTitle": {
+      "b2c": "B2C 模式 — 直营运营生态",
+      "b2b": "B2B2C 模式 — 平台 / 加盟生态"
+    },
+    "diagram": {
+      "nodes": {
+        "user": "用户",
+        "qr": "二维码",
+        "charger": "充电桩",
+        "wallet": "钱包",
+        "payment": "支付公司",
+        "server": "服务器",
+        "cpo": "运营商",
+        "cpo1": "运营商 1",
+        "cpo2": "运营商 2",
+        "cpo3": "运营商 3",
+        "walletFee": "钱包（手续费）",
+        "admin": "GCSS 超级管理员"
+      },
+      "legend": {
+        "title": "流向图例",
+        "data": "数据流",
+        "money": "资金流",
+        "revenue": "分润流",
+        "indirect": "间接 / 扫码",
+        "hint": "拖动旋转 · 滚轮缩放 · 悬停节点"
+      }
+    }
   },
   "features": {
     "label": "核心功能",
@@ -155,7 +183,27 @@
   "map": {
     "label": "全球覆盖",
     "title": "为全球充电桩提供动力",
-    "desc": "我们的平台服务于 100+ 国家的运营商，支持本地化支付、语言和合规要求。"
+    "desc": "我们的平台服务于 100+ 国家的运营商，支持本地化支付、语言和合规要求。",
+    "countries": {
+      "china": "中国",
+      "frenchPolynesia": "法属波利尼西亚",
+      "cambodia": "柬埔寨",
+      "singapore": "新加坡",
+      "belgium": "比利时",
+      "france": "法国",
+      "italy": "意大利",
+      "russia": "俄罗斯",
+      "brazil": "巴西",
+      "malaysia": "马来西亚",
+      "philippines": "菲律宾",
+      "vietnam": "越南",
+      "uae": "阿联酋",
+      "saudiArabia": "沙特阿拉伯",
+      "thailand": "泰国",
+      "sriLanka": "斯里兰卡",
+      "india": "印度",
+      "indonesia": "印度尼西亚"
+    }
   },
   "lang": {
     "label": "多语言",
@@ -178,6 +226,7 @@
     "label": "使用流程",
     "title": "3 步快速上线",
     "desc": "从注册到首次充电会话 — 比任何其他平台都更快投入运营。",
+    "stepLabel": "第 {n} 步",
     "s1": {
       "title": "部署与配置",
       "desc": "下载 GCSS 或使用我们的云端 SaaS。数分钟内完成运营商资料、品牌和支付网关配置。"
@@ -925,6 +974,8 @@
     }
   },
   "docs": {
+    "copy": "复制",
+    "copied": "已复制！",
     "tab": {
       "install": "安装",
       "doc": "文档"
@@ -1283,13 +1334,14 @@
       "autoBillingDesc": "系统自动计算您的平台佣金与商户结算金额",
       "superAdmin": "超级管理控制",
       "superAdminDesc": "统一控制台掌控全局，全球统计数据即刻呈现",
+      "paymentTitle": "支付流程",
       "payment1": "用户通过 App 或信用卡支付",
       "payment2": "系统自动扣除您的平台服务费",
       "payment3": "剩余余额自动结算至商户账户"
     },
     "profit": {
       "title": "多元化盈利模型",
-      "subtitle": "Beyond just electricity fees. Our system unlocks 4 streams of passive income.",
+      "subtitle": "不仅仅是电费收入。我们的系统为您解锁 4 种被动收入来源。",
       "stream1": {
         "title": "自动化平台费用",
         "desc": "自动按照运营商设定的费率，按行业充电站总费用的百分比（TOTAL）自动计算每笔交易的平台费用。"
@@ -1455,15 +1507,11 @@
       },
       "admin": {
         "title": "全球运营总后台",
-        "subtitle": "Global Admin Panel",
-        "account": "admin",
-        "pass": "123456"
+        "subtitle": "Global Admin Panel"
       },
       "merchant": {
         "title": "商户管理后台",
-        "subtitle": "Merchant Panel",
-        "account": "test_merchant",
-        "pass": "123456"
+        "subtitle": "Merchant Panel"
       },
       "demoAccount": "演示账号",
       "account": "账号",

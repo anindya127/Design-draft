@@ -1,42 +1,61 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import type { FeatureCollection, Geometry } from 'geojson';
+import { useTranslations } from 'next-intl';
 
 const WORLD_ATLAS_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
-const ORIGIN = { name: 'China', lat: 35.86, lng: 104.20 };
-
-const COUNTRIES = [
-  { name: 'French Polynesia', lat: -17.68, lng: -149.41 },
-  { name: 'Cambodia', lat: 12.57, lng: 104.99 },
-  { name: 'Singapore', lat: 1.35, lng: 103.82 },
-  { name: 'Belgium', lat: 50.85, lng: 4.35 },
-  { name: 'France', lat: 46.23, lng: 2.21 },
-  { name: 'Italy', lat: 41.87, lng: 12.57 },
-  { name: 'Russia', lat: 61.52, lng: 105.32 },
-  { name: 'Brazil', lat: -14.24, lng: -51.93 },
-  { name: 'Malaysia', lat: 4.21, lng: 101.98 },
-  { name: 'Philippines', lat: 12.88, lng: 121.77 },
-  { name: 'Vietnam', lat: 14.06, lng: 108.28 },
-  { name: 'UAE', lat: 23.42, lng: 53.85 },
-  { name: 'Saudi Arabia', lat: 23.89, lng: 45.08 },
-  { name: 'Thailand', lat: 15.87, lng: 100.99 },
-  { name: 'Sri Lanka', lat: 7.87, lng: 80.77 },
-  { name: 'India', lat: 20.59, lng: 78.96 },
-  { name: 'Indonesia', lat: -0.79, lng: 113.92 },
-];
+// Canonical English property name on the world-atlas GeoJSON — used to
+// match the China polygon regardless of UI locale (TopoJSON properties
+// are always English).
+const CHINA_GEO_NAME = 'China';
+const CANONICAL_TARGET_NAMES = new Set([
+  'French Polynesia', 'Cambodia', 'Singapore', 'Belgium', 'France', 'Italy',
+  'Russia', 'Brazil', 'Malaysia', 'Philippines', 'Vietnam', 'United Arab Emirates',
+  'Saudi Arabia', 'Thailand', 'Sri Lanka', 'India', 'Indonesia',
+]);
 
 export default function GlobeVisualization() {
+  const t = useTranslations();
   const svgRef = useRef<SVGSVGElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 700, h: 500 });
   const [worldData, setWorldData] = useState<FeatureCollection<Geometry> | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; name: string } | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+
+  const origin = useMemo(
+    () => ({ name: t('map.countries.china'), lat: 35.86, lng: 104.20 }),
+    [t]
+  );
+
+  const countries = useMemo(
+    () => [
+      { name: t('map.countries.frenchPolynesia'), lat: -17.68, lng: -149.41 },
+      { name: t('map.countries.cambodia'), lat: 12.57, lng: 104.99 },
+      { name: t('map.countries.singapore'), lat: 1.35, lng: 103.82 },
+      { name: t('map.countries.belgium'), lat: 50.85, lng: 4.35 },
+      { name: t('map.countries.france'), lat: 46.23, lng: 2.21 },
+      { name: t('map.countries.italy'), lat: 41.87, lng: 12.57 },
+      { name: t('map.countries.russia'), lat: 61.52, lng: 105.32 },
+      { name: t('map.countries.brazil'), lat: -14.24, lng: -51.93 },
+      { name: t('map.countries.malaysia'), lat: 4.21, lng: 101.98 },
+      { name: t('map.countries.philippines'), lat: 12.88, lng: 121.77 },
+      { name: t('map.countries.vietnam'), lat: 14.06, lng: 108.28 },
+      { name: t('map.countries.uae'), lat: 23.42, lng: 53.85 },
+      { name: t('map.countries.saudiArabia'), lat: 23.89, lng: 45.08 },
+      { name: t('map.countries.thailand'), lat: 15.87, lng: 100.99 },
+      { name: t('map.countries.sriLanka'), lat: 7.87, lng: 80.77 },
+      { name: t('map.countries.india'), lat: 20.59, lng: 78.96 },
+      { name: t('map.countries.indonesia'), lat: -0.79, lng: 113.92 },
+    ],
+    [t]
+  );
 
   const handleZoom = (dir: 'in' | 'out') => {
     if (!svgRef.current || !zoomBehaviorRef.current) return;
@@ -77,15 +96,25 @@ export default function GlobeVisualization() {
 
   useEffect(() => {
     if (!isVisible) return;
-    d3.json(WORLD_ATLAS_URL).then((data: any) => {
-      const countries = topojson.feature(data, data.objects.countries) as unknown as FeatureCollection<Geometry>;
-      setWorldData(countries);
-    });
+    let mounted = true;
+    d3.json(WORLD_ATLAS_URL)
+      .then((data: any) => {
+        if (!mounted) return;
+        const countries = topojson.feature(data, data.objects.countries) as unknown as FeatureCollection<Geometry>;
+        setWorldData(countries);
+      })
+      .catch(() => {
+        if (mounted) setLoadError(true);
+      });
+    return () => {
+      mounted = false;
+    };
   }, [isVisible]);
 
   useEffect(() => {
     if (!worldData || !svgRef.current) return;
 
+    let mounted = true;
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
@@ -133,10 +162,9 @@ export default function GlobeVisualization() {
       .attr('stroke-width', 0.4)
       .attr('stroke-opacity', 0.12);
 
-    // Countries
-    const targetNames = new Set(COUNTRIES.map(c => c.name));
-    targetNames.add(ORIGIN.name);
-
+    // Countries — match by the canonical English name from the TopoJSON
+    // properties (which is locale-independent), not by the localized
+    // label we render on top.
     root.selectAll('.country')
       .data(worldData.features)
       .enter().append('path')
@@ -144,8 +172,8 @@ export default function GlobeVisualization() {
       .attr('d', path as any)
       .attr('fill', (d: any) => {
         const n = d.properties?.name;
-        if (n === ORIGIN.name) return '#C07F00';
-        if (targetNames.has(n)) return '#6b5540';
+        if (n === CHINA_GEO_NAME) return '#C07F00';
+        if (CANONICAL_TARGET_NAMES.has(n)) return '#6b5540';
         return 'url(#gcss-land-2d)';
       })
       .attr('stroke', '#FFD95A')
@@ -173,10 +201,10 @@ export default function GlobeVisualization() {
     };
 
     const arcsGroup = root.append('g').attr('class', 'arcs');
-    const links = COUNTRIES.map(t => ({
+    const links = countries.map((c) => ({
       type: 'LineString' as const,
-      coordinates: densify([ORIGIN.lng, ORIGIN.lat], [t.lng, t.lat]),
-      name: t.name,
+      coordinates: densify([origin.lng, origin.lat], [c.lng, c.lat]),
+      name: c.name,
     }));
 
     const arcs = arcsGroup.selectAll('.arc')
@@ -201,8 +229,8 @@ export default function GlobeVisualization() {
     const markersGroup = root.append('g').attr('class', 'markers');
 
     const allPoints = [
-      { name: ORIGIN.name, lng: ORIGIN.lng, lat: ORIGIN.lat, isOrigin: true },
-      ...COUNTRIES.map(c => ({ ...c, isOrigin: false })),
+      { name: origin.name, lng: origin.lng, lat: origin.lat, isOrigin: true },
+      ...countries.map((c) => ({ ...c, isOrigin: false })),
     ];
 
     const markers = markersGroup.selectAll('.marker')
@@ -215,6 +243,7 @@ export default function GlobeVisualization() {
       })
       .style('cursor', 'pointer')
       .on('mouseenter', function (event: MouseEvent, d: any) {
+        if (!mounted) return;
         const rect = svgRef.current?.getBoundingClientRect();
         if (!rect) return;
         setTooltip({
@@ -224,6 +253,7 @@ export default function GlobeVisualization() {
         });
       })
       .on('mousemove', function (event: MouseEvent, d: any) {
+        if (!mounted) return;
         const rect = svgRef.current?.getBoundingClientRect();
         if (!rect) return;
         setTooltip({
@@ -232,7 +262,9 @@ export default function GlobeVisualization() {
           name: d.name,
         });
       })
-      .on('mouseleave', () => setTooltip(null));
+      .on('mouseleave', () => {
+        if (mounted) setTooltip(null);
+      });
 
     markers.append('circle')
       .attr('class', 'ripple')
@@ -243,7 +275,7 @@ export default function GlobeVisualization() {
     markers.append('circle')
       .attr('class', 'dot')
       .attr('r', (d: any) => d.isOrigin ? 4 : 2.2)
-      .attr('fill', (d: any) => d.isOrigin ? '#FFD95A' : '#FFD95A')
+      .attr('fill', '#FFD95A')
       .attr('stroke', (d: any) => d.isOrigin ? '#4C3D3D' : 'none')
       .attr('stroke-width', 1);
 
@@ -294,9 +326,11 @@ export default function GlobeVisualization() {
     svg.call(zoomBehavior);
 
     return () => {
+      mounted = false;
       pulseTimer.stop();
+      svg.on('.zoom', null);
     };
-  }, [worldData, dims]);
+  }, [worldData, dims, origin, countries]);
 
   return (
     <div
@@ -313,12 +347,20 @@ export default function GlobeVisualization() {
         border: '1px solid rgba(255, 217, 90, 0.15)',
       }}
     >
-      {!worldData && isVisible && (
+      {!worldData && isVisible && !loadError && (
         <div style={{
           position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#FFD95A', fontSize: '0.85rem', fontWeight: 500, zIndex: 20,
         }}>
           Loading map...
+        </div>
+      )}
+      {loadError && (
+        <div style={{
+          position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#FFD95A', fontSize: '0.85rem', fontWeight: 500, zIndex: 20, textAlign: 'center', padding: 20,
+        }}>
+          Map unavailable — check your connection.
         </div>
       )}
       <svg
