@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { ThemeProvider } from '@/providers/ThemeProvider';
@@ -31,13 +32,12 @@ export default async function LocaleLayout({
       className="gcss-html"
       suppressHydrationWarning
     >
-      <head>
-        {/* External theme init — runs synchronously before body paint
-            to prevent dark-mode FOUC. Intentionally an external src so
-            React 19 / Next 16 don't flag it as an inline script. */}
-        <script src="/theme-init.js" />
-      </head>
       <body>
+        {/* External theme init — runs before interactive/hydration to
+            prevent dark-mode FOUC. `next/script` with beforeInteractive
+            is the React 19 / Next 16-approved way to inject an external
+            script into the document head. */}
+        <Script src="/theme-init.js" strategy="beforeInteractive" />
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             <ScrollProgress />
