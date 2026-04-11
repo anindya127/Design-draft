@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import type { FeatureCollection, Geometry } from 'geojson';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 const WORLD_ATLAS_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
@@ -20,6 +20,7 @@ const CANONICAL_TARGET_NAMES = new Set([
 
 export default function GlobeVisualization() {
   const t = useTranslations();
+  const locale = useLocale();
   const svgRef = useRef<SVGSVGElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 700, h: 500 });
@@ -29,9 +30,14 @@ export default function GlobeVisualization() {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; name: string } | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
 
+  // Keyed on `locale` (stable string) rather than `t` (may be a fresh
+  // closure per render). Keeps the arrays referentially stable within a
+  // given locale, and the effect dep on `locale` avoids "array changed
+  // size between renders" errors under Turbopack HMR.
   const origin = useMemo(
     () => ({ name: t('map.countries.china'), lat: 35.86, lng: 104.20 }),
-    [t]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [locale]
   );
 
   const countries = useMemo(
@@ -54,7 +60,8 @@ export default function GlobeVisualization() {
       { name: t('map.countries.india'), lat: 20.59, lng: 78.96 },
       { name: t('map.countries.indonesia'), lat: -0.79, lng: 113.92 },
     ],
-    [t]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [locale]
   );
 
   const handleZoom = (dir: 'in' | 'out') => {
@@ -330,7 +337,11 @@ export default function GlobeVisualization() {
       pulseTimer.stop();
       svg.on('.zoom', null);
     };
-  }, [worldData, dims, origin, countries]);
+    // Effect depends on `locale` so it re-runs on language switch, while
+    // `origin`/`countries` are read from the current render closure
+    // (kept stable per-locale via the useMemo above).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worldData, dims, locale]);
 
   return (
     <div

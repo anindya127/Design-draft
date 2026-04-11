@@ -13,7 +13,7 @@ import {
     Grid,
 } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { User, QrCode, Zap, Server, Building2, ShieldCheck, Wallet, CreditCard } from 'lucide-react';
 import * as THREE from 'three';
 
@@ -365,6 +365,7 @@ const legendLineStyle = (color: string): React.CSSProperties => ({
 // ---- Root component ----
 export default function Diagram3D({ type }: DiagramProps) {
     const t = useTranslations();
+    const locale = useLocale();
     const [reducedMotion, setReducedMotion] = useState(false);
 
     useEffect(() => {
@@ -376,7 +377,9 @@ export default function Diagram3D({ type }: DiagramProps) {
         return () => mq.removeEventListener('change', handler);
     }, []);
 
-    // Localized node arrays — recomputed only when translation function changes
+    // Localized node arrays — keyed on `locale` (stable string) to avoid
+    // new array identity on every render when next-intl returns a fresh
+    // `t` closure.
     const b2cNodes = useMemo<NodeData[]>(
         () => [
             { id: 'user', label: t('models.diagram.nodes.user'), icon: User, pos: [-10, 0, 4], color: GOLD_BRIGHT },
@@ -387,7 +390,8 @@ export default function Diagram3D({ type }: DiagramProps) {
             { id: 'server', label: t('models.diagram.nodes.server'), icon: Server, pos: [8, 0, -2], color: GOLD_PRIMARY },
             { id: 'cpo', label: t('models.diagram.nodes.cpo'), icon: Building2, pos: [14, 0, 0], color: GOLD_DEEP },
         ],
-        [t]
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [locale]
     );
 
     const b2bNodes = useMemo<NodeData[]>(
@@ -404,7 +408,8 @@ export default function Diagram3D({ type }: DiagramProps) {
             { id: 'wallet_cpo', label: t('models.diagram.nodes.walletFee'), icon: Wallet, pos: [16, 8, 0], color: GOLD_AMBER },
             { id: 'admin', label: t('models.diagram.nodes.admin'), icon: ShieldCheck, pos: [20, 0, -4], color: GOLD_DEEP },
         ],
-        [t]
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [locale]
     );
 
     const nodes = type === 'B2C' ? b2cNodes : b2bNodes;
