@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import Diagram3D from './Diagram3D';
+import Diagram2D from './Diagram2D';
 import './DiagramModal.css';
 
 type DiagramType = 'B2C' | 'B2B';
@@ -84,7 +84,7 @@ export function DiagramModalProvider({ children }: { children: ReactNode }) {
                             </h2>
                         </div>
                         <div className="diagram-modal-body">
-                            <Diagram3D type={diagramType} />
+                            <Diagram2D type={diagramType} />
                         </div>
                     </div>
                 </div>
