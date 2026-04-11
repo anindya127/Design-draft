@@ -216,7 +216,15 @@
   "payment": {
     "label": "Payments",
     "title": "Global Payment Matrix",
-    "desc": "100+ currencies supported with PCI-DSS certified security. Direct settlement to local bank accounts.",
+    "desc": "Support for 100+ currencies with PCI-DSS certified security. Direct settlement to local bank accounts.",
+    "regions": {
+      "asia": "Asia",
+      "europe": "Europe",
+      "oceania": "Oceania",
+      "africa": "Africa",
+      "southAmerica": "South America",
+      "northAmerica": "North America"
+    },
     "request": {
       "title": "Need a local payment method we don't support yet?",
       "desc": "Tell us which method you need and where you operate — we'll prioritize it on our integration roadmap.",
