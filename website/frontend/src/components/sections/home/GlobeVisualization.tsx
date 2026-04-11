@@ -160,11 +160,37 @@ export default function GlobeVisualization() {
         d3.select(this).attr('stroke-opacity', 0.35).attr('stroke-width', 0.4);
       });
 
-    // Arcs
+    // Arcs — build great circles with antimeridian splitting so paths
+    // like China → French Polynesia go across the Pacific (wrap) rather
+    // than backward across the whole map.
+    const buildGreatCircle = (
+      a: [number, number],
+      b: [number, number]
+    ): GeoJSON.MultiLineString => {
+      const interp = d3.geoInterpolate(a, b);
+      const steps = 128;
+      const segments: [number, number][][] = [[]];
+      let prev: [number, number] | null = null;
+      for (let i = 0; i <= steps; i++) {
+        const p = interp(i / steps) as [number, number];
+        if (prev && Math.abs(p[0] - prev[0]) > 180) {
+          // Antimeridian crossing — close current segment at edge,
+          // open a new one at the opposite edge
+          const sign = prev[0] > 0 ? 1 : -1;
+          const edgeA: [number, number] = [sign * 180, (prev[1] + p[1]) / 2];
+          const edgeB: [number, number] = [-sign * 180, (prev[1] + p[1]) / 2];
+          segments[segments.length - 1].push(edgeA);
+          segments.push([edgeB]);
+        }
+        segments[segments.length - 1].push(p);
+        prev = p;
+      }
+      return { type: 'MultiLineString', coordinates: segments };
+    };
+
     const arcsGroup = root.append('g').attr('class', 'arcs');
     const links = COUNTRIES.map(t => ({
-      type: 'LineString' as const,
-      coordinates: [[ORIGIN.lng, ORIGIN.lat], [t.lng, t.lat]],
+      ...buildGreatCircle([ORIGIN.lng, ORIGIN.lat], [t.lng, t.lat]),
       name: t.name,
     }));
 
