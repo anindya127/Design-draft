@@ -308,7 +308,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="grid grid-4">
             <ScrollAnimation>
               <div className="card card-with-img" style={{ height: '100%' }}>
-                <div className="card-img-placeholder">
+                <div className="card-img-placeholder card-img-phone">
                   <ImagePlaceholder variant="phone" fill hideLabel label={t('index.mobile.card1.title')} />
                 </div>
                 <h3>{t('index.mobile.card1.title')}</h3>
@@ -317,8 +317,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </ScrollAnimation>
             <ScrollAnimation>
               <div className="card card-with-img" style={{ height: '100%' }}>
-                <div className="card-img-placeholder">
-                  <Image src="/images/Mobile-Map.png" alt={t('index.mobile.card2.title')} width={390} height={844} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }} />
+                <div className="card-img-placeholder card-img-phone">
+                  <Image src="/images/Mobile-Map.png" alt={t('index.mobile.card2.title')} width={390} height={844} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <h3>{t('index.mobile.card2.title')}</h3>
                 <p>{t('index.mobile.card2.desc')}</p>
@@ -326,8 +326,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </ScrollAnimation>
             <ScrollAnimation>
               <div className="card card-with-img" style={{ height: '100%' }}>
-                <div className="card-img-placeholder">
-                  <Image src="/images/login.jpg" alt={t('index.mobile.card3.title')} width={390} height={844} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }} />
+                <div className="card-img-placeholder card-img-phone">
+                  <Image src="/images/login.jpg" alt={t('index.mobile.card3.title')} width={390} height={844} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <h3>{t('index.mobile.card3.title')}</h3>
                 <p>{t('index.mobile.card3.desc')}</p>
@@ -335,8 +335,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </ScrollAnimation>
             <ScrollAnimation>
               <div className="card card-with-img" style={{ height: '100%' }}>
-                <div className="card-img-placeholder">
-                  <ImagePlaceholder variant="analytics" fill hideLabel label={t('index.mobile.card4.title')} />
+                <div className="card-img-placeholder card-img-phone">
+                  <Image src="/images/mobile_ charge.png" alt={t('index.mobile.card4.title')} width={390} height={844} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <h3>{t('index.mobile.card4.title')}</h3>
                 <p>{t('index.mobile.card4.desc')}</p>
