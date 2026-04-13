@@ -101,30 +101,6 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: st
               </div>
             </div>
 
-            <div className="hero-visual">
-              {/* Floating Icons */}
-              <div className="hero-floating-icon float-3d hero-float-1 glass">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" />
-                </svg>
-              </div>
-              <div className="hero-floating-icon float-3d hero-float-2 glass">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-                </svg>
-              </div>
-              <div className="hero-floating-icon float-3d hero-float-3 glass">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
-                </svg>
-              </div>
-              <div className="hero-floating-icon float-3d hero-float-4 glass">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              </div>
-            </div>
           </div>
         </div>
       </section>

@@ -9,6 +9,8 @@
 @import './styles/sections.css';
 @import './styles/pages.css';
 @import './styles/pages-extracted.css';
+/* ui-ux-pro-max beautification layer — imported last so it wins the cascade. */
+@import './styles/polish.css';
 
 /* --- System Font Fallback --- */
 html.gcss-html {

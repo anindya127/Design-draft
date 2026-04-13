@@ -1,7 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import CounterAnimation from '@/components/effects/CounterAnimation';
 import ScrollAnimation from '@/components/effects/ScrollAnimation';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder';
 import SubNav from './SubNav';
 import DemoTabs from './DemoTabs';
 import LanguageRequestForm from './LanguageRequestForm';
@@ -53,32 +55,6 @@ export default async function B2CPage({ params }: { params: Promise<{ locale: st
               </div>
             </div>
 
-            <div className="hero-visual">
-              {/* Floating Icons */}
-              <div className="hero-floating-icon float-3d hero-float-1 glass">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                </svg>
-              </div>
-              <div className="hero-floating-icon float-3d hero-float-2 glass">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" strokeWidth="2">
-                  <rect x="2" y="3" width="20" height="14" rx="2" />
-                  <line x1="8" y1="21" x2="16" y2="21" />
-                  <line x1="12" y1="17" x2="12" y2="21" />
-                </svg>
-              </div>
-              <div className="hero-floating-icon float-3d hero-float-3 glass">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              </div>
-              <div className="hero-floating-icon float-3d hero-float-4 glass">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-                </svg>
-              </div>
-            </div>
           </div>
 
           {/* Feature Grid */}
@@ -206,15 +182,7 @@ export default async function B2CPage({ params }: { params: Promise<{ locale: st
             <div style={{ marginTop: 80 }}>
               <div className="feature-row">
                 <div className="feature-image-placeholder">
-                  <div style={{ width: '100%', height: '100%', borderRadius: 'inherit', position: 'absolute', top: 0, left: 0, zIndex: 1, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)' }} />
-                  <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 20 }}>
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ margin: '0 auto 12px' }}>
-                      <rect width="48" height="48" rx="12" fill="rgba(255,255,255,0.1)" />
-                      <rect x="8" y="10" width="32" height="20" rx="4" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" />
-                      <circle cx="24" cy="38" r="3" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" />
-                    </svg>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>UI Design Preview</div>
-                  </div>
+                  <ImagePlaceholder variant="dashboard" aspectRatio="16/10" label={t('product.ui.title')} />
                 </div>
                 <div className="feature-text">
                   <h3>{t('product.ui.title')}</h3>
@@ -247,13 +215,7 @@ export default async function B2CPage({ params }: { params: Promise<{ locale: st
             <div style={{ marginTop: 40 }}>
               <div className="feature-row reverse">
                 <div className="feature-image-placeholder">
-                  <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 20 }}>
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ margin: '0 auto 12px' }}>
-                      <rect width="48" height="48" rx="12" fill="rgba(255,255,255,0.1)" />
-                      <path d="M14 16h20M14 24h20M14 32h12" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>White-Label Preview</div>
-                  </div>
+                  <ImagePlaceholder variant="security" aspectRatio="16/10" label={t('product.brand.title')} />
                 </div>
                 <div className="feature-text">
                   <h3>{t('product.brand.title')}</h3>
@@ -404,16 +366,7 @@ export default async function B2CPage({ params }: { params: Promise<{ locale: st
             <div style={{ marginTop: 80 }}>
               <div className="feature-row">
                 <div className="feature-image-placeholder">
-                  <div style={{ width: '100%', height: '100%', borderRadius: 'inherit', position: 'absolute', top: 0, left: 0, zIndex: 1, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)' }} />
-                  <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 20 }}>
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ margin: '0 auto 12px' }}>
-                      <rect x="12" y="4" width="24" height="40" rx="4" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" />
-                      <line x1="12" y1="10" x2="36" y2="10" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-                      <line x1="12" y1="36" x2="36" y2="36" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-                      <circle cx="24" cy="40" r="2" stroke="rgba(255,255,255,0.4)" strokeWidth="1" fill="none" />
-                    </svg>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>APP / H5 Preview</div>
-                  </div>
+                  <ImagePlaceholder variant="phone" aspectRatio="16/10" label={t('product.app.title')} />
                 </div>
                 <div className="feature-text">
                   <h3>{t('product.app.title')}</h3>
@@ -449,19 +402,26 @@ export default async function B2CPage({ params }: { params: Promise<{ locale: st
           <ScrollAnimation>
             <div style={{ marginTop: 40 }}>
               <div className="feature-row reverse">
-                <div className="feature-image-placeholder">
-                  <div style={{ width: '100%', height: '100%', borderRadius: 'inherit', position: 'absolute', top: 0, left: 0, zIndex: 1, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)' }} />
-                  <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 20 }}>
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ margin: '0 auto 12px' }}>
-                      <rect width="48" height="48" rx="12" fill="rgba(255,255,255,0.1)" />
-                      <path d="M14 30l6-8 6 4 8-12" stroke="#E6A817" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle cx="14" cy="30" r="2" fill="#E6A817" />
-                      <circle cx="20" cy="22" r="2" fill="#E6A817" />
-                      <circle cx="26" cy="26" r="2" fill="#E6A817" />
-                      <circle cx="34" cy="14" r="2" fill="#E6A817" />
-                    </svg>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Operations Dashboard</div>
-                  </div>
+                <div
+                  className="feature-image-placeholder"
+                  style={{
+                    position: 'relative',
+                    aspectRatio: '16/10',
+                    borderRadius: 'var(--radius-md, 14px)',
+                    overflow: 'hidden',
+                    background: '#1a1210',
+                    boxShadow:
+                      '0 12px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(254, 191, 29, 0.2), 0 0 36px rgba(254, 191, 29, 0.12)',
+                  }}
+                >
+                  <Image
+                    src="/images/smart-ops-dashboard.png"
+                    alt={t('product.ops.title')}
+                    fill
+                    sizes="(max-width: 900px) 100vw, 560px"
+                    style={{ objectFit: 'cover' }}
+                    priority={false}
+                  />
                 </div>
                 <div className="feature-text">
                   <h3>{t('product.ops.title')}</h3>
@@ -504,42 +464,10 @@ export default async function B2CPage({ params }: { params: Promise<{ locale: st
 
           <ScrollAnimation>
             <div className="grid grid-4">
-              <div className="hero-image-placeholder" style={{ aspectRatio: '9/16', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 16 }}>
-                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ margin: '0 auto 8px' }}>
-                    <rect x="8" y="2" width="16" height="28" rx="3" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" />
-                    <circle cx="16" cy="26" r="1.5" fill="rgba(255,255,255,0.4)" />
-                  </svg>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>{t('product.gallery.home')}</div>
-                </div>
-              </div>
-              <div className="hero-image-placeholder" style={{ aspectRatio: '9/16', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 16 }}>
-                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ margin: '0 auto 8px' }}>
-                    <rect x="8" y="2" width="16" height="28" rx="3" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" />
-                    <circle cx="16" cy="26" r="1.5" fill="rgba(255,255,255,0.4)" />
-                  </svg>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>{t('product.gallery.charging')}</div>
-                </div>
-              </div>
-              <div className="hero-image-placeholder" style={{ aspectRatio: '9/16', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 16 }}>
-                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ margin: '0 auto 8px' }}>
-                    <rect x="8" y="2" width="16" height="28" rx="3" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" />
-                    <circle cx="16" cy="26" r="1.5" fill="rgba(255,255,255,0.4)" />
-                  </svg>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>{t('product.gallery.map')}</div>
-                </div>
-              </div>
-              <div className="hero-image-placeholder" style={{ aspectRatio: '9/16', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: 16 }}>
-                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ margin: '0 auto 8px' }}>
-                    <rect x="8" y="2" width="16" height="28" rx="3" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" />
-                    <circle cx="16" cy="26" r="1.5" fill="rgba(255,255,255,0.4)" />
-                  </svg>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>{t('product.gallery.payment')}</div>
-                </div>
-              </div>
+              <ImagePlaceholder variant="phone" aspectRatio="9/16" label={t('product.gallery.home')} />
+              <ImagePlaceholder variant="ev-station" aspectRatio="9/16" label={t('product.gallery.charging')} />
+              <ImagePlaceholder variant="hero" aspectRatio="9/16" label={t('product.gallery.map')} />
+              <ImagePlaceholder variant="dashboard" aspectRatio="9/16" label={t('product.gallery.payment')} />
             </div>
           </ScrollAnimation>
         </div>

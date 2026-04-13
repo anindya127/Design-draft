@@ -193,6 +193,68 @@
   transform: rotate(180deg);
 }
 
+/* Nav dropdown trigger (button-based) */
+.nav-dropdown-trigger {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font: inherit;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: color 0.3s;
+  position: relative;
+  border-radius: var(--radius);
+}
+
+.nav-dropdown-trigger:hover,
+.nav-dropdown-trigger.active {
+  color: var(--text-primary);
+}
+
+.nav-dropdown-trigger.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: var(--primary);
+  border-radius: 1px;
+}
+
+.nav-dropdown-trigger.active {
+  font-weight: 600;
+}
+
+.dropdown-chevron {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.nav-dropdown:hover .dropdown-chevron,
+.nav-dropdown.open .dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+/* Desktop: hide the mobile nav footer + backdrop */
+.mobile-nav-footer,
+.mobile-nav-backdrop {
+  display: none;
+}
+
+/* Desktop: .nav-links is just a flex row */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .nav-dropdown-menu {
   position: absolute;
   top: 100%;
@@ -307,18 +369,29 @@
 .mobile-toggle {
   display: none;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
-  padding: 4px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
   cursor: pointer;
+  border-radius: var(--radius);
+  transition: background 0.2s ease;
+}
+
+.mobile-toggle:hover {
+  background: var(--primary-dim);
 }
 
 .mobile-toggle span {
   display: block;
-  width: 24px;
+  width: 22px;
   height: 2px;
   background: var(--text-primary);
   border-radius: 2px;
-  transition: all var(--transition);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center;
 }
 
 .mobile-toggle.active span:nth-child(1) {
@@ -327,6 +400,7 @@
 
 .mobile-toggle.active span:nth-child(2) {
   opacity: 0;
+  transform: scaleX(0);
 }
 
 .mobile-toggle.active span:nth-child(3) {

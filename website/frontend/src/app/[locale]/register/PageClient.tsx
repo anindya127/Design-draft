@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder';
 
 export default function RegisterPage() {
   const t = useTranslations();
@@ -40,7 +41,9 @@ export default function RegisterPage() {
       {/* Left: Visual Side */}
       <div className="auth-visual auth-visual-gradient">
         <div className="auth-visual-content">
-          <div style={{ width: '100%', maxWidth: 400, aspectRatio: '4/3', borderRadius: 16, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+          <div style={{ width: '100%', maxWidth: 400 }}>
+            <ImagePlaceholder variant="hero" aspectRatio="4/3" label={t('register.visual.title')} />
+          </div>
           <h2>{t('register.visual.title')}</h2>
           <div className="auth-visual-qr">
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none">

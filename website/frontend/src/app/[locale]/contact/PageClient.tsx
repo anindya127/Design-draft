@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import ScrollAnimation from '@/components/effects/ScrollAnimation';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder';
 
 export default function ContactPage() {
   const t = useTranslations();
@@ -173,7 +174,7 @@ export default function ContactPage() {
                 </div>
 
                 <div style={{ marginTop: 32 }}>
-                  <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: 16, background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <ImagePlaceholder variant="team" aspectRatio="16/9" label={t('contact.office.title')} />
                 </div>
               </div>
 
@@ -258,21 +259,27 @@ export default function ContactPage() {
 
               <div className="offices-grid">
                 <div className="office-card">
-                  <div className="office-img" style={{ background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <div className="office-img">
+                    <ImagePlaceholder variant="office" aspectRatio="16/10" label={t('contact.office.hk.title')} />
+                  </div>
                   <div className="office-info">
                     <h4>{t('contact.office.hk.title')}</h4>
                     <p>{t('contact.office.hk.desc')}</p>
                   </div>
                 </div>
                 <div className="office-card">
-                  <div className="office-img" style={{ background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <div className="office-img">
+                    <ImagePlaceholder variant="office" aspectRatio="16/10" label={t('contact.office.cn.title')} />
+                  </div>
                   <div className="office-info">
                     <h4>{t('contact.office.cn.title')}</h4>
                     <p>{t('contact.office.cn.desc')}</p>
                   </div>
                 </div>
                 <div className="office-card">
-                  <div className="office-img" style={{ background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <div className="office-img">
+                    <ImagePlaceholder variant="office" aspectRatio="16/10" label={t('contact.office.sea.title')} />
+                  </div>
                   <div className="office-info">
                     <h4>{t('contact.office.sea.title')}</h4>
                     <p>{t('contact.office.sea.desc')}</p>

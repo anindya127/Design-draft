@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import ScrollAnimation from '@/components/effects/ScrollAnimation';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder';
 
 export default function BlogPage() {
   const t = useTranslations();
@@ -58,7 +59,7 @@ export default function BlogPage() {
           <ScrollAnimation>
             <div className="featured-post">
               <div className="featured-img">
-                <div style={{ width: '100%', aspectRatio: '16/9', background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600, borderRadius: 12 }}>Image Placeholder</div>
+                <ImagePlaceholder variant="hero" aspectRatio="16/9" label={t('blog.featured.cat')} />
               </div>
               <div className="featured-content">
                 <span className="post-category">{t('blog.featured.cat')}</span>
@@ -82,7 +83,7 @@ export default function BlogPage() {
 
               <div className="blog-card">
                 <div className="blog-card-img">
-                  <div style={{ width: '100%', aspectRatio: '16/9', background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <ImagePlaceholder variant="dashboard" aspectRatio="16/9" label={t('blog.post1.cat')} />
                 </div>
                 <div className="blog-card-body">
                   <span className="post-category cat-guide">{t('blog.post1.cat')}</span>
@@ -101,7 +102,7 @@ export default function BlogPage() {
 
               <div className="blog-card">
                 <div className="blog-card-img">
-                  <div style={{ width: '100%', aspectRatio: '16/9', background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <ImagePlaceholder variant="api" aspectRatio="16/9" label={t('blog.post2.cat')} />
                 </div>
                 <div className="blog-card-body">
                   <span className="post-category cat-news">{t('blog.post2.cat')}</span>
@@ -120,7 +121,7 @@ export default function BlogPage() {
 
               <div className="blog-card">
                 <div className="blog-card-img">
-                  <div style={{ width: '100%', aspectRatio: '16/9', background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <ImagePlaceholder variant="ev-station" aspectRatio="16/9" label={t('blog.post3.cat')} />
                 </div>
                 <div className="blog-card-body">
                   <span className="post-category cat-case">{t('blog.post3.cat')}</span>
@@ -139,7 +140,7 @@ export default function BlogPage() {
 
               <div className="blog-card">
                 <div className="blog-card-img">
-                  <div style={{ width: '100%', aspectRatio: '16/9', background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <ImagePlaceholder variant="analytics" aspectRatio="16/9" label={t('blog.post4.cat')} />
                 </div>
                 <div className="blog-card-body">
                   <span className="post-category cat-guide">{t('blog.post4.cat')}</span>
@@ -158,7 +159,7 @@ export default function BlogPage() {
 
               <div className="blog-card">
                 <div className="blog-card-img">
-                  <div style={{ width: '100%', aspectRatio: '16/9', background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <ImagePlaceholder variant="phone" aspectRatio="16/9" label={t('blog.post5.cat')} />
                 </div>
                 <div className="blog-card-body">
                   <span className="post-category cat-product">{t('blog.post5.cat')}</span>
@@ -177,7 +178,7 @@ export default function BlogPage() {
 
               <div className="blog-card">
                 <div className="blog-card-img">
-                  <div style={{ width: '100%', aspectRatio: '16/9', background: 'linear-gradient(135deg, #1a1a3e, #0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', fontWeight: 600 }}>Image Placeholder</div>
+                  <ImagePlaceholder variant="office" aspectRatio="16/9" label={t('blog.post6.cat')} />
                 </div>
                 <div className="blog-card-body">
                   <span className="post-category cat-industry">{t('blog.post6.cat')}</span>

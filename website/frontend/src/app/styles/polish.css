@@ -1,0 +1,769 @@
+/* ============================================================
+   GCSS — ui-ux-pro-max beautification layer
+   ------------------------------------------------------------
+   Non-destructive polish applied on top of the base component
+   styles. Imported last in globals.css so it wins the cascade.
+   Centered on Bento-Box-Grid / Real-Time-Ops-Landing guidance:
+   - Gradient button fills with shimmer
+   - Universal card lift + accent-glow on hover
+   - Accessible gold focus rings (keyboard nav)
+   - Form input focus polish
+   - Animated gradient link underlines
+   - Subtle section background motifs
+   - Smooth scroll + prefers-reduced-motion respected
+   ============================================================ */
+
+/* ---------- Document polish ---------- */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height, 72px) + 12px);
+}
+
+::selection {
+  background: rgba(254, 191, 29, 0.35);
+  color: var(--text-primary);
+}
+
+/* ---------- Universal keyboard focus ring ---------- */
+
+:where(a, button, [role="button"], input, select, textarea):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 6px;
+  transition: outline-offset 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Buttons already have their own style — stronger ring, no radius fight */
+.btn:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(254, 191, 29, 0.18);
+}
+
+/* ---------- Buttons: gradient + shimmer on hover ---------- */
+
+.btn-primary,
+.btn-accent {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark, #E6A817) 100%);
+  box-shadow:
+    0 6px 20px rgba(254, 191, 29, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition:
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary::before,
+.btn-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 80%
+  );
+  transform: skewX(-18deg);
+  pointer-events: none;
+  transition: left 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover,
+.btn-accent:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 32px rgba(254, 191, 29, 0.38),
+    0 0 0 1px rgba(254, 191, 29, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  filter: brightness(1.04);
+}
+
+.btn-primary:hover::before,
+.btn-accent:hover::before {
+  left: 130%;
+}
+
+.btn-primary:active,
+.btn-accent:active {
+  transform: translateY(0);
+  filter: brightness(0.97);
+}
+
+.btn-secondary {
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  transition:
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    background 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
+}
+
+.btn-outline {
+  transition:
+    color 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    background 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-outline:hover {
+  background: var(--primary-dim);
+  transform: translateY(-2px);
+}
+
+/* ---------- Cards: consistent lift + accent glow ---------- */
+
+.card,
+.glass-card,
+.model-card,
+.feature-card {
+  transition:
+    transform 340ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 340ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 340ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.card:hover,
+.glass-card:hover,
+.model-card:hover,
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(254, 191, 29, 0.22),
+    0 0 36px rgba(254, 191, 29, 0.14);
+  border-color: rgba(254, 191, 29, 0.3);
+}
+
+/* Icon tiles inside cards get a subtle scale on card hover */
+.card:hover .card-icon,
+.model-card:hover .model-icon,
+.feature-card:hover .card-icon {
+  transform: scale(1.06) rotate(-2deg);
+  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------- Form inputs: gold ring on focus ---------- */
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select {
+  transition:
+    border-color 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    background 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):hover,
+textarea:hover,
+select:hover {
+  border-color: rgba(254, 191, 29, 0.4);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow:
+    0 0 0 4px rgba(254, 191, 29, 0.15),
+    inset 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Placeholder polish */
+::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.7;
+  transition: opacity 200ms ease;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+  opacity: 0.4;
+}
+
+/* ---------- Links: animated underline ---------- */
+
+/* Long-form content links (not buttons, not nav) */
+main a:not(.btn):not(.nav-link):not(.logo):not(.footer-col a):not(.dropdown-text a):not([class*="card"]):not([class*="Card"]) {
+  position: relative;
+  text-decoration: none;
+  background-image: linear-gradient(var(--primary), var(--primary));
+  background-repeat: no-repeat;
+  background-size: 0% 1.5px;
+  background-position: left bottom;
+  transition: background-size 260ms cubic-bezier(0.16, 1, 0.3, 1), color 200ms ease;
+}
+
+main a:not(.btn):not(.nav-link):not(.logo):not(.footer-col a):not(.dropdown-text a):not([class*="card"]):not([class*="Card"]):hover {
+  background-size: 100% 1.5px;
+  color: var(--primary-dark, var(--primary));
+}
+
+/* ---------- Section subtle backgrounds ---------- */
+
+/* Optional glow motif — add .section-accent to opt in */
+.section-accent {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.section-accent::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 60%;
+  height: 140%;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(254, 191, 29, 0.08) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(40px);
+}
+
+/* ---------- Section header upgrades ---------- */
+
+.section-header h2 {
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-dark, #E6A817) 140%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.022em;
+}
+
+[data-theme="dark"] .section-header h2 {
+  background: linear-gradient(135deg, #ffffff 0%, var(--primary, #FEBF1D) 140%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+  animation: polish-label-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes polish-label-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.6; }
+}
+
+/* ---------- Hero polish ---------- */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  background: linear-gradient(to bottom, transparent 0%, var(--black) 100%);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.45;
+}
+
+/* ---------- Icon polish ---------- */
+
+.card-icon,
+.model-icon,
+.dropdown-icon {
+  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+              filter 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------- Tables on docs / blog ---------- */
+
+main table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md, 14px);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+main table th {
+  background: var(--primary-dim);
+  color: var(--text-primary);
+  font-weight: 700;
+  text-align: left;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+main table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+main table tr:last-child td {
+  border-bottom: none;
+}
+
+main table tr:hover td {
+  background: var(--primary-glow);
+}
+
+/* ---------- Blockquote polish (docs / blog) ---------- */
+
+main blockquote {
+  position: relative;
+  margin: 24px 0;
+  padding: 18px 22px 18px 48px;
+  background: var(--primary-dim);
+  border-left: 4px solid var(--primary);
+  border-radius: 0 var(--radius-md, 14px) var(--radius-md, 14px) 0;
+  color: var(--text-primary);
+  font-style: italic;
+}
+
+main blockquote::before {
+  content: '"';
+  position: absolute;
+  top: 6px;
+  left: 14px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+  opacity: 0.6;
+}
+
+/* ---------- Code polish ---------- */
+
+main :not(pre) > code {
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--primary-dim);
+  color: var(--primary-dark, var(--primary));
+  font-size: 0.88em;
+  font-family: var(--font-mono, ui-monospace, 'SF Mono', monospace);
+  border: 1px solid rgba(254, 191, 29, 0.15);
+}
+
+/* Ensure .card-img-placeholder is a positioning context for the
+   ImagePlaceholder fill variant and clips the image to card edges. */
+.card-img-placeholder {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================================
+   Texture / pattern decorative background system
+   ------------------------------------------------------------
+   Four PNG assets layered with different roles per section:
+     • arrow-background.png.png — 462×462 dot-triangle pattern
+     • div.z-10.png              — 96×96 soft blob (used for
+                                    drifting background orbs)
+     • div.bg-neutral-opaque-8.png  — 16×16 tileable film grain
+     • div.bg-neutral-opaque-10.png — 1456×4 horizontal hairline
+   ------------------------------------------------------------
+   Every section gets a LAYERED mix of textures so nothing feels
+   like the same sticker repeated. All animated and fully
+   respectful of prefers-reduced-motion.
+   ============================================================ */
+
+/* Position context for every section that gets a texture layer */
+.hero,
+.cta-section,
+.blog-hero,
+.section,
+.section-alt,
+.b2b-section-head,
+.section-header {
+  position: relative;
+}
+
+.hero,
+.cta-section,
+.blog-hero,
+.section-alt {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ---------- Keyframes library ---------- */
+
+@keyframes tex-drift-1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(30px, -20px) scale(1.06); }
+  50%  { transform: translate(-10px, -40px) scale(0.97); }
+  75%  { transform: translate(-35px, -12px) scale(1.03); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes tex-drift-2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(-25px, 30px) scale(1.08); }
+  66%  { transform: translate(20px, 15px) scale(0.94); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes tex-drift-3 {
+  0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50%  { transform: translate(40px, 25px) scale(1.1) rotate(3deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+}
+
+@keyframes tex-orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes tex-pulse {
+  0%, 100% { opacity: var(--tex-opacity, 0.25); }
+  50%      { opacity: calc(var(--tex-opacity, 0.25) * 1.6); }
+}
+
+@keyframes tex-scan {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 0.7; }
+  90%  { opacity: 0.7; }
+  100% { transform: translateY(400%); opacity: 0; }
+}
+
+@keyframes tex-float-wide {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(40px); }
+}
+
+/* ---------- Reusable blob orb utility class ----------
+   Uses div.z-10.png as a soft floating blob. Apply via
+   pseudo-element content with --x, --y, --size, --hue,
+   --opacity, --dur, --delay custom props. */
+
+/* ============================================================
+   HERO SECTIONS — cinematic multi-layer texture
+   Layer 1: film grain on everything
+   Layer 2: dot-triangle pattern in top-right
+   Layer 3: drifting blob top-left (gold)
+   Layer 4: drifting blob bottom-right (amber)
+   Layer 5: horizontal scan line
+   ============================================================ */
+
+.hero::before,
+.blog-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/div.bg-neutral-opaque-8.png');
+  background-repeat: repeat;
+  background-size: 180px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: multiply;
+}
+
+/* Drifting blob layer added via a separate decoration wrapper */
+.hero > .hero-decor,
+.blog-hero > .hero-decor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Auto-inject decor blobs into every hero via CSS pseudo on children */
+.hero .container,
+.blog-hero .container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Hero gets two huge drifting blob orbs via nested pseudo on .hero */
+.hero {
+  background-image:
+    radial-gradient(circle at 18% 30%, rgba(254, 191, 29, 0.14) 0%, transparent 35%),
+    radial-gradient(circle at 82% 70%, rgba(192, 127, 0, 0.12) 0%, transparent 38%);
+}
+
+/* ============================================================
+   SECTION-ALT — film grain + corner dot cluster + floating blob
+   ============================================================ */
+
+.section-alt::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    url('/images/div.bg-neutral-opaque-8.png'),
+    radial-gradient(circle at 12% 20%, rgba(254, 191, 29, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 88% 80%, rgba(245, 158, 11, 0.07) 0%, transparent 45%);
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-size: 140px, 100% 100%, 100% 100%;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: multiply;
+}
+
+.section-alt > .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   Every .section gets a drifting blob on alternating sides
+   (nth-child so adjacent sections look different)
+   ============================================================ */
+
+.section::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: -80px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background-image: url('/images/div.z-10.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 0;
+  filter: hue-rotate(-10deg) saturate(1.8) brightness(1.1);
+  mix-blend-mode: screen;
+  animation: tex-drift-1 30s ease-in-out infinite;
+}
+
+.section:nth-of-type(even)::after {
+  top: 40%;
+  left: auto;
+  right: -100px;
+  width: 320px;
+  height: 320px;
+  animation: tex-drift-2 36s ease-in-out infinite;
+  animation-delay: -6s;
+}
+
+.section:nth-of-type(3n)::after {
+  top: 10%;
+  left: 55%;
+  width: 220px;
+  height: 220px;
+  animation: tex-drift-3 40s ease-in-out infinite;
+  animation-delay: -10s;
+}
+
+.section > .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   CTA SECTIONS — dramatic full-layer texture
+   Layer 1: grain overlay
+   Layer 2: huge dot-triangle upper-right (rotating)
+   Layer 3: large drifting blob lower-left
+   Layer 4: scan line
+   ============================================================ */
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    url('/images/div.bg-neutral-opaque-8.png'),
+    radial-gradient(circle at 80% 20%, rgba(254, 191, 29, 0.18) 0%, transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(192, 127, 0, 0.14) 0%, transparent 40%);
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-size: 120px, 100% 100%, 100% 100%;
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: multiply;
+}
+
+.cta-section > .container,
+.cta-section > .scroll-anim {
+  position: relative;
+  z-index: 2;
+}
+
+/* ============================================================
+   SECTION HEADERS — hairline underneath the title for rhythm
+   ============================================================ */
+
+.section-header {
+  isolation: isolate;
+}
+
+.section-header::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 420px;
+  height: 4px;
+  transform: translate(-50%, 40px);
+  background-image: url('/images/div.bg-neutral-opaque-10.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ============================================================
+   DARK MODE adjustments — make textures visible on dark bg
+   ============================================================ */
+
+[data-theme="dark"] .hero::before,
+[data-theme="dark"] .blog-hero::before,
+[data-theme="dark"] .section-alt::before,
+[data-theme="dark"] .cta-section::before {
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  filter: brightness(2.2) saturate(1.8) hue-rotate(-10deg);
+}
+
+[data-theme="dark"] .section::after {
+  opacity: 0.4;
+  filter: hue-rotate(-8deg) saturate(1.8) brightness(2.3);
+}
+
+/* ============================================================
+   MOBILE — tone down blob sizes so they don't crowd
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .section::after {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION — kill all texture animations
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .section::after {
+    animation: none;
+  }
+}
+
+/* ---------- ImagePlaceholder polish ---------- */
+
+.image-ph {
+  transition:
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.image-ph > img {
+  transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1), filter 420ms ease;
+}
+
+.image-ph:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(254, 191, 29, 0.3), 0 0 40px rgba(254, 191, 29, 0.18);
+}
+
+.image-ph:hover > img {
+  transform: scale(1.05);
+  filter: brightness(1.05);
+}
+
+/* ---------- Product gallery float animation ---------- */
+/* 4 phone-mockup placeholders in the b2c gallery. Each one floats with
+   a staggered sine-wave delay so they don't all bob in sync. */
+
+#gallery .grid-4 .image-ph {
+  animation: gallery-float 4.2s ease-in-out infinite;
+  transform-origin: center;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(254, 191, 29, 0.22),
+    0 0 28px rgba(254, 191, 29, 0.12);
+}
+
+#gallery .grid-4 .image-ph:nth-child(1) { animation-delay: 0s; }
+#gallery .grid-4 .image-ph:nth-child(2) { animation-delay: -1.05s; }
+#gallery .grid-4 .image-ph:nth-child(3) { animation-delay: -2.1s; }
+#gallery .grid-4 .image-ph:nth-child(4) { animation-delay: -3.15s; }
+
+@keyframes gallery-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(-0.6deg); }
+}
+
+#gallery .grid-4 .image-ph:hover {
+  animation-play-state: paused;
+  transform: translateY(-10px) scale(1.04);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1.5px rgba(254, 191, 29, 0.4),
+    0 0 50px rgba(254, 191, 29, 0.25);
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn,
+  .btn-primary,
+  .btn-primary::before,
+  .btn-accent,
+  .btn-accent::before,
+  .btn-secondary,
+  .btn-outline,
+  .card,
+  .glass-card,
+  .model-card,
+  .feature-card,
+  .card-icon,
+  .model-icon,
+  .image-ph,
+  .image-ph > img,
+  input, textarea, select {
+    transition-duration: 0ms;
+  }
+  .section-label::before,
+  #gallery .grid-4 .image-ph {
+    animation: none;
+  }
+}
