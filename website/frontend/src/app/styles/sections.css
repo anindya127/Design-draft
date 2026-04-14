@@ -855,6 +855,7 @@ html {
 
 /* --- Language Cloud --- */
 .language-cloud {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;

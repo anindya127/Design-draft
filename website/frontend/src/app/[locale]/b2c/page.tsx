@@ -182,7 +182,7 @@ export default async function B2CPage({ params }: { params: Promise<{ locale: st
             <div style={{ marginTop: 80 }}>
               <div className="feature-row">
                 <div className="feature-image-placeholder">
-                  <ImagePlaceholder variant="dashboard" aspectRatio="16/10" label={t('product.ui.title')} />
+                  <Image src="/images/Ui GCSS.png" alt={t('product.ui.title')} width={1920} height={1080} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 14 }} />
                 </div>
                 <div className="feature-text">
                   <h3>{t('product.ui.title')}</h3>
@@ -215,7 +215,7 @@ export default async function B2CPage({ params }: { params: Promise<{ locale: st
             <div style={{ marginTop: 40 }}>
               <div className="feature-row reverse">
                 <div className="feature-image-placeholder">
-                  <ImagePlaceholder variant="security" aspectRatio="16/10" label={t('product.brand.title')} />
+                  <Image src="/images/OEM.png" alt={t('product.brand.title')} width={1920} height={1080} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 14 }} />
                 </div>
                 <div className="feature-text">
                   <h3>{t('product.brand.title')}</h3>
@@ -366,7 +366,7 @@ export default async function B2CPage({ params }: { params: Promise<{ locale: st
             <div style={{ marginTop: 80 }}>
               <div className="feature-row">
                 <div className="feature-image-placeholder">
-                  <ImagePlaceholder variant="phone" aspectRatio="16/10" label={t('product.app.title')} />
+                  <Image src="/images/App.png" alt={t('product.app.title')} width={1920} height={480} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 14 }} />
                 </div>
                 <div className="feature-text">
                   <h3>{t('product.app.title')}</h3>
