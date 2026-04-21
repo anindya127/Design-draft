@@ -159,8 +159,10 @@ export default function ForumTopicPage({ categorySlug, topicSlug }: { categorySl
                 <div className="ft-post-body">
                     <div className="ft-post-header">
                         <div className={`ft-post-avatar ${getAvatarColor(authorName)}`}>{authorName.charAt(0).toUpperCase()}</div>
-                        <span className="ft-post-author">{authorName}</span>
-                        <span className="ft-post-time">{formatDateTime(p.createdAt, locale)}</span>
+                        <div className="ft-post-info">
+                            <span className="ft-post-author">{authorName}</span>
+                            <span className="ft-post-time">{formatDateTime(p.createdAt, locale)}</span>
+                        </div>
                     </div>
                     <div className="ft-post-content blog-prose">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{p.bodyMd}</ReactMarkdown>
@@ -208,9 +210,15 @@ export default function ForumTopicPage({ categorySlug, topicSlug }: { categorySl
                             <div className="ft-post-body">
                                 <div className="ft-post-header">
                                     <div className={`ft-post-avatar ${getAvatarColor(topic.authorName)}`}>{(topic.authorName || 'G').charAt(0).toUpperCase()}</div>
-                                    <span className="ft-post-author">{topic.authorName}</span>
-                                    <span className="ft-post-time">{formatDateTime(topic.createdAt, locale)}</span>
-                                    {topic.tags?.map(tag => <span key={tag} className="vg-tag" style={{ marginLeft: 'auto' }}>{tag}</span>)}
+                                    <div className="ft-post-info">
+                                        <span className="ft-post-author">{topic.authorName}</span>
+                                        <span className="ft-post-time">{formatDateTime(topic.createdAt, locale)}</span>
+                                    </div>
+                                    {topic.tags?.length ? (
+                                        <div className="ft-post-tags">
+                                            {topic.tags.map(tag => <span key={tag} className="vg-tag">{tag}</span>)}
+                                        </div>
+                                    ) : null}
                                 </div>
                                 <div className="ft-post-content blog-prose">
                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{topic.bodyMd}</ReactMarkdown>

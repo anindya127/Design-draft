@@ -5352,33 +5352,50 @@
 .ft-post-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .ft-post-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ft-post-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
 }
 
 .ft-post-author {
   font-weight: 700;
   font-size: 0.88rem;
   color: var(--text-primary);
+  line-height: 1.2;
 }
 
 .ft-post-time {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.ft-post-tags {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .ft-post-content {
