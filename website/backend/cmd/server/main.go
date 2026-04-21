@@ -168,6 +168,12 @@ func main() {
 	mux.HandleFunc("/api/admin/overview", s.withCORS(s.handleAdminOverview))
 	mux.HandleFunc("/api/admin/blog/posts", s.withCORS(s.handleAdminBlogPosts))
 	mux.HandleFunc("/api/admin/blog/posts/", s.withCORS(s.handleAdminBlogPost))
+	mux.HandleFunc("/api/admin/users", s.withCORS(s.handleAdminUsers))
+	mux.HandleFunc("/api/admin/users/", s.withCORS(s.handleAdminUserAction))
+	mux.HandleFunc("/api/admin/forum/topics", s.withCORS(s.handleAdminForumTopics))
+	mux.HandleFunc("/api/admin/forum/topics/", s.withCORS(s.handleAdminForumTopicDelete))
+	mux.HandleFunc("/api/admin/forum/posts/", s.withCORS(s.handleAdminForumPostDelete))
+	mux.HandleFunc("/api/admin/requests", s.withCORS(s.handleAdminRequests))
 	// Blog
 	mux.HandleFunc("/api/blog/posts", s.withCORS(s.handleBlogPosts))
 	mux.HandleFunc("/api/blog/posts/", s.withCORS(s.handleBlogPost))
@@ -813,6 +819,184 @@ func (s *server) handleAdminBlogPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]interface{}{"post": updated})
+}
+
+// ── Admin: User Management ──────────────────────
+
+func (s *server) handleAdminUsers(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+	users, err := s.store.ListUsers(r.Context())
+	if err != nil {
+		log.Printf("ListUsers error: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list users"})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"users": users})
+}
+
+func (s *server) handleAdminUserAction(w http.ResponseWriter, r *http.Request) {
+	// PUT /api/admin/users/{id}/role    — change role
+	// PUT /api/admin/users/{id}/disable — disable/enable
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+
+	path := strings.TrimPrefix(r.URL.Path, "/api/admin/users/")
+	path = strings.Trim(path, "/")
+	parts := strings.Split(path, "/")
+	if len(parts) != 2 {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
+		return
+	}
+
+	var userID int64
+	if _, err := fmt.Sscanf(parts[0], "%d", &userID); err != nil || userID <= 0 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid user id"})
+		return
+	}
+
+	action := parts[1]
+
+	if r.Method != http.MethodPut && r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+
+	switch action {
+	case "role":
+		var req struct {
+			Role string `json:"role"`
+		}
+		if err := decodeJSON(r, &req); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		if err := s.store.SetUserRole(r.Context(), userID, req.Role); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+
+	case "disable":
+		var req struct {
+			Disabled bool `json:"disabled"`
+		}
+		if err := decodeJSON(r, &req); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		if err := s.store.SetUserDisabled(r.Context(), userID, req.Disabled); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+
+	default:
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "unknown action"})
+	}
+}
+
+// ── Admin: Forum Moderation ─────────────────────
+
+func (s *server) handleAdminForumTopics(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+	locale := r.URL.Query().Get("locale")
+	topics, err := s.store.ListAdminForumTopics(r.Context(), locale)
+	if err != nil {
+		log.Printf("ListAdminForumTopics error: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list topics"})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"topics": topics})
+}
+
+func (s *server) handleAdminForumTopicDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if r.Method != http.MethodDelete {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/admin/forum/topics/")
+	idStr = strings.Trim(idStr, "/")
+	var id int64
+	if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil || id <= 0 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid id"})
+		return
+	}
+	if err := s.store.DeleteForumTopic(r.Context(), id); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+}
+
+func (s *server) handleAdminForumPostDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if r.Method != http.MethodDelete {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/admin/forum/posts/")
+	idStr = strings.Trim(idStr, "/")
+	var id int64
+	if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil || id <= 0 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid id"})
+		return
+	}
+	if err := s.store.DeleteForumPost(r.Context(), id); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+}
+
+// ── Admin: Audit / Form Requests ────────────────
+
+func (s *server) handleAdminRequests(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+	reqType := r.URL.Query().Get("type")
+	limit := parseIntDefault(r.URL.Query().Get("limit"), 50)
+	records, err := s.store.ListFormRequests(r.Context(), reqType, limit)
+	if err != nil {
+		log.Printf("ListFormRequests error: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list requests"})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"requests": records})
 }
 
 func bearerToken(r *http.Request) string {

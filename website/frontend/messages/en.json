@@ -2105,10 +2105,63 @@
     },
     "nextSteps": {
       "title": "Next steps",
-      "item1": "Add user management: promote/demote admins, disable accounts.",
-      "item2": "Add moderation tools for forum topics and replies.",
-      "item3": "Add audit views for contact / payment / language requests."
+      "item1": "Configure email sending for password resets.",
+      "item2": "Set up backup schedule for the database.",
+      "item3": "Add analytics dashboard with charting."
+    },
+    "nav": {
+      "users": "User Management",
+      "blog": "Blog Manager",
+      "forum": "Forum Moderation",
+      "requests": "Audit Requests"
     }
+  },
+  "adminUsers": {
+    "title": "User Management",
+    "subtitle": "Manage user accounts, roles, and access",
+    "colUser": "User",
+    "colRole": "Role",
+    "colStatus": "Status",
+    "colJoined": "Joined",
+    "colActions": "Actions",
+    "active": "Active",
+    "disabled": "Disabled",
+    "promote": "Promote to Admin",
+    "demote": "Demote to User",
+    "enable": "Enable",
+    "disable": "Disable",
+    "disableConfirm": "Disable account for {name}? They will be logged out immediately.",
+    "you": "(You)",
+    "backToAdmin": "Back to Admin"
+  },
+  "adminForum": {
+    "title": "Forum Moderation",
+    "subtitle": "Review and moderate forum topics and replies",
+    "colTitle": "Topic",
+    "colAuthor": "Author",
+    "colReplies": "Replies",
+    "colDate": "Created",
+    "colActions": "Actions",
+    "delete": "Delete",
+    "deleteConfirm": "Delete topic \"{title}\" and all its replies?",
+    "noTopics": "No forum topics yet.",
+    "backToAdmin": "Back to Admin"
+  },
+  "adminRequests": {
+    "title": "Audit Requests",
+    "subtitle": "View all contact, payment, and language form submissions",
+    "all": "All",
+    "type_contact": "Contact",
+    "type_payment_request": "Payment",
+    "type_language_request": "Language",
+    "colType": "Type",
+    "colDate": "Date",
+    "colIP": "IP",
+    "colDetails": "Details",
+    "expand": "View",
+    "collapse": "Hide",
+    "noRecords": "No form submissions yet.",
+    "backToAdmin": "Back to Admin"
   },
   "adminBlog": {
     "title": "Blog Manager",

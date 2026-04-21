@@ -167,9 +167,13 @@ async function deploy() {
       try { await sftp.mkdir(d, true); } catch { /* exists */ }
     }
 
-    // Upload backend binary
+    // Upload backend binary (to temp path first, then rename — avoids ETXTBSY if binary is running)
     process.stdout.write('  [backend] binary...');
-    await sftp.put(binaryPath, '/opt/gcss-backend/gcss-backend');
+    const tempBin = '/opt/gcss-backend/gcss-backend.new';
+    await sftp.put(binaryPath, tempBin);
+    // Remove old and rename new
+    try { await sftp.delete('/opt/gcss-backend/gcss-backend'); } catch { /* may not exist */ }
+    await sftp.rename(tempBin, '/opt/gcss-backend/gcss-backend');
     console.log(' done');
 
     // Upload backend .env

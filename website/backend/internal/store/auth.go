@@ -116,13 +116,14 @@ func (s *Store) AuthenticateUser(ctx context.Context, identifier, password strin
 	var u AuthUser
 	var createdAt string
 	var passwordHash string
+	var disabledAt sql.NullString
 	row := s.db.QueryRowContext(ctx, `
-		SELECT id, username, email, role, first_name, last_name, phone, company, password_hash, created_at
+		SELECT id, username, email, role, first_name, last_name, phone, company, password_hash, created_at, disabled_at
 		FROM users
 		WHERE username = ? OR email_hash = ? OR email = ?
 		LIMIT 1;
 	`, identifier, emailHash, idLower)
-	if err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Role, &u.FirstName, &u.LastName, &u.Phone, &u.Company, &passwordHash, &createdAt); err != nil {
+	if err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Role, &u.FirstName, &u.LastName, &u.Phone, &u.Company, &passwordHash, &createdAt, &disabledAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrInvalidCredentials
 		}
@@ -133,6 +134,11 @@ func (s *Store) AuthenticateUser(ctx context.Context, identifier, password strin
 		return nil, err
 	}
 	u.CreatedAt = ct
+
+	// Block disabled accounts
+	if disabledAt.Valid && disabledAt.String != "" {
+		return nil, errors.New("account is disabled")
+	}
 
 	if !verifyPassword(passwordHash, password) {
 		return nil, ErrInvalidCredentials

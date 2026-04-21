@@ -2105,10 +2105,63 @@
     },
     "nextSteps": {
       "title": "下一步",
-      "item1": "新增用户管理：提升/降级管理员、禁用账号。",
-      "item2": "新增论坛内容管理：话题与回复的审核/处理。",
-      "item3": "新增请求审计：联系/支付/语言请求的查看与筛选。"
+      "item1": "配置密码重置邮件发送。",
+      "item2": "设置数据库备份计划。",
+      "item3": "添加数据分析图表面板。"
+    },
+    "nav": {
+      "users": "用户管理",
+      "blog": "博客管理",
+      "forum": "论坛管理",
+      "requests": "请求审计"
     }
+  },
+  "adminUsers": {
+    "title": "用户管理",
+    "subtitle": "管理用户账号、角色与权限",
+    "colUser": "用户",
+    "colRole": "角色",
+    "colStatus": "状态",
+    "colJoined": "注册时间",
+    "colActions": "操作",
+    "active": "正常",
+    "disabled": "已禁用",
+    "promote": "提升为管理员",
+    "demote": "降级为普通用户",
+    "enable": "启用",
+    "disable": "禁用",
+    "disableConfirm": "确定禁用 {name} 的账号？该用户将被立即登出。",
+    "you": "（你自己）",
+    "backToAdmin": "返回管理面板"
+  },
+  "adminForum": {
+    "title": "论坛管理",
+    "subtitle": "审核和管理论坛话题与回复",
+    "colTitle": "话题",
+    "colAuthor": "作者",
+    "colReplies": "回复数",
+    "colDate": "创建时间",
+    "colActions": "操作",
+    "delete": "删除",
+    "deleteConfirm": "确定删除话题「{title}」及其所有回复？",
+    "noTopics": "暂无论坛话题。",
+    "backToAdmin": "返回管理面板"
+  },
+  "adminRequests": {
+    "title": "请求审计",
+    "subtitle": "查看所有联系、支付和语言表单提交记录",
+    "all": "全部",
+    "type_contact": "联系",
+    "type_payment_request": "支付",
+    "type_language_request": "语言",
+    "colType": "类型",
+    "colDate": "日期",
+    "colIP": "IP",
+    "colDetails": "详情",
+    "expand": "查看",
+    "collapse": "收起",
+    "noRecords": "暂无表单提交记录。",
+    "backToAdmin": "返回管理面板"
   },
   "adminBlog": {
     "title": "博客管理",

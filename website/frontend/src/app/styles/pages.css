@@ -5848,7 +5848,35 @@
   justify-content: flex-end;
 }
 
+/* Admin nav grid on main admin page */
+.admin-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 8px;
+}
+
+/* Audit request payload display */
+.admin-request-payload {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--dark-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-secondary);
+}
+
 @media (max-width: 768px) {
+  .admin-nav-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .blog-admin-header {
     flex-direction: column;
   }

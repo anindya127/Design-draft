@@ -147,9 +147,12 @@ async function deploy() {
       try { await sftp.mkdir(dir, true); } catch { /* exists */ }
     }
 
-    // Upload binary
+    // Upload binary (temp path first to avoid ETXTBSY if running)
     process.stdout.write('  Uploading binary...');
-    await sftp.put(LOCAL_BINARY, REMOTE_BINARY);
+    const tempBin = REMOTE_BINARY + '.new';
+    await sftp.put(LOCAL_BINARY, tempBin);
+    try { await sftp.delete(REMOTE_BINARY); } catch { /* may not exist */ }
+    await sftp.rename(tempBin, REMOTE_BINARY);
     console.log(` done (${formatSize(binarySize)})`);
 
     // Upload .env

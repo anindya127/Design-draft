@@ -92,6 +92,108 @@ export async function apiAdminDeleteBlogPost(token: string, slug: string): Promi
     });
 }
 
+// ── Admin Users API ─────────────────────────────
+
+export type AdminUser = {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    company?: string;
+    createdAt: string;
+    disabledAt?: string | null;
+};
+
+export async function apiAdminListUsers(token: string): Promise<AdminUser[]> {
+    const apiBase = getApiBase();
+    const res = await fetchJson<{ users: AdminUser[] }>(`${apiBase}/admin/users`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.users;
+}
+
+export async function apiAdminSetUserRole(token: string, userId: number, role: string): Promise<void> {
+    const apiBase = getApiBase();
+    await fetchJson(`${apiBase}/admin/users/${userId}/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ role }),
+    });
+}
+
+export async function apiAdminSetUserDisabled(token: string, userId: number, disabled: boolean): Promise<void> {
+    const apiBase = getApiBase();
+    await fetchJson(`${apiBase}/admin/users/${userId}/disable`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ disabled }),
+    });
+}
+
+// ── Admin Forum API ─────────────────────────────
+
+export type AdminForumTopic = {
+    id: number;
+    categorySlug: string;
+    slug: string;
+    title: string;
+    authorName: string;
+    createdAt: string;
+    replyCount: number;
+};
+
+export async function apiAdminListForumTopics(token: string, locale = 'en'): Promise<AdminForumTopic[]> {
+    const apiBase = getApiBase();
+    const res = await fetchJson<{ topics: AdminForumTopic[] }>(`${apiBase}/admin/forum/topics?locale=${locale}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.topics;
+}
+
+export async function apiAdminDeleteForumTopic(token: string, topicId: number): Promise<void> {
+    const apiBase = getApiBase();
+    await fetchJson(`${apiBase}/admin/forum/topics/${topicId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+}
+
+export async function apiAdminDeleteForumPost(token: string, postId: number): Promise<void> {
+    const apiBase = getApiBase();
+    await fetchJson(`${apiBase}/admin/forum/posts/${postId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+}
+
+// ── Admin Audit / Requests API ──────────────────
+
+export type FormRequestRecord = {
+    id: number;
+    type: string;
+    createdAt: string;
+    ip: string;
+    ua: string;
+    payload: string;
+};
+
+export async function apiAdminListRequests(token: string, type = '', limit = 50): Promise<FormRequestRecord[]> {
+    const apiBase = getApiBase();
+    const params = new URLSearchParams();
+    if (type) params.set('type', type);
+    params.set('limit', String(limit));
+    const res = await fetchJson<{ requests: FormRequestRecord[] }>(`${apiBase}/admin/requests?${params}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.requests;
+}
+
 export async function apiUploadFile(token: string, file: File): Promise<string> {
     const apiBase = getApiBase();
     const form = new FormData();
