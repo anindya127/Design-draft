@@ -164,6 +164,8 @@ func main() {
 	mux.HandleFunc("/api/user/dashboard", s.withCORS(s.handleUserDashboard))
 	// Admin
 	mux.HandleFunc("/api/admin/overview", s.withCORS(s.handleAdminOverview))
+	mux.HandleFunc("/api/admin/blog/posts", s.withCORS(s.handleAdminBlogPosts))
+	mux.HandleFunc("/api/admin/blog/posts/", s.withCORS(s.handleAdminBlogPost))
 	// Blog
 	mux.HandleFunc("/api/blog/posts", s.withCORS(s.handleBlogPosts))
 	mux.HandleFunc("/api/blog/posts/", s.withCORS(s.handleBlogPost))
@@ -363,7 +365,7 @@ func (s *server) withCORS(next http.HandlerFunc) http.HandlerFunc {
 					w.Header().Set("Vary", "Origin")
 				}
 			}
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 			w.Header().Set("Access-Control-Max-Age", "86400")
 		}
@@ -670,6 +672,147 @@ func (s *server) handleAdminOverview(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]interface{}{"overview": overview})
 }
 
+func (s *server) handleAdminBlogPosts(w http.ResponseWriter, r *http.Request) {
+	// GET  /api/admin/blog/posts       — list all posts (including drafts)
+	// POST /api/admin/blog/posts       — create new post
+	if r.Method == http.MethodGet {
+		if _, ok := s.requireAdmin(w, r); !ok {
+			return
+		}
+		locale := r.URL.Query().Get("locale")
+		if locale == "" {
+			locale = "en"
+		}
+		posts, err := s.store.ListAdminBlogPosts(r.Context(), locale)
+		if err != nil {
+			log.Printf("ListAdminBlogPosts error: %v", err)
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list posts"})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]interface{}{"posts": posts})
+		return
+	}
+
+	if !methodOrOptions(w, r, http.MethodPost) {
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+
+	var req struct {
+		Locale          string   `json:"locale"`
+		Slug            string   `json:"slug"`
+		Title           string   `json:"title"`
+		Excerpt         string   `json:"excerpt"`
+		ContentMD       string   `json:"contentMd"`
+		CoverURL        string   `json:"coverUrl"`
+		AuthorName      string   `json:"authorName"`
+		Tags            []string `json:"tags"`
+		Status          string   `json:"status"`
+		MetaTitle       string   `json:"metaTitle"`
+		MetaDescription string   `json:"metaDescription"`
+		OgImageURL      string   `json:"ogImageUrl"`
+	}
+	if err := decodeJSON(r, &req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+
+	bp := store.BlogPost{
+		Slug:            req.Slug,
+		Title:           req.Title,
+		Excerpt:         req.Excerpt,
+		ContentMD:       req.ContentMD,
+		CoverURL:        req.CoverURL,
+		AuthorName:      req.AuthorName,
+		Tags:            req.Tags,
+		Status:          req.Status,
+		MetaTitle:       req.MetaTitle,
+		MetaDescription: req.MetaDescription,
+		OgImageURL:      req.OgImageURL,
+	}
+
+	created, err := s.store.CreateBlogPost(r.Context(), req.Locale, bp)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]interface{}{"post": created})
+}
+
+func (s *server) handleAdminBlogPost(w http.ResponseWriter, r *http.Request) {
+	// PUT    /api/admin/blog/posts/{slug} — update post
+	// DELETE /api/admin/blog/posts/{slug} — delete post
+	slug := strings.TrimPrefix(r.URL.Path, "/api/admin/blog/posts/")
+	slug = strings.Trim(slug, "/")
+	if slug == "" {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
+		return
+	}
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+
+	if r.Method == http.MethodDelete {
+		if err := s.store.DeleteBlogPost(r.Context(), slug); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+		return
+	}
+
+	if r.Method != http.MethodPut && r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+
+	var req struct {
+		Locale          string   `json:"locale"`
+		Title           string   `json:"title"`
+		Excerpt         string   `json:"excerpt"`
+		ContentMD       string   `json:"contentMd"`
+		CoverURL        string   `json:"coverUrl"`
+		AuthorName      string   `json:"authorName"`
+		Tags            []string `json:"tags"`
+		Status          string   `json:"status"`
+		MetaTitle       string   `json:"metaTitle"`
+		MetaDescription string   `json:"metaDescription"`
+		OgImageURL      string   `json:"ogImageUrl"`
+	}
+	if err := decodeJSON(r, &req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+
+	bp := store.BlogPost{
+		Title:           req.Title,
+		Excerpt:         req.Excerpt,
+		ContentMD:       req.ContentMD,
+		CoverURL:        req.CoverURL,
+		AuthorName:      req.AuthorName,
+		Tags:            req.Tags,
+		Status:          req.Status,
+		MetaTitle:       req.MetaTitle,
+		MetaDescription: req.MetaDescription,
+		OgImageURL:      req.OgImageURL,
+	}
+
+	updated, err := s.store.UpdateBlogPost(r.Context(), req.Locale, slug, bp)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"post": updated})
+}
+
 func bearerToken(r *http.Request) string {
 	auth := strings.TrimSpace(r.Header.Get("Authorization"))
 	if auth == "" {
@@ -944,9 +1087,14 @@ func (s *server) handleUploads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 10MB max payload.
-	r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
-	if err := r.ParseMultipartForm(10 << 20); err != nil {
+	// Require auth for uploads
+	if _, ok := s.requireAuth(w, r); !ok {
+		return
+	}
+
+	// 25MB max payload.
+	r.Body = http.MaxBytesReader(w, r.Body, 25<<20)
+	if err := r.ParseMultipartForm(25 << 20); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid multipart form"})
 		return
 	}
@@ -960,7 +1108,7 @@ func (s *server) handleUploads(w http.ResponseWriter, r *http.Request) {
 
 	ext := strings.ToLower(filepath.Ext(fh.Filename))
 	switch ext {
-	case ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg":
+	case ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".mp4", ".webm":
 		// ok
 	default:
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "unsupported file type"})

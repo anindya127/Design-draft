@@ -16,14 +16,19 @@ type Store struct {
 }
 
 type BlogPost struct {
-	Slug        string    `json:"slug"`
-	Title       string    `json:"title"`
-	Excerpt     string    `json:"excerpt"`
-	ContentMD   string    `json:"contentMd"`
-	CoverURL    string    `json:"coverUrl,omitempty"`
-	AuthorName  string    `json:"authorName"`
-	PublishedAt time.Time `json:"publishedAt"`
-	Tags        []string  `json:"tags"`
+	Slug            string    `json:"slug"`
+	Title           string    `json:"title"`
+	Excerpt         string    `json:"excerpt"`
+	ContentMD       string    `json:"contentMd"`
+	CoverURL        string    `json:"coverUrl,omitempty"`
+	AuthorName      string    `json:"authorName"`
+	PublishedAt     time.Time `json:"publishedAt"`
+	UpdatedAt       time.Time `json:"updatedAt,omitempty"`
+	Tags            []string  `json:"tags"`
+	Status          string    `json:"status"`
+	MetaTitle       string    `json:"metaTitle,omitempty"`
+	MetaDescription string    `json:"metaDescription,omitempty"`
+	OgImageURL      string    `json:"ogImageUrl,omitempty"`
 }
 
 type ForumCategory struct {
@@ -212,6 +217,14 @@ func (s *Store) migrate(ctx context.Context) error {
 	// Ignore errors because SQLite doesn't support IF NOT EXISTS on ADD COLUMN in older versions.
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user';`)
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE forum_topics ADD COLUMN topic_type TEXT NOT NULL DEFAULT '';`)
+	// Blog post enhancements
+	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN status TEXT NOT NULL DEFAULT 'published';`)
+	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN updated_at TEXT NOT NULL DEFAULT '';`)
+	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN meta_title TEXT NOT NULL DEFAULT '';`)
+	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN meta_description TEXT NOT NULL DEFAULT '';`)
+	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN og_image_url TEXT NOT NULL DEFAULT '';`)
+	// Backfill updated_at for existing rows
+	_, _ = s.db.ExecContext(ctx, `UPDATE blog_posts SET updated_at = published_at WHERE updated_at = '';`)
 	return nil
 }
 

@@ -26,6 +26,181 @@ func parseTimeRFC3339(s string) (time.Time, error) {
 	return time.Parse(time.RFC3339, s)
 }
 
+// scanBlogPost scans a blog post row with the new columns (status, updated_at, meta_*, og_image_url).
+func scanBlogPost(rows interface{ Scan(...any) error }, locale string) (BlogPost, error) {
+	var bp BlogPost
+	var publishedAt, updatedAt, tags, status, metaTitle, metaDesc, ogImage string
+	if err := rows.Scan(&bp.Slug, &bp.Title, &bp.Excerpt, &bp.ContentMD, &bp.CoverURL, &bp.AuthorName,
+		&publishedAt, &updatedAt, &tags, &status, &metaTitle, &metaDesc, &ogImage); err != nil {
+		return bp, err
+	}
+	bp.PublishedAt, _ = parseTimeRFC3339(publishedAt)
+	if updatedAt != "" {
+		bp.UpdatedAt, _ = parseTimeRFC3339(updatedAt)
+	}
+	bp.Tags = decodeTags(tags)
+	bp.Status = status
+	bp.MetaTitle = metaTitle
+	bp.MetaDescription = metaDesc
+	bp.OgImageURL = ogImage
+	return bp, nil
+}
+
+const blogSelectCols = `p.slug, i.title, i.excerpt, i.content_md, p.cover_url, p.author_name,
+	p.published_at, p.updated_at, p.tags, p.status, p.meta_title, p.meta_description, p.og_image_url`
+
+// ListAdminBlogPosts returns all posts (including drafts) for the admin panel.
+func (s *Store) ListAdminBlogPosts(ctx context.Context, locale string) ([]BlogPost, error) {
+	locale = normalizeLocale(locale)
+	rows, err := s.db.QueryContext(ctx, fmt.Sprintf(`
+		SELECT %s
+		FROM blog_posts p
+		JOIN blog_post_i18n i ON i.post_id = p.id AND i.locale = ?
+		ORDER BY p.published_at DESC;`, blogSelectCols), locale)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []BlogPost{}
+	for rows.Next() {
+		bp, err := scanBlogPost(rows, locale)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, bp)
+	}
+	return out, rows.Err()
+}
+
+// CreateBlogPost creates a new blog post with i18n content for the given locale.
+func (s *Store) CreateBlogPost(ctx context.Context, locale string, bp BlogPost) (*BlogPost, error) {
+	locale = normalizeLocale(locale)
+	slug := strings.TrimSpace(bp.Slug)
+	if slug == "" {
+		slug = slugifyTitle(bp.Title)
+	}
+	if slug == "" {
+		return nil, errors.New("slug is required")
+	}
+	if strings.TrimSpace(bp.Title) == "" {
+		return nil, errors.New("title is required")
+	}
+	if strings.TrimSpace(bp.ContentMD) == "" {
+		return nil, errors.New("content is required")
+	}
+	if bp.AuthorName == "" {
+		bp.AuthorName = "GCSS Team"
+	}
+	if bp.Status == "" {
+		bp.Status = "draft"
+	}
+
+	now := time.Now().UTC()
+	if bp.PublishedAt.IsZero() {
+		bp.PublishedAt = now
+	}
+
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	res, err := tx.ExecContext(ctx, `
+		INSERT INTO blog_posts (slug, cover_url, author_name, published_at, updated_at, tags, status, meta_title, meta_description, og_image_url)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+		slug, bp.CoverURL, bp.AuthorName,
+		bp.PublishedAt.Format(time.RFC3339), now.Format(time.RFC3339),
+		encodeTags(bp.Tags), bp.Status, bp.MetaTitle, bp.MetaDescription, bp.OgImageURL)
+	if err != nil {
+		if isUniqueConstraint(err) {
+			return nil, errors.New("a post with this slug already exists")
+		}
+		return nil, err
+	}
+	postID, _ := res.LastInsertId()
+
+	if _, err := tx.ExecContext(ctx, `INSERT INTO blog_post_i18n (post_id, locale, title, excerpt, content_md) VALUES (?, ?, ?, ?, ?);`,
+		postID, locale, bp.Title, bp.Excerpt, bp.ContentMD); err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	bp.Slug = slug
+	bp.UpdatedAt = now
+	return &bp, nil
+}
+
+// UpdateBlogPost updates an existing blog post and its i18n content for the given locale.
+func (s *Store) UpdateBlogPost(ctx context.Context, locale, slug string, bp BlogPost) (*BlogPost, error) {
+	locale = normalizeLocale(locale)
+	slug = strings.TrimSpace(slug)
+	if slug == "" {
+		return nil, errors.New("slug is required")
+	}
+
+	now := time.Now().UTC()
+
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	var postID int64
+	if err := tx.QueryRowContext(ctx, `SELECT id FROM blog_posts WHERE slug = ?;`, slug).Scan(&postID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("post not found")
+		}
+		return nil, err
+	}
+
+	if _, err := tx.ExecContext(ctx, `
+		UPDATE blog_posts SET cover_url = ?, author_name = ?, updated_at = ?, tags = ?,
+			status = ?, meta_title = ?, meta_description = ?, og_image_url = ?
+		WHERE id = ?;`,
+		bp.CoverURL, bp.AuthorName, now.Format(time.RFC3339), encodeTags(bp.Tags),
+		bp.Status, bp.MetaTitle, bp.MetaDescription, bp.OgImageURL, postID); err != nil {
+		return nil, err
+	}
+
+	// Upsert i18n: INSERT OR REPLACE
+	if _, err := tx.ExecContext(ctx, `
+		INSERT INTO blog_post_i18n (post_id, locale, title, excerpt, content_md) VALUES (?, ?, ?, ?, ?)
+		ON CONFLICT(post_id, locale) DO UPDATE SET title = excluded.title, excerpt = excluded.excerpt, content_md = excluded.content_md;`,
+		postID, locale, bp.Title, bp.Excerpt, bp.ContentMD); err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	bp.Slug = slug
+	bp.UpdatedAt = now
+	return &bp, nil
+}
+
+// DeleteBlogPost deletes a blog post and all its i18n content.
+func (s *Store) DeleteBlogPost(ctx context.Context, slug string) error {
+	slug = strings.TrimSpace(slug)
+	if slug == "" {
+		return errors.New("slug is required")
+	}
+	res, err := s.db.ExecContext(ctx, `DELETE FROM blog_posts WHERE slug = ?;`, slug)
+	if err != nil {
+		return err
+	}
+	n, _ := res.RowsAffected()
+	if n == 0 {
+		return errors.New("post not found")
+	}
+	return nil
+}
+
 func (s *Store) ListBlogPosts(ctx context.Context, locale string, tag string, limit int) ([]BlogPost, error) {
 	if limit <= 0 || limit > 50 {
 		limit = 20
@@ -36,21 +211,22 @@ func (s *Store) ListBlogPosts(ctx context.Context, locale string, tag string, li
 	var rows *sql.Rows
 	var err error
 	if tag == "" {
-		rows, err = s.db.QueryContext(ctx, `
-			SELECT p.slug, i.title, i.excerpt, i.content_md, p.cover_url, p.author_name, p.published_at, p.tags
+		rows, err = s.db.QueryContext(ctx, fmt.Sprintf(`
+			SELECT %s
 			FROM blog_posts p
 			JOIN blog_post_i18n i ON i.post_id = p.id AND i.locale = ?
+			WHERE p.status = 'published'
 			ORDER BY p.published_at DESC
-			LIMIT ?;`, locale, limit)
+			LIMIT ?;`, blogSelectCols), locale, limit)
 	} else {
 		needle := "%|" + tag + "|%"
-		rows, err = s.db.QueryContext(ctx, `
-			SELECT p.slug, i.title, i.excerpt, i.content_md, p.cover_url, p.author_name, p.published_at, p.tags
+		rows, err = s.db.QueryContext(ctx, fmt.Sprintf(`
+			SELECT %s
 			FROM blog_posts p
 			JOIN blog_post_i18n i ON i.post_id = p.id AND i.locale = ?
-			WHERE p.tags LIKE ?
+			WHERE p.status = 'published' AND p.tags LIKE ?
 			ORDER BY p.published_at DESC
-			LIMIT ?;`, locale, needle, limit)
+			LIMIT ?;`, blogSelectCols), locale, needle, limit)
 	}
 	if err != nil {
 		return nil, err
@@ -59,24 +235,13 @@ func (s *Store) ListBlogPosts(ctx context.Context, locale string, tag string, li
 
 	out := []BlogPost{}
 	for rows.Next() {
-		var bp BlogPost
-		var publishedAt string
-		var tags string
-		if err := rows.Scan(&bp.Slug, &bp.Title, &bp.Excerpt, &bp.ContentMD, &bp.CoverURL, &bp.AuthorName, &publishedAt, &tags); err != nil {
-			return nil, err
-		}
-		t, err := parseTimeRFC3339(publishedAt)
+		bp, err := scanBlogPost(rows, locale)
 		if err != nil {
 			return nil, err
 		}
-		bp.PublishedAt = t
-		bp.Tags = decodeTags(tags)
 		out = append(out, bp)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return out, nil
+	return out, rows.Err()
 }
 
 func (s *Store) GetBlogPost(ctx context.Context, locale, slug string) (*BlogPost, error) {
@@ -86,27 +251,19 @@ func (s *Store) GetBlogPost(ctx context.Context, locale, slug string) (*BlogPost
 		return nil, errors.New("slug is required")
 	}
 
-	var bp BlogPost
-	var publishedAt string
-	var tags string
-	row := s.db.QueryRowContext(ctx, `
-		SELECT p.slug, i.title, i.excerpt, i.content_md, p.cover_url, p.author_name, p.published_at, p.tags
+	row := s.db.QueryRowContext(ctx, fmt.Sprintf(`
+		SELECT %s
 		FROM blog_posts p
 		JOIN blog_post_i18n i ON i.post_id = p.id AND i.locale = ?
 		WHERE p.slug = ?
-		LIMIT 1;`, locale, slug)
-	if err := row.Scan(&bp.Slug, &bp.Title, &bp.Excerpt, &bp.ContentMD, &bp.CoverURL, &bp.AuthorName, &publishedAt, &tags); err != nil {
+		LIMIT 1;`, blogSelectCols), locale, slug)
+	bp, err := scanBlogPost(row, locale)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
 	}
-	t, err := parseTimeRFC3339(publishedAt)
-	if err != nil {
-		return nil, err
-	}
-	bp.PublishedAt = t
-	bp.Tags = decodeTags(tags)
 	return &bp, nil
 }
 

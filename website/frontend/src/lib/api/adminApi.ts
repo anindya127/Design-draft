@@ -36,3 +36,75 @@ export async function apiAdminOverview(token: string): Promise<{ overview: Admin
         headers: { Authorization: `Bearer ${token}` },
     });
 }
+
+// ── Admin Blog API ──────────────────────────────
+
+export type AdminBlogPost = {
+    slug: string;
+    title: string;
+    excerpt: string;
+    contentMd: string;
+    coverUrl?: string;
+    authorName: string;
+    publishedAt: string;
+    updatedAt?: string;
+    tags: string[];
+    status: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImageUrl?: string;
+};
+
+export async function apiAdminListBlogPosts(token: string, locale = 'en'): Promise<AdminBlogPost[]> {
+    const apiBase = getApiBase();
+    const res = await fetchJson<{ posts: AdminBlogPost[] }>(`${apiBase}/admin/blog/posts?locale=${locale}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.posts;
+}
+
+export async function apiAdminCreateBlogPost(token: string, post: Partial<AdminBlogPost> & { locale: string }): Promise<AdminBlogPost> {
+    const apiBase = getApiBase();
+    const res = await fetchJson<{ post: AdminBlogPost }>(`${apiBase}/admin/blog/posts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(post),
+    });
+    return res.post;
+}
+
+export async function apiAdminUpdateBlogPost(token: string, slug: string, post: Partial<AdminBlogPost> & { locale: string }): Promise<AdminBlogPost> {
+    const apiBase = getApiBase();
+    const res = await fetchJson<{ post: AdminBlogPost }>(`${apiBase}/admin/blog/posts/${slug}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(post),
+    });
+    return res.post;
+}
+
+export async function apiAdminDeleteBlogPost(token: string, slug: string): Promise<void> {
+    const apiBase = getApiBase();
+    await fetchJson<{ status: string }>(`${apiBase}/admin/blog/posts/${slug}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+}
+
+export async function apiUploadFile(token: string, file: File): Promise<string> {
+    const apiBase = getApiBase();
+    const form = new FormData();
+    form.append('file', file);
+    const res = await fetch(`${apiBase}/uploads`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+    });
+    if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `Upload failed (${res.status})`);
+    }
+    const data = await res.json();
+    return data.url;
+}
