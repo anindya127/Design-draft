@@ -10,7 +10,10 @@
     "blog": "Blog",
     "faq": "FAQ",
     "demo": "Live Demo",
-    "login": "Log In"
+    "login": "Log In",
+    "logout": "Log Out",
+    "dashboard": "Dashboard",
+    "adminPanel": "Admin Panel"
   },
   "hero": {
     "badge": "Single-Tenant & Multi-Tenant Architecture",
@@ -1392,6 +1395,30 @@
     "errors": {
       "passwordMismatch": "Passwords do not match.",
       "generic": "Registration failed. Please try again."
+    }
+  },
+  "dashboard": {
+    "meta": {
+      "title": "Dashboard",
+      "description": "Manage your GCSS account, view activity, and access platform features."
+    },
+    "loading": "Loading your dashboard...",
+    "roleAdmin": "Admin",
+    "roleUser": "Member",
+    "adminPanel": "Admin Panel",
+    "stats": {
+      "email": "Email",
+      "phone": "Phone",
+      "memberSince": "Member Since",
+      "accountStatus": "Account Status",
+      "active": "Active"
+    },
+    "quickLinks": {
+      "title": "Quick Links",
+      "forum": "Community Forum",
+      "blog": "Latest Articles",
+      "docs": "Documentation",
+      "contact": "Contact Support"
     }
   },
   "forgot": {

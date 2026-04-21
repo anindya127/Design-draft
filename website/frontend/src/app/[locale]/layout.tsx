@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import Script from 'next/script';
 import { ThemeProvider } from '@/providers/ThemeProvider';
+import { AuthProvider } from '@/providers/AuthProvider';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ScrollProgress from '@/components/layout/ScrollProgress';
@@ -48,12 +49,14 @@ export default async function LocaleLayout({
       <body>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <ScrollProgress />
-            <GlobalEffects />
-            <Header />
-            <main>{children}</main>
-            <Footer />
-            <ScrollToTop />
+            <AuthProvider>
+              <ScrollProgress />
+              <GlobalEffects />
+              <Header />
+              <main>{children}</main>
+              <Footer />
+              <ScrollToTop />
+            </AuthProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

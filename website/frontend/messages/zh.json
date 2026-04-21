@@ -10,7 +10,10 @@
     "blog": "博客",
     "faq": "常见问题",
     "demo": "在线演示",
-    "login": "登录"
+    "login": "登录",
+    "logout": "退出登录",
+    "dashboard": "控制台",
+    "adminPanel": "管理面板"
   },
   "hero": {
     "badge": "单租户 & 多租户架构",
@@ -1392,6 +1395,30 @@
     "errors": {
       "passwordMismatch": "两次输入的密码不一致。",
       "generic": "注册失败，请重试。"
+    }
+  },
+  "dashboard": {
+    "meta": {
+      "title": "控制台",
+      "description": "管理您的 GCSS 账户、查看活动并访问平台功能。"
+    },
+    "loading": "正在加载控制台...",
+    "roleAdmin": "管理员",
+    "roleUser": "成员",
+    "adminPanel": "管理面板",
+    "stats": {
+      "email": "邮箱",
+      "phone": "电话",
+      "memberSince": "注册时间",
+      "accountStatus": "账户状态",
+      "active": "正常"
+    },
+    "quickLinks": {
+      "title": "快捷入口",
+      "forum": "社区论坛",
+      "blog": "最新文章",
+      "docs": "帮助文档",
+      "contact": "联系客服"
     }
   },
   "forgot": {

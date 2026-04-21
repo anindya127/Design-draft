@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { apiLogin, isAuthApiEnabled, setAuthToken } from '@/lib/api/authApi';
+import { useAuth } from '@/providers/AuthProvider';
 
 function EyeIcon() {
   return (
@@ -46,6 +47,7 @@ function AlertIcon() {
 export default function LoginPage() {
   const t = useTranslations();
   const router = useRouter();
+  const { refresh } = useAuth();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -73,11 +75,12 @@ export default function LoginPage() {
     try {
       const { session, user } = await apiLogin({ identifier: formData.username, password: formData.password });
       setAuthToken(session.token);
+      await refresh();
       setSubmitted(true);
       setLoading(false);
 
       const role = (user?.role || '').toLowerCase();
-      const nextPath = role === 'admin' ? '/admin' : '/demo';
+      const nextPath = role === 'admin' ? '/admin' : '/dashboard';
       setTimeout(() => router.push(nextPath), 450);
     } catch {
       setLoading(false);
