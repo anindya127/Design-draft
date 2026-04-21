@@ -869,7 +869,10 @@
       "loading": "加载中…",
       "none": "暂无文章。",
       "back": "返回博客",
-      "notFound": "未找到文章。"
+      "notFound": "未找到文章。",
+      "minRead": "分钟阅读",
+      "toc": "目录",
+      "related": "相关文章"
     },
     "pagination": {
       "next": "下一页"

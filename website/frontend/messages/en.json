@@ -869,7 +869,10 @@
       "loading": "Loading posts…",
       "none": "No posts found.",
       "back": "Back to blog",
-      "notFound": "Post not found."
+      "notFound": "Post not found.",
+      "minRead": "min read",
+      "toc": "Table of Contents",
+      "related": "Related Articles"
     },
     "pagination": {
       "next": "Next page"
