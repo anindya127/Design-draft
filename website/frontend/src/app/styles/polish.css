@@ -660,6 +660,239 @@ main :not(pre) > code {
     0 0 50px rgba(254, 191, 29, 0.25);
 }
 
+/* ---------- Forum thread post polish ---------- */
+
+.ft-post {
+  transition:
+    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation: fadeSlideUp 0.35s ease-out both;
+}
+
+.ft-post:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(254, 191, 29, 0.15);
+}
+
+.ft-post--op:hover {
+  border-left-color: var(--primary-hover);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(254, 191, 29, 0.2),
+    0 0 24px rgba(254, 191, 29, 0.08);
+}
+
+.ft-post:nth-child(1) { animation-delay: 0s; }
+.ft-post:nth-child(2) { animation-delay: 0.05s; }
+.ft-post:nth-child(3) { animation-delay: 0.1s; }
+.ft-post:nth-child(4) { animation-delay: 0.15s; }
+.ft-post:nth-child(5) { animation-delay: 0.2s; }
+
+.ft-vote-btn {
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.ft-vote-btn:hover:not(:disabled) {
+  transform: scale(1.15);
+}
+
+.ft-vote-btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.ft-action-btn {
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ft-composer {
+  animation: fadeSlideUp 0.4s ease-out both;
+  animation-delay: 0.25s;
+}
+
+/* ---------- Dashboard + admin page polish ---------- */
+
+.dashboard-stat-card,
+.dashboard-quicklink,
+.dash-form-card {
+  transition:
+    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashboard-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(254, 191, 29, 0.12);
+  border-color: rgba(254, 191, 29, 0.2);
+}
+
+.dashboard-quicklink {
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-quicklink::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-hover, #FFD04A));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashboard-quicklink:hover::before {
+  transform: scaleX(1);
+}
+
+.dashboard-quicklink:hover svg {
+  transform: scale(1.1);
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Sidebar active indicator */
+.dash-sidebar-btn.active {
+  position: relative;
+}
+
+.dash-sidebar-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--primary);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Blog admin table row hover */
+.blog-admin-table tr {
+  transition: background 180ms ease;
+}
+
+/* ---------- Discussion list item polish ---------- */
+
+.discussion-item {
+  animation: fadeSlideUp 0.3s ease-out both;
+}
+
+.discussion-item:nth-child(1) { animation-delay: 0s; }
+.discussion-item:nth-child(2) { animation-delay: 0.04s; }
+.discussion-item:nth-child(3) { animation-delay: 0.08s; }
+.discussion-item:nth-child(4) { animation-delay: 0.12s; }
+.discussion-item:nth-child(5) { animation-delay: 0.16s; }
+.discussion-item:nth-child(6) { animation-delay: 0.2s; }
+
+/* ---------- Blog article polish ---------- */
+
+.vg-article-title {
+  animation: fadeSlideUp 0.5s ease-out both;
+}
+
+.vg-article-dek {
+  animation: fadeSlideUp 0.5s ease-out both;
+  animation-delay: 0.1s;
+}
+
+.vg-article-byline {
+  animation: fadeSlideUp 0.5s ease-out both;
+  animation-delay: 0.15s;
+}
+
+.vg-related-card {
+  transition:
+    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vg-related-card:hover {
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(254, 191, 29, 0.25),
+    0 0 32px rgba(254, 191, 29, 0.1);
+}
+
+/* ---------- User menu dropdown polish ---------- */
+
+.user-menu-item {
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.user-menu-item:hover {
+  transform: translateX(4px);
+}
+
+/* ---------- Auth page polish ---------- */
+
+.auth-visual-features li {
+  animation: fadeSlideUp 0.4s ease-out both;
+}
+
+.auth-visual-features li:nth-child(1) { animation-delay: 0.2s; }
+.auth-visual-features li:nth-child(2) { animation-delay: 0.3s; }
+.auth-visual-features li:nth-child(3) { animation-delay: 0.4s; }
+
+/* ---------- Universal entrance animation ---------- */
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Stagger entrance for stat cards, quicklinks grid */
+.dashboard-stats-grid > *,
+.dashboard-quicklinks-grid > *,
+.admin-nav-grid > * {
+  animation: fadeSlideUp 0.35s ease-out both;
+}
+
+.dashboard-stats-grid > *:nth-child(1),
+.dashboard-quicklinks-grid > *:nth-child(1),
+.admin-nav-grid > *:nth-child(1) { animation-delay: 0s; }
+
+.dashboard-stats-grid > *:nth-child(2),
+.dashboard-quicklinks-grid > *:nth-child(2),
+.admin-nav-grid > *:nth-child(2) { animation-delay: 0.06s; }
+
+.dashboard-stats-grid > *:nth-child(3),
+.dashboard-quicklinks-grid > *:nth-child(3),
+.admin-nav-grid > *:nth-child(3) { animation-delay: 0.12s; }
+
+.dashboard-stats-grid > *:nth-child(4),
+.dashboard-quicklinks-grid > *:nth-child(4),
+.admin-nav-grid > *:nth-child(4) { animation-delay: 0.18s; }
+
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -687,5 +920,19 @@ main :not(pre) > code {
   #gallery::before,
   #gallery::after {
     animation: none;
+  }
+  .ft-post,
+  .ft-composer,
+  .discussion-item,
+  .vg-article-title,
+  .vg-article-dek,
+  .vg-article-byline,
+  .auth-visual-features li,
+  .dashboard-stats-grid > *,
+  .dashboard-quicklinks-grid > *,
+  .admin-nav-grid > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
