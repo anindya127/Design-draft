@@ -76,10 +76,18 @@ func (s *Store) CreateUser(ctx context.Context, username, email, firstName, last
 	}
 	createdAt := time.Now().UTC()
 
+	// Encrypt PII fields
+	emailHash := s.enc.HashForLookup(email)
+	encEmail := s.enc.Encrypt(email)
+	encFirstName := s.enc.Encrypt(firstName)
+	encLastName := s.enc.Encrypt(lastName)
+	encPhone := s.enc.Encrypt(phone)
+	encCompany := s.enc.Encrypt(company)
+
 	res, err := s.db.ExecContext(ctx, `
-		INSERT INTO users (username, email, role, first_name, last_name, phone, company, password_hash, created_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-	`, username, email, role, firstName, lastName, phone, company, hash, createdAt.Format(time.RFC3339))
+		INSERT INTO users (username, email, email_hash, role, first_name, last_name, phone, company, password_hash, created_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+	`, username, encEmail, emailHash, role, encFirstName, encLastName, encPhone, encCompany, hash, createdAt.Format(time.RFC3339))
 	if err != nil {
 		if isUniqueConstraint(err) {
 			return nil, errors.New("username or email already exists")
@@ -102,15 +110,18 @@ func (s *Store) AuthenticateUser(ctx context.Context, identifier, password strin
 	}
 	idLower := strings.ToLower(identifier)
 
+	// Look up by username directly, or by email_hash for encrypted email lookup
+	emailHash := s.enc.HashForLookup(idLower)
+
 	var u AuthUser
 	var createdAt string
 	var passwordHash string
 	row := s.db.QueryRowContext(ctx, `
 		SELECT id, username, email, role, first_name, last_name, phone, company, password_hash, created_at
 		FROM users
-		WHERE username = ? OR email = ?
+		WHERE username = ? OR email_hash = ? OR email = ?
 		LIMIT 1;
-	`, identifier, idLower)
+	`, identifier, emailHash, idLower)
 	if err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Role, &u.FirstName, &u.LastName, &u.Phone, &u.Company, &passwordHash, &createdAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrInvalidCredentials
@@ -126,6 +137,13 @@ func (s *Store) AuthenticateUser(ctx context.Context, identifier, password strin
 	if !verifyPassword(passwordHash, password) {
 		return nil, ErrInvalidCredentials
 	}
+
+	// Decrypt PII fields for the response
+	u.Email = s.enc.Decrypt(u.Email)
+	u.FirstName = s.enc.Decrypt(u.FirstName)
+	u.LastName = s.enc.Decrypt(u.LastName)
+	u.Phone = s.enc.Decrypt(u.Phone)
+	u.Company = s.enc.Decrypt(u.Company)
 
 	return &u, nil
 }
@@ -187,6 +205,14 @@ func (s *Store) GetUserBySessionToken(ctx context.Context, token string) (*AuthU
 		return nil, err
 	}
 	u.CreatedAt = ct
+
+	// Decrypt PII fields
+	u.Email = s.enc.Decrypt(u.Email)
+	u.FirstName = s.enc.Decrypt(u.FirstName)
+	u.LastName = s.enc.Decrypt(u.LastName)
+	u.Phone = s.enc.Decrypt(u.Phone)
+	u.Company = s.enc.Decrypt(u.Company)
+
 	return &u, nil
 }
 
@@ -210,8 +236,10 @@ func (s *Store) CreatePasswordReset(ctx context.Context, email string, ttl time.
 		ttl = 15 * time.Minute
 	}
 
+	emailHash := s.enc.HashForLookup(email)
+
 	var userID int64
-	row := s.db.QueryRowContext(ctx, `SELECT id FROM users WHERE email = ? LIMIT 1;`, email)
+	row := s.db.QueryRowContext(ctx, `SELECT id FROM users WHERE email_hash = ? OR email = ? LIMIT 1;`, emailHash, email)
 	if scanErr := row.Scan(&userID); scanErr != nil {
 		if errors.Is(scanErr, sql.ErrNoRows) {
 			// Return success semantics (don't leak whether a user exists).
@@ -257,6 +285,7 @@ func (s *Store) ResetPasswordWithCode(ctx context.Context, email, code, newPassw
 	now := time.Now().UTC()
 	nowS := now.Format(time.RFC3339)
 	codeHash := hashToken(code)
+	emailHash := s.enc.HashForLookup(email)
 
 	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
@@ -265,7 +294,7 @@ func (s *Store) ResetPasswordWithCode(ctx context.Context, email, code, newPassw
 	defer func() { _ = tx.Rollback() }()
 
 	var userID int64
-	row := tx.QueryRowContext(ctx, `SELECT id FROM users WHERE email = ? LIMIT 1;`, email)
+	row := tx.QueryRowContext(ctx, `SELECT id FROM users WHERE email_hash = ? OR email = ? LIMIT 1;`, emailHash, email)
 	if err := row.Scan(&userID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrInvalidResetCode
@@ -313,9 +342,15 @@ func (s *Store) UpdateUserProfile(ctx context.Context, userID int64, firstName, 
 		return nil, errors.New("first name and last name are required")
 	}
 
+	// Encrypt before storing
+	encFirstName := s.enc.Encrypt(firstName)
+	encLastName := s.enc.Encrypt(lastName)
+	encPhone := s.enc.Encrypt(phone)
+	encCompany := s.enc.Encrypt(company)
+
 	_, err := s.db.ExecContext(ctx, `
 		UPDATE users SET first_name = ?, last_name = ?, phone = ?, company = ? WHERE id = ?;
-	`, firstName, lastName, phone, company, userID)
+	`, encFirstName, encLastName, encPhone, encCompany, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -330,6 +365,14 @@ func (s *Store) UpdateUserProfile(ctx context.Context, userID int64, firstName, 
 		return nil, err
 	}
 	u.CreatedAt, _ = parseTimeRFC3339(createdAt)
+
+	// Decrypt for response
+	u.Email = s.enc.Decrypt(u.Email)
+	u.FirstName = s.enc.Decrypt(u.FirstName)
+	u.LastName = s.enc.Decrypt(u.LastName)
+	u.Phone = s.enc.Decrypt(u.Phone)
+	u.Company = s.enc.Decrypt(u.Company)
+
 	return &u, nil
 }
 

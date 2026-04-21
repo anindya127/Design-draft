@@ -12,7 +12,8 @@ import (
 )
 
 type Store struct {
-	db *sql.DB
+	db  *sql.DB
+	enc *fieldEncryptor
 }
 
 type BlogPost struct {
@@ -59,7 +60,7 @@ type ForumPost struct {
 	ParentID   *int64    `json:"parentId,omitempty"`
 }
 
-func Open(ctx context.Context, dbPath string) (*Store, error) {
+func Open(ctx context.Context, dbPath string, encryptionSecret ...string) (*Store, error) {
 	if strings.TrimSpace(dbPath) == "" {
 		return nil, errors.New("dbPath is empty")
 	}
@@ -79,7 +80,12 @@ func Open(ctx context.Context, dbPath string) (*Store, error) {
 		return nil, err
 	}
 
-	s := &Store{db: db}
+	var enc *fieldEncryptor
+	if len(encryptionSecret) > 0 && encryptionSecret[0] != "" {
+		enc = newFieldEncryptor(encryptionSecret[0])
+	}
+
+	s := &Store{db: db, enc: enc}
 	if err := s.migrate(ctx); err != nil {
 		_ = db.Close()
 		return nil, err
@@ -217,6 +223,8 @@ func (s *Store) migrate(ctx context.Context) error {
 	// Ignore errors because SQLite doesn't support IF NOT EXISTS on ADD COLUMN in older versions.
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user';`)
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE forum_topics ADD COLUMN topic_type TEXT NOT NULL DEFAULT '';`)
+	// Email hash for encrypted email lookups
+	_, _ = s.db.ExecContext(ctx, `ALTER TABLE users ADD COLUMN email_hash TEXT NOT NULL DEFAULT '';`)
 	// Blog post enhancements
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN status TEXT NOT NULL DEFAULT 'published';`)
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN updated_at TEXT NOT NULL DEFAULT '';`)
@@ -229,6 +237,30 @@ func (s *Store) migrate(ctx context.Context) error {
 }
 
 func (s *Store) seedIfEmpty(ctx context.Context) error {
+	// Always ensure admin user exists
+	var adminCount int
+	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(1) FROM users WHERE username = 'admin';`).Scan(&adminCount); err != nil {
+		return err
+	}
+	if adminCount == 0 {
+		// Seed admin user even if blog posts already exist
+		adminPwHash, err := hashPassword("admin")
+		if err != nil {
+			return err
+		}
+		createdAt := time.Now().UTC().Format(time.RFC3339)
+		encEmail := s.enc.Encrypt("admin@gcss.hk")
+		emailHash := s.enc.HashForLookup("admin@gcss.hk")
+		encFirstName := s.enc.Encrypt("System")
+		encLastName := s.enc.Encrypt("Admin")
+		encPhone := s.enc.Encrypt("+86-000-0000")
+		encCompany := s.enc.Encrypt("GCSS")
+		_, _ = s.db.ExecContext(ctx, `
+			INSERT OR IGNORE INTO users (username, email, email_hash, role, first_name, last_name, phone, company, password_hash, created_at)
+			VALUES (?, ?, ?, 'admin', ?, ?, ?, ?, ?, ?);
+		`, "admin", encEmail, emailHash, encFirstName, encLastName, encPhone, encCompany, adminPwHash, createdAt)
+	}
+
 	var n int
 	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(1) FROM blog_posts;`).Scan(&n); err != nil {
 		return err

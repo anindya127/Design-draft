@@ -128,10 +128,12 @@ func main() {
 		log.Fatalf("failed to ensure upload dir: %v", err)
 	}
 
-	st, err := store.Open(context.Background(), dbPath)
+	encryptionSecret := getenvDefault("ENCRYPTION_SECRET", "gcss-default-secret-change-me")
+	st, err := store.Open(context.Background(), dbPath, encryptionSecret)
 	if err != nil {
 		log.Fatalf("failed to open sqlite db: %v", err)
 	}
+	log.Printf("Encryption: enabled (PBKDF2 key derivation + AES-256-GCM)")
 	defer func() {
 		_ = st.Close()
 	}()

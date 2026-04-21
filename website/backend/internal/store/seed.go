@@ -71,6 +71,28 @@ func (s *Store) seed(ctx context.Context) error {
 	}
 	defer func() { _ = tx.Rollback() }()
 
+	// Seed default admin user (admin / admin)
+	adminPwHash, err := hashPassword("admin")
+	if err != nil {
+		return fmt.Errorf("seed admin password: %w", err)
+	}
+	createdAt := time.Now().UTC().Format(time.RFC3339)
+
+	// Encrypt PII fields for the admin user
+	encEmail := s.enc.Encrypt("admin@gcss.hk")
+	emailHash := s.enc.HashForLookup("admin@gcss.hk")
+	encFirstName := s.enc.Encrypt("System")
+	encLastName := s.enc.Encrypt("Admin")
+	encPhone := s.enc.Encrypt("+86-000-0000")
+	encCompany := s.enc.Encrypt("GCSS")
+
+	if _, err := tx.ExecContext(ctx, `
+		INSERT OR IGNORE INTO users (username, email, email_hash, role, first_name, last_name, phone, company, password_hash, created_at)
+		VALUES (?, ?, ?, 'admin', ?, ?, ?, ?, ?, ?);
+	`, "admin", encEmail, emailHash, encFirstName, encLastName, encPhone, encCompany, adminPwHash, createdAt); err != nil {
+		return fmt.Errorf("seed admin user: %w", err)
+	}
+
 	// Blog
 	for _, p := range posts {
 		res, err := tx.ExecContext(ctx,
