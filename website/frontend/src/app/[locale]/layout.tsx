@@ -32,16 +32,6 @@ export default async function LocaleLayout({
       className="gcss-html"
       suppressHydrationWarning
     >
-      <head>
-        {/* Theme init runs before first paint to avoid dark-mode flash */}
-        <script
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html:
-              '(function(){try{var t=localStorage.getItem("gcss-theme");if(t==="dark"){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();',
-          }}
-        />
-      </head>
       <body>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>

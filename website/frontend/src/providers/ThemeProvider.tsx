@@ -13,6 +13,8 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function getInitialTheme(): Theme {
   if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('gcss-theme');
+    if (stored === 'dark') return 'dark';
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
   }
   return 'light';
@@ -21,11 +23,27 @@ function getInitialTheme(): Theme {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
+  // Apply theme from localStorage on first client render (replaces inline script)
+  useEffect(() => {
+    const stored = localStorage.getItem('gcss-theme');
+    if (stored === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      setTheme('dark');
+    } else if (stored === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+      setTheme('light');
+    }
+  }, []);
+
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark';
       localStorage.setItem('gcss-theme', next);
-      document.documentElement.setAttribute('data-theme', next);
+      if (next === 'dark') {
+        document.documentElement.setAttribute('data-theme', next);
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
       return next;
     });
   }, []);
