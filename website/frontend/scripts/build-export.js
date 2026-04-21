@@ -14,6 +14,11 @@ const res = spawnSync(nextBin, ['build'], {
         ...process.env,
         GCSS_EXPORT: '1',
         NODE_ENV: 'production',
+        // Override .env.local values for production export
+        NEXT_PUBLIC_API_URL: '',
+        NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://v3.gcss.hk',
+        NEXT_PUBLIC_AUTH_API: 'true',
+        NEXT_PUBLIC_FORMS_API: 'true',
     },
 });
 
