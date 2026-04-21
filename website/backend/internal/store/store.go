@@ -236,6 +236,16 @@ func (s *Store) migrate(ctx context.Context) error {
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN og_image_url TEXT NOT NULL DEFAULT '';`)
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN seo_keywords TEXT NOT NULL DEFAULT '';`)
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE blog_posts ADD COLUMN seo_sub_keywords TEXT NOT NULL DEFAULT '';`)
+	// Per-user vote tracking
+	_, _ = s.db.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS forum_votes (
+		user_id INTEGER NOT NULL,
+		post_id INTEGER NOT NULL,
+		value INTEGER NOT NULL,
+		created_at TEXT NOT NULL,
+		PRIMARY KEY (user_id, post_id),
+		FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+		FOREIGN KEY(post_id) REFERENCES forum_posts(id) ON DELETE CASCADE
+	);`)
 	// Backfill updated_at for existing rows
 	_, _ = s.db.ExecContext(ctx, `UPDATE blog_posts SET updated_at = published_at WHERE updated_at = '';`)
 	return nil

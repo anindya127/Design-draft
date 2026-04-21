@@ -653,32 +653,97 @@ func (s *Store) AddForumReply(ctx context.Context, locale, categorySlug, topicSl
 	return p, nil
 }
 
-func (s *Store) VoteForumPost(ctx context.Context, postID int64, delta int) (likeCount int, found bool, err error) {
+// VoteForumPost handles per-user voting. Each user gets one vote per post (up or down).
+// Voting the same direction again removes the vote. Voting opposite direction switches it.
+func (s *Store) VoteForumPost(ctx context.Context, userID, postID int64, delta int) (likeCount int, userVote int, found bool, err error) {
 	if postID <= 0 {
-		return 0, false, errors.New("postID is required")
+		return 0, 0, false, errors.New("postID is required")
 	}
 	if delta != 1 && delta != -1 {
-		return 0, false, errors.New("delta must be 1 or -1")
+		return 0, 0, false, errors.New("delta must be 1 or -1")
 	}
 
+	// Check post exists
 	var current int
-	row := s.db.QueryRowContext(ctx, `SELECT like_count FROM forum_posts WHERE id = ?;`, postID)
-	if err := row.Scan(&current); err != nil {
+	if err := s.db.QueryRowContext(ctx, `SELECT like_count FROM forum_posts WHERE id = ?;`, postID).Scan(&current); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, false, nil
+			return 0, 0, false, nil
 		}
-		return 0, false, err
+		return 0, 0, false, err
 	}
 
-	newCount := current + delta
+	now := time.Now().UTC().Format(time.RFC3339)
+
+	// Get existing vote
+	var existingVote int
+	hasVote := true
+	if err := s.db.QueryRowContext(ctx, `SELECT value FROM forum_votes WHERE user_id = ? AND post_id = ?;`, userID, postID).Scan(&existingVote); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			hasVote = false
+		} else {
+			return 0, 0, false, err
+		}
+	}
+
+	var netChange int
+	var newUserVote int
+
+	if !hasVote {
+		// New vote
+		_, err := s.db.ExecContext(ctx, `INSERT INTO forum_votes (user_id, post_id, value, created_at) VALUES (?, ?, ?, ?);`, userID, postID, delta, now)
+		if err != nil {
+			return 0, 0, false, err
+		}
+		netChange = delta
+		newUserVote = delta
+	} else if existingVote == delta {
+		// Same direction: remove vote (toggle off)
+		_, _ = s.db.ExecContext(ctx, `DELETE FROM forum_votes WHERE user_id = ? AND post_id = ?;`, userID, postID)
+		netChange = -delta
+		newUserVote = 0
+	} else {
+		// Opposite direction: switch vote
+		_, _ = s.db.ExecContext(ctx, `UPDATE forum_votes SET value = ?, created_at = ? WHERE user_id = ? AND post_id = ?;`, delta, now, userID, postID)
+		netChange = delta * 2 // swing from -1 to +1 or vice versa
+		newUserVote = delta
+	}
+
+	newCount := current + netChange
 	if newCount < 0 {
 		newCount = 0
 	}
+	_, _ = s.db.ExecContext(ctx, `UPDATE forum_posts SET like_count = ? WHERE id = ?;`, newCount, postID)
 
-	if _, err := s.db.ExecContext(ctx, `UPDATE forum_posts SET like_count = ? WHERE id = ?;`, newCount, postID); err != nil {
-		return 0, false, err
+	return newCount, newUserVote, true, nil
+}
+
+// GetUserVotes returns the user's votes for a set of post IDs.
+func (s *Store) GetUserVotes(ctx context.Context, userID int64, postIDs []int64) (map[int64]int, error) {
+	if userID <= 0 || len(postIDs) == 0 {
+		return map[int64]int{}, nil
 	}
-	return newCount, true, nil
+	placeholders := make([]string, len(postIDs))
+	args := []interface{}{userID}
+	for i, id := range postIDs {
+		placeholders[i] = "?"
+		args = append(args, id)
+	}
+	query := fmt.Sprintf(`SELECT post_id, value FROM forum_votes WHERE user_id = ? AND post_id IN (%s);`, strings.Join(placeholders, ","))
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	votes := map[int64]int{}
+	for rows.Next() {
+		var postID int64
+		var value int
+		if err := rows.Scan(&postID, &value); err != nil {
+			return nil, err
+		}
+		votes[postID] = value
+	}
+	return votes, rows.Err()
 }
 
 func (s *Store) InsertFormRequest(ctx context.Context, typ string, createdAt time.Time, ip, ua string, payload interface{}) error {

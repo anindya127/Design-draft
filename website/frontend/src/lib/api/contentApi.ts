@@ -151,12 +151,13 @@ export async function apiUploadImage(file: File): Promise<{ status: string; url:
     return (await res.json()) as { status: string; url: string };
 }
 
-export async function apiGetForumTopic(locale: string, categorySlug: string, topicSlug: string): Promise<{ topic: ApiForumTopic; posts: ApiForumPost[] }> {
+export async function apiGetForumTopic(locale: string, categorySlug: string, topicSlug: string): Promise<{ topic: ApiForumTopic; posts: ApiForumPost[]; userVotes?: Record<string, number> }> {
     const apiBase = getApiBase();
     const qs = new URLSearchParams();
     if (locale) qs.set('locale', locale);
-    return await fetchJson<{ topic: ApiForumTopic; posts: ApiForumPost[] }>(
+    return await fetchJson<{ topic: ApiForumTopic; posts: ApiForumPost[]; userVotes?: Record<string, number> }>(
         `${apiBase}/forum/topics/${encodeURIComponent(categorySlug)}/${encodeURIComponent(topicSlug)}?${qs.toString()}`,
+        { headers: { ...maybeAuthHeader() } },
     );
 }
 
@@ -184,9 +185,9 @@ export async function apiPostForumReply(input: {
     );
 }
 
-export async function apiVoteForumPost(postId: number, delta: 1 | -1): Promise<{ status: string; likeCount: number }> {
+export async function apiVoteForumPost(postId: number, delta: 1 | -1): Promise<{ status: string; likeCount: number; userVote: number }> {
     const apiBase = getApiBase();
-    return await fetchJson<{ status: string; likeCount: number }>(`${apiBase}/forum/posts/${encodeURIComponent(String(postId))}/vote`, {
+    return await fetchJson<{ status: string; likeCount: number; userVote: number }>(`${apiBase}/forum/posts/${encodeURIComponent(String(postId))}/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...maybeAuthHeader() },
         body: JSON.stringify({ delta }),

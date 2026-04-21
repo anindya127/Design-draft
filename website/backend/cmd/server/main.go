@@ -1321,7 +1321,20 @@ func (s *server) handleForumTopicRoutes(w http.ResponseWriter, r *http.Request) 
 			writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]interface{}{"topic": topic, "posts": posts})
+		resp := map[string]interface{}{"topic": topic, "posts": posts}
+		// Include user's votes if authenticated
+		if token := bearerToken(r); token != "" {
+			if u, err := s.store.GetUserBySessionToken(r.Context(), token); err == nil && u != nil {
+				postIDs := make([]int64, len(posts))
+				for i, p := range posts {
+					postIDs[i] = p.ID
+				}
+				if votes, err := s.store.GetUserVotes(r.Context(), u.ID, postIDs); err == nil {
+					resp["userVotes"] = votes
+				}
+			}
+		}
+		writeJSON(w, http.StatusOK, resp)
 		return
 	}
 
@@ -1399,7 +1412,13 @@ func (s *server) handleForumPostRoutes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	likeCount, found, err := s.store.VoteForumPost(r.Context(), postID, req.Delta)
+	// Require auth for voting
+	user, ok := s.requireAuth(w, r)
+	if !ok {
+		return
+	}
+
+	likeCount, userVote, found, err := s.store.VoteForumPost(r.Context(), user.ID, postID, req.Delta)
 	if err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
@@ -1409,7 +1428,7 @@ func (s *server) handleForumPostRoutes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]interface{}{"status": "ok", "likeCount": likeCount})
+	writeJSON(w, http.StatusOK, map[string]interface{}{"status": "ok", "likeCount": likeCount, "userVote": userVote})
 }
 
 func (s *server) handleUploads(w http.ResponseWriter, r *http.Request) {
@@ -1465,19 +1484,9 @@ func (s *server) handleUploads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scheme := "http"
-	if r.TLS != nil {
-		scheme = "https"
-	}
-	if xf := strings.TrimSpace(r.Header.Get("X-Forwarded-Proto")); xf != "" {
-		parts := strings.Split(xf, ",")
-		if len(parts) > 0 {
-			scheme = strings.TrimSpace(parts[0])
-		}
-	}
-
-	url := fmt.Sprintf("%s://%s/uploads/%s", scheme, r.Host, name)
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "url": url})
+	// Return relative URL so it works behind any proxy/domain
+	uploadURL := "/uploads/" + name
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "url": uploadURL})
 }
 
 func decodeJSON(r *http.Request, dst interface{}) error {
