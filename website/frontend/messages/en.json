@@ -1537,20 +1537,23 @@
     },
     "stats": {
       "email": "Email",
-      "forumActivity": "Forum Activity",
+      "overview": "Account overview",
+      "forumActivity": "Forum activity",
       "topics": "topics",
       "posts": "replies",
-      "memberSince": "Member Since",
-      "activeSessions": "Active Sessions"
+      "memberSince": "Member since",
+      "activeSessions": "Active sessions"
     },
     "profile": {
       "title": "Profile",
       "subscription": "Subscription",
       "freePlan": "Free plan",
-      "personalInfo": "Personal information"
+      "personalInfo": "Personal information",
+      "personalInfoDesc": "Your display name, phone number and company. Email changes have their own section below."
     },
     "email": {
       "title": "Change email",
+      "desc": "We'll send a 6-digit code to the new address. Current sessions stay signed in.",
       "sendCode": "Send verification code",
       "required": "Please enter a new email address.",
       "codeRequired": "Please enter the verification code.",
@@ -1563,12 +1566,13 @@
       "debugCode": "DEBUG verification code: {code}"
     },
     "security": {
-      "changePassword": "Change Password",
-      "currentPassword": "Current Password",
-      "newPassword": "New Password",
-      "confirmPassword": "Confirm New Password",
-      "updatePassword": "Update Password",
-      "sessionsTitle": "Active Sessions",
+      "changePassword": "Change password",
+      "changePasswordDesc": "Use at least 8 characters. Mixing letters, numbers, and symbols helps.",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "updatePassword": "Update password",
+      "sessionsTitle": "Active sessions",
       "sessionsDesc": "You currently have {count} active session(s) across devices."
     },
     "passwordChanged": "Password changed successfully.",

@@ -154,7 +154,16 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
                                 {user.firstName} {user.lastName}
                             </h2>
                             <div className="dash-profile-email">{user.email}</div>
-                            <div className="dash-profile-username">@{user.username}</div>
+                            <div className="dash-profile-chips">
+                                <span className="dash-profile-username">@{user.username}</span>
+                                <span className="dash-profile-planchip">
+                                    <span className="dash-profile-planchip-dot" aria-hidden="true" />
+                                    {t('profile.freePlan')}
+                                </span>
+                                {user.role === 'admin' && (
+                                    <span className="dash-profile-rolechip">{t('roleAdmin')}</span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </header>

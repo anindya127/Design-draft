@@ -9,13 +9,71 @@ import {
     apiChangePassword,
     apiRequestEmailChange,
     apiConfirmEmailChange,
+    apiUserDashboard,
+    type UserDashboardData,
 } from '@/lib/api/authApi';
 
 type BannerMsg = { type: 'success' | 'error' | 'info'; text: string } | null;
 
+function formatDate(iso?: string) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// ── Section header icons ────────────────────────────────────────────────
+
+function UserIcon() {
+    return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+        </svg>
+    );
+}
+function MailIcon() {
+    return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect width="20" height="16" x="2" y="4" rx="2" />
+            <path d="m22 7-10 5L2 7" />
+        </svg>
+    );
+}
+function LockIcon() {
+    return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect width="18" height="11" x="3" y="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+    );
+}
+
+function StatCard({
+    label,
+    value,
+    sub,
+    tint = 'amber',
+}: {
+    label: string;
+    value: React.ReactNode;
+    sub?: string;
+    tint?: 'amber' | 'green' | 'blue' | 'purple';
+}) {
+    return (
+        <div className={`dash-stat-card dash-stat-card--${tint}`}>
+            <div className="dash-stat-label">{label}</div>
+            <div className="dash-stat-value">{value}</div>
+            {sub && <div className="dash-stat-sub">{sub}</div>}
+        </div>
+    );
+}
+
 export default function DashboardProfileClient() {
     const t = useTranslations('dashboard');
     const { user, refresh } = useAuth();
+
+    const [dashData, setDashData] = useState<UserDashboardData | null>(null);
 
     const [profileForm, setProfileForm] = useState({ firstName: '', lastName: '', phone: '', company: '' });
     const [profileSaving, setProfileSaving] = useState(false);
@@ -41,6 +99,16 @@ export default function DashboardProfileClient() {
                 company: user.company || '',
             });
         }
+    }, [user]);
+
+    useEffect(() => {
+        const token = getAuthToken();
+        if (!token || !user) return;
+        let cancelled = false;
+        apiUserDashboard(token)
+            .then((res) => { if (!cancelled) setDashData(res.dashboard); })
+            .catch(() => {});
+        return () => { cancelled = true; };
     }, [user]);
 
     const handleProfileSave = async () => {
@@ -136,95 +204,149 @@ export default function DashboardProfileClient() {
 
     if (!user) return null;
 
+    const forumActivity = dashData
+        ? `${dashData.forumTopics} ${t('stats.topics')} · ${dashData.forumPosts} ${t('stats.posts')}`
+        : '—';
+
     return (
         <>
             <h1 className="dash-page-title">{t('profile.title')}</h1>
 
-            {profileMsg && <div className={`form-banner form-banner--${profileMsg.type}`} role={profileMsg.type === 'error' ? 'alert' : 'status'} aria-live={profileMsg.type === 'error' ? 'assertive' : 'polite'}>{profileMsg.text}</div>}
+            {/* At-a-glance stats */}
+            <section className="dash-stats-row" aria-label={t('stats.overview')}>
+                <StatCard label={t('profile.subscription')} value={t('profile.freePlan')} tint="amber" />
+                <StatCard label={t('stats.memberSince')} value={formatDate(user.createdAt)} tint="blue" />
+                <StatCard
+                    label={t('stats.activeSessions')}
+                    value={dashData ? dashData.activeSessions : '—'}
+                    tint="green"
+                />
+                <StatCard label={t('stats.forumActivity')} value={forumActivity} tint="purple" />
+            </section>
 
-            <div className="dash-form-card">
-                <h2 className="dash-section-title">{t('profile.subscription')}</h2>
-                <div className="dash-subscription-chip">{t('profile.freePlan')}</div>
-            </div>
-
-            <div className="dash-form-card">
-                <h2 className="dash-section-title">{t('profile.personalInfo')}</h2>
+            {/* Personal information */}
+            <section className="dash-section-card">
+                <header className="dash-section-card-head">
+                    <span className="dash-section-icon" aria-hidden="true"><UserIcon /></span>
+                    <div>
+                        <h2 className="dash-section-card-title">{t('profile.personalInfo')}</h2>
+                        <p className="dash-section-card-desc">{t('profile.personalInfoDesc')}</p>
+                    </div>
+                </header>
+                {profileMsg && (
+                    <div
+                        className={`form-banner form-banner--${profileMsg.type}`}
+                        role={profileMsg.type === 'error' ? 'alert' : 'status'}
+                        aria-live={profileMsg.type === 'error' ? 'assertive' : 'polite'}
+                    >
+                        {profileMsg.text}
+                    </div>
+                )}
                 <div className="auth-form-row">
                     <div className="form-group">
-                        <label className="form-label">{t('fields.firstName')}</label>
+                        <label className="form-label" htmlFor="fld-first">{t('fields.firstName')}</label>
                         <input
+                            id="fld-first"
                             className="form-input"
                             value={profileForm.firstName}
+                            autoComplete="given-name"
                             onChange={(e) => setProfileForm({ ...profileForm, firstName: e.target.value })}
                         />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">{t('fields.lastName')}</label>
+                        <label className="form-label" htmlFor="fld-last">{t('fields.lastName')}</label>
                         <input
+                            id="fld-last"
                             className="form-input"
                             value={profileForm.lastName}
+                            autoComplete="family-name"
                             onChange={(e) => setProfileForm({ ...profileForm, lastName: e.target.value })}
                         />
                     </div>
                 </div>
                 <div className="auth-form-row">
                     <div className="form-group">
-                        <label className="form-label">{t('fields.phone')}</label>
+                        <label className="form-label" htmlFor="fld-phone">{t('fields.phone')}</label>
                         <input
+                            id="fld-phone"
                             className="form-input"
                             type="tel"
                             value={profileForm.phone}
+                            autoComplete="tel"
                             onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
                         />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">{t('fields.company')}</label>
+                        <label className="form-label" htmlFor="fld-company">{t('fields.company')}</label>
                         <input
+                            id="fld-company"
                             className="form-input"
                             value={profileForm.company}
+                            autoComplete="organization"
                             onChange={(e) => setProfileForm({ ...profileForm, company: e.target.value })}
                         />
                     </div>
                 </div>
-                <button
-                    type="button"
-                    className={`btn btn-primary${profileSaving ? ' btn-loading' : ''}`}
-                    disabled={profileSaving}
-                    onClick={handleProfileSave}
-                >
-                    {t('saveProfile')}
-                </button>
-            </div>
+                <div className="dash-section-card-actions">
+                    <button
+                        type="button"
+                        className={`btn btn-primary${profileSaving ? ' btn-loading' : ''}`}
+                        disabled={profileSaving}
+                        onClick={handleProfileSave}
+                    >
+                        {t('saveProfile')}
+                    </button>
+                </div>
+            </section>
 
-            <div className="dash-form-card">
-                <h2 className="dash-section-title">{t('email.title')}</h2>
+            {/* Email change */}
+            <section className="dash-section-card">
+                <header className="dash-section-card-head">
+                    <span className="dash-section-icon" aria-hidden="true"><MailIcon /></span>
+                    <div>
+                        <h2 className="dash-section-card-title">{t('email.title')}</h2>
+                        <p className="dash-section-card-desc">{t('email.desc')}</p>
+                    </div>
+                </header>
                 {emailMsg && (
-                    <div className={`form-banner form-banner--${emailMsg.type}`} role={emailMsg.type === 'error' ? 'alert' : 'status'} aria-live={emailMsg.type === 'error' ? 'assertive' : 'polite'}>{emailMsg.text}</div>
+                    <div
+                        className={`form-banner form-banner--${emailMsg.type}`}
+                        role={emailMsg.type === 'error' ? 'alert' : 'status'}
+                        aria-live={emailMsg.type === 'error' ? 'assertive' : 'polite'}
+                    >
+                        {emailMsg.text}
+                    </div>
                 )}
                 {emailStage === 'idle' ? (
                     <>
-                        <div className="form-group">
-                            <label className="form-label">{t('fields.currentEmail')}</label>
-                            <input className="form-input" value={user.email} disabled />
+                        <div className="auth-form-row">
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="fld-cur-email">{t('fields.currentEmail')}</label>
+                                <input id="fld-cur-email" className="form-input" value={user.email} disabled />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="fld-new-email">{t('fields.newEmail')}</label>
+                                <input
+                                    id="fld-new-email"
+                                    className="form-input"
+                                    type="email"
+                                    placeholder="name@example.com"
+                                    value={emailNew}
+                                    autoComplete="email"
+                                    onChange={(e) => setEmailNew(e.target.value)}
+                                />
+                            </div>
                         </div>
-                        <div className="form-group">
-                            <label className="form-label">{t('fields.newEmail')}</label>
-                            <input
-                                className="form-input"
-                                type="email"
-                                placeholder="name@example.com"
-                                value={emailNew}
-                                onChange={(e) => setEmailNew(e.target.value)}
-                            />
+                        <div className="dash-section-card-actions">
+                            <button
+                                type="button"
+                                className={`btn btn-secondary${emailBusy ? ' btn-loading' : ''}`}
+                                disabled={emailBusy}
+                                onClick={handleEmailRequest}
+                            >
+                                {t('email.sendCode')}
+                            </button>
                         </div>
-                        <button
-                            type="button"
-                            className={`btn btn-secondary${emailBusy ? ' btn-loading' : ''}`}
-                            disabled={emailBusy}
-                            onClick={handleEmailRequest}
-                        >
-                            {t('email.sendCode')}
-                        </button>
                     </>
                 ) : (
                     <>
@@ -235,17 +357,19 @@ export default function DashboardProfileClient() {
                             </div>
                         )}
                         <div className="form-group">
-                            <label className="form-label">{t('fields.verificationCode')}</label>
+                            <label className="form-label" htmlFor="fld-email-code">{t('fields.verificationCode')}</label>
                             <input
+                                id="fld-email-code"
                                 className="form-input"
                                 value={emailCode}
                                 onChange={(e) => setEmailCode(e.target.value)}
                                 placeholder="123456"
                                 maxLength={6}
                                 inputMode="numeric"
+                                autoComplete="one-time-code"
                             />
                         </div>
-                        <div style={{ display: 'flex', gap: 8 }}>
+                        <div className="dash-section-card-actions">
                             <button
                                 type="button"
                                 className={`btn btn-primary${emailBusy ? ' btn-loading' : ''}`}
@@ -270,14 +394,30 @@ export default function DashboardProfileClient() {
                         </div>
                     </>
                 )}
-            </div>
+            </section>
 
-            <div className="dash-form-card">
-                <h2 className="dash-section-title">{t('security.changePassword')}</h2>
-                {pwMsg && <div className={`form-banner form-banner--${pwMsg.type}`} role={pwMsg.type === 'error' ? 'alert' : 'status'} aria-live={pwMsg.type === 'error' ? 'assertive' : 'polite'}>{pwMsg.text}</div>}
+            {/* Password change */}
+            <section className="dash-section-card">
+                <header className="dash-section-card-head">
+                    <span className="dash-section-icon" aria-hidden="true"><LockIcon /></span>
+                    <div>
+                        <h2 className="dash-section-card-title">{t('security.changePassword')}</h2>
+                        <p className="dash-section-card-desc">{t('security.changePasswordDesc')}</p>
+                    </div>
+                </header>
+                {pwMsg && (
+                    <div
+                        className={`form-banner form-banner--${pwMsg.type}`}
+                        role={pwMsg.type === 'error' ? 'alert' : 'status'}
+                        aria-live={pwMsg.type === 'error' ? 'assertive' : 'polite'}
+                    >
+                        {pwMsg.text}
+                    </div>
+                )}
                 <div className="form-group">
-                    <label className="form-label">{t('security.currentPassword')}</label>
+                    <label className="form-label" htmlFor="fld-cur-pw">{t('security.currentPassword')}</label>
                     <input
+                        id="fld-cur-pw"
                         className="form-input"
                         type="password"
                         autoComplete="current-password"
@@ -287,8 +427,9 @@ export default function DashboardProfileClient() {
                 </div>
                 <div className="auth-form-row">
                     <div className="form-group">
-                        <label className="form-label">{t('security.newPassword')}</label>
+                        <label className="form-label" htmlFor="fld-new-pw">{t('security.newPassword')}</label>
                         <input
+                            id="fld-new-pw"
                             className="form-input"
                             type="password"
                             autoComplete="new-password"
@@ -297,8 +438,9 @@ export default function DashboardProfileClient() {
                         />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">{t('security.confirmPassword')}</label>
+                        <label className="form-label" htmlFor="fld-confirm-pw">{t('security.confirmPassword')}</label>
                         <input
+                            id="fld-confirm-pw"
                             className="form-input"
                             type="password"
                             autoComplete="new-password"
@@ -307,15 +449,17 @@ export default function DashboardProfileClient() {
                         />
                     </div>
                 </div>
-                <button
-                    type="button"
-                    className={`btn btn-primary${pwSaving ? ' btn-loading' : ''}`}
-                    disabled={pwSaving}
-                    onClick={handlePasswordChange}
-                >
-                    {t('security.updatePassword')}
-                </button>
-            </div>
+                <div className="dash-section-card-actions">
+                    <button
+                        type="button"
+                        className={`btn btn-primary${pwSaving ? ' btn-loading' : ''}`}
+                        disabled={pwSaving}
+                        onClick={handlePasswordChange}
+                    >
+                        {t('security.updatePassword')}
+                    </button>
+                </div>
+            </section>
         </>
     );
 }

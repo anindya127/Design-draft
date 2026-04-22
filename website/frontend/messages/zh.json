@@ -1537,6 +1537,7 @@
     },
     "stats": {
       "email": "邮箱",
+      "overview": "账户概览",
       "forumActivity": "论坛活动",
       "topics": "话题",
       "posts": "回复",
@@ -1547,10 +1548,12 @@
       "title": "个人资料",
       "subscription": "订阅",
       "freePlan": "免费版",
-      "personalInfo": "个人信息"
+      "personalInfo": "个人信息",
+      "personalInfoDesc": "您的显示姓名、电话和公司。邮箱修改请见下方独立模块。"
     },
     "email": {
       "title": "修改邮箱",
+      "desc": "我们会向新邮箱发送一组 6 位验证码。当前的登录会话会保持有效。",
       "sendCode": "发送验证码",
       "required": "请输入新邮箱地址。",
       "codeRequired": "请输入验证码。",
@@ -1564,6 +1567,7 @@
     },
     "security": {
       "changePassword": "修改密码",
+      "changePasswordDesc": "至少 8 位字符。字母、数字和符号混合使用更安全。",
       "currentPassword": "当前密码",
       "newPassword": "新密码",
       "confirmPassword": "确认新密码",
