@@ -95,6 +95,7 @@
     "thankYou": "Thank you for your business."
   },
   "nav": {
+    "skipToContent": "Skip to main content",
     "home": "Home",
     "product": "Product",
     "pricing": "Pricing",
@@ -1637,6 +1638,11 @@
       "total": "Total paid",
       "status": "Status",
       "autoRefresh": "Page refreshes automatically every 10 seconds.",
+      "stepStates": {
+        "done": "complete",
+        "current": "in progress",
+        "pending": "not started"
+      },
       "statuses": {
         "paid": "Paid",
         "pending": "Pending",

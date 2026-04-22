@@ -38,8 +38,11 @@ export default async function LocaleLayout({
             <AuthProvider>
               <ScrollProgress />
               <GlobalEffects />
+              <a href="#main-content" className="skip-link visually-hidden focusable">
+                {(messages as { nav?: { skipToContent?: string } })?.nav?.skipToContent || 'Skip to main content'}
+              </a>
               <Header />
-              <main>{children}</main>
+              <main id="main-content">{children}</main>
               <Footer />
               <ScrollToTop />
             </AuthProvider>

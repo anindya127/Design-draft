@@ -553,7 +553,12 @@ func (s *server) createPayPalCheckout(w http.ResponseWriter, r *http.Request, or
 	})
 	if err != nil {
 		log.Printf("PayPal create order error: %v", err)
-		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "failed to create PayPal order", "message": err.Error()})
+		// Raw provider error is logged above; respond with a generic message so we
+		// don't leak API keys / internal error codes to the browser.
+		writeJSON(w, http.StatusBadGateway, map[string]string{
+			"error":   "paypal_failed",
+			"message": "PayPal couldn't create the order. Please try a different payment method or try again later.",
+		})
 		return
 	}
 
@@ -622,7 +627,10 @@ func (s *server) handlePayPalCapture(w http.ResponseWriter, r *http.Request) {
 	cap, err := client.CaptureOrder(ctx, req.PayPalOrderID)
 	if err != nil {
 		log.Printf("PayPal capture error: %v", err)
-		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "capture_failed", "message": err.Error()})
+		writeJSON(w, http.StatusBadGateway, map[string]string{
+			"error":   "capture_failed",
+			"message": "We couldn't finalize your PayPal payment. If the funds were charged, contact support with your order number.",
+		})
 		return
 	}
 	if cap.Status != "COMPLETED" {
@@ -764,7 +772,11 @@ func (s *server) createPingxxCheckout(w http.ResponseWriter, r *http.Request, or
 
 	client, err := payments.NewPingxxClient(appID, secretKey, privateKey)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "pingxx_init_failed", "message": err.Error()})
+		log.Printf("Pingxx init failed: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{
+			"error":   "pingxx_init_failed",
+			"message": "Ping++ could not be initialized. Please contact support.",
+		})
 		return
 	}
 	extra := map[string]interface{}{
@@ -787,7 +799,10 @@ func (s *server) createPingxxCheckout(w http.ResponseWriter, r *http.Request, or
 	})
 	if err != nil {
 		log.Printf("Pingxx charge error: %v", err)
-		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "pingxx_charge_failed", "message": err.Error()})
+		writeJSON(w, http.StatusBadGateway, map[string]string{
+			"error":   "pingxx_charge_failed",
+			"message": "Ping++ couldn't create the charge. Please try a different payment method or try again later.",
+		})
 		return
 	}
 
@@ -907,7 +922,10 @@ func (s *server) createStripeCheckout(w http.ResponseWriter, r *http.Request, or
 	})
 	if err != nil {
 		log.Printf("Stripe checkout error: %v", err)
-		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "failed to create checkout session", "message": err.Error()})
+		writeJSON(w, http.StatusBadGateway, map[string]string{
+			"error":   "stripe_failed",
+			"message": "Stripe couldn't create the checkout session. Please try a different payment method or try again later.",
+		})
 		return
 	}
 

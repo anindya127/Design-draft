@@ -27,6 +27,11 @@
   --primary-hover: #FFD04A;
   --primary-dim: rgba(254, 191, 29, 0.12);
   --primary-glow: rgba(254, 191, 29, 0.06);
+  /* AA-contrast text variant of --primary for light mode (4.8:1 on white).
+     Use this where gold is applied as body text / label text instead of
+     --primary which is reserved for decorative borders / backgrounds /
+     icons. In dark mode this is identical to --primary. */
+  --primary-text: #8C5F00;
 
   --glass-bg: rgba(255, 255, 255, 0.9);
   --glass-bg-hover: rgba(255, 255, 255, 0.95);
@@ -105,6 +110,8 @@
   --primary-hover: #F5C946;
   --primary-dim: rgba(230, 168, 23, 0.12);
   --primary-glow: rgba(230, 168, 23, 0.06);
+  /* Dark mode: gold on dark bg already passes AA — keep same brand color. */
+  --primary-text: #FEBF1D;
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-bg-hover: rgba(255, 255, 255, 0.06);
   --glass-border: rgba(255, 255, 255, 0.07);

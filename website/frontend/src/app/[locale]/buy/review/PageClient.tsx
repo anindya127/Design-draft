@@ -69,6 +69,8 @@ export default function BuyReviewClient() {
     const [promoMsg, setPromoMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     const [provider, setProvider] = useState<Provider>('stripe');
+    const [invalidFields, setInvalidFields] = useState<string[]>([]);
+    const isInvalid = (f: string) => invalidFields.includes(f);
 
     // Default provider based on locale — zh users get Ping++ preselected, others Stripe.
     useEffect(() => {
@@ -169,14 +171,20 @@ export default function BuyReviewClient() {
             router.push('/login');
             return;
         }
-        // Minimal validation for required billing fields.
+        // Validate required billing fields — collect all invalid, focus first.
         const required: (keyof typeof billingAddress)[] = ['firstName', 'lastName', 'email', 'phone', 'street1', 'city', 'country'];
-        for (const f of required) {
-            if (!billingAddress[f].trim()) {
-                setError(t('review.fillRequired'));
-                return;
-            }
+        const missing = required.filter((f) => !billingAddress[f].trim());
+        if (missing.length > 0) {
+            setInvalidFields(missing);
+            setError(t('review.fillRequired'));
+            // Focus first invalid after the aria-invalid render tick.
+            requestAnimationFrame(() => {
+                const el = document.getElementById(`ba-${missing[0]}`);
+                if (el) (el as HTMLInputElement).focus();
+            });
+            return;
         }
+        setInvalidFields([]);
 
         setCheckoutBusy(true);
         setError('');
@@ -241,12 +249,15 @@ export default function BuyReviewClient() {
                     <div className="buy-block">
                         <h2 className="buy-block-title">{t('review.promoTitle')}</h2>
                         <div className="buy-promo-row">
+                            <label htmlFor="buy-promo" className="visually-hidden">{t('review.promoTitle')}</label>
                             <input
+                                id="buy-promo"
                                 className="form-input"
                                 placeholder={t('review.promoPlaceholder')}
                                 value={promoCode}
                                 onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                                 disabled={promoBusy || !!promo}
+                                autoComplete="off"
                             />
                             {promo ? (
                                 <button
@@ -277,58 +288,58 @@ export default function BuyReviewClient() {
                                 <h3 className="buy-billing-subtitle">{t('review.personalInfo')}</h3>
                                 <div className="auth-form-row">
                                     <div className="form-group">
-                                        <label className="form-label">{t('review.firstName')} *</label>
-                                        <input className="form-input" value={billingAddress.firstName} onChange={(e) => setBillingAddress({ ...billingAddress, firstName: e.target.value })} />
+                                        <label className="form-label" htmlFor="ba-firstName">{t('review.firstName')} *</label>
+                                        <input id="ba-firstName" className={`form-input${isInvalid('firstName') ? ' input-error' : ''}`} aria-invalid={isInvalid('firstName') || undefined} autoComplete="given-name" value={billingAddress.firstName} onChange={(e) => setBillingAddress({ ...billingAddress, firstName: e.target.value })} />
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label">{t('review.lastName')} *</label>
-                                        <input className="form-input" value={billingAddress.lastName} onChange={(e) => setBillingAddress({ ...billingAddress, lastName: e.target.value })} />
+                                        <label className="form-label" htmlFor="ba-lastName">{t('review.lastName')} *</label>
+                                        <input id="ba-lastName" className={`form-input${isInvalid('lastName') ? ' input-error' : ''}`} aria-invalid={isInvalid('lastName') || undefined} autoComplete="family-name" value={billingAddress.lastName} onChange={(e) => setBillingAddress({ ...billingAddress, lastName: e.target.value })} />
                                     </div>
                                 </div>
                                 <div className="auth-form-row">
                                     <div className="form-group">
-                                        <label className="form-label">{t('review.email')} *</label>
-                                        <input className="form-input" type="email" value={billingAddress.email} onChange={(e) => setBillingAddress({ ...billingAddress, email: e.target.value })} />
+                                        <label className="form-label" htmlFor="ba-email">{t('review.email')} *</label>
+                                        <input id="ba-email" className={`form-input${isInvalid('email') ? ' input-error' : ''}`} aria-invalid={isInvalid('email') || undefined} type="email" autoComplete="email" value={billingAddress.email} onChange={(e) => setBillingAddress({ ...billingAddress, email: e.target.value })} />
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label">{t('review.phone')} *</label>
-                                        <input className="form-input" type="tel" value={billingAddress.phone} onChange={(e) => setBillingAddress({ ...billingAddress, phone: e.target.value })} />
+                                        <label className="form-label" htmlFor="ba-phone">{t('review.phone')} *</label>
+                                        <input id="ba-phone" className={`form-input${isInvalid('phone') ? ' input-error' : ''}`} aria-invalid={isInvalid('phone') || undefined} type="tel" autoComplete="tel" value={billingAddress.phone} onChange={(e) => setBillingAddress({ ...billingAddress, phone: e.target.value })} />
                                     </div>
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">{t('review.company')}</label>
-                                    <input className="form-input" value={billingAddress.company} onChange={(e) => setBillingAddress({ ...billingAddress, company: e.target.value })} />
+                                    <label className="form-label" htmlFor="ba-company">{t('review.company')}</label>
+                                    <input id="ba-company" className="form-input" autoComplete="organization" value={billingAddress.company} onChange={(e) => setBillingAddress({ ...billingAddress, company: e.target.value })} />
                                 </div>
                             </div>
 
                             <div className="buy-billing-col">
                                 <h3 className="buy-billing-subtitle">{t('review.billingAddress')}</h3>
                                 <div className="form-group">
-                                    <label className="form-label">{t('review.street1')} *</label>
-                                    <input className="form-input" value={billingAddress.street1} onChange={(e) => setBillingAddress({ ...billingAddress, street1: e.target.value })} />
+                                    <label className="form-label" htmlFor="ba-street1">{t('review.street1')} *</label>
+                                    <input id="ba-street1" className={`form-input${isInvalid('street1') ? ' input-error' : ''}`} aria-invalid={isInvalid('street1') || undefined} autoComplete="address-line1" value={billingAddress.street1} onChange={(e) => setBillingAddress({ ...billingAddress, street1: e.target.value })} />
                                 </div>
                                 <div className="auth-form-row">
                                     <div className="form-group">
-                                        <label className="form-label">{t('review.street2')}</label>
-                                        <input className="form-input" value={billingAddress.street2} onChange={(e) => setBillingAddress({ ...billingAddress, street2: e.target.value })} />
+                                        <label className="form-label" htmlFor="ba-street2">{t('review.street2')}</label>
+                                        <input id="ba-street2" className="form-input" autoComplete="address-line2" value={billingAddress.street2} onChange={(e) => setBillingAddress({ ...billingAddress, street2: e.target.value })} />
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label">{t('review.city')} *</label>
-                                        <input className="form-input" value={billingAddress.city} onChange={(e) => setBillingAddress({ ...billingAddress, city: e.target.value })} />
+                                        <label className="form-label" htmlFor="ba-city">{t('review.city')} *</label>
+                                        <input id="ba-city" className={`form-input${isInvalid('city') ? ' input-error' : ''}`} aria-invalid={isInvalid('city') || undefined} autoComplete="address-level2" value={billingAddress.city} onChange={(e) => setBillingAddress({ ...billingAddress, city: e.target.value })} />
                                     </div>
                                 </div>
                                 <div className="auth-form-row">
                                     <div className="form-group">
-                                        <label className="form-label">{t('review.country')} *</label>
-                                        <input className="form-input" value={billingAddress.country} onChange={(e) => setBillingAddress({ ...billingAddress, country: e.target.value })} />
+                                        <label className="form-label" htmlFor="ba-country">{t('review.country')} *</label>
+                                        <input id="ba-country" className={`form-input${isInvalid('country') ? ' input-error' : ''}`} aria-invalid={isInvalid('country') || undefined} autoComplete="country-name" value={billingAddress.country} onChange={(e) => setBillingAddress({ ...billingAddress, country: e.target.value })} />
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label">{t('review.state')}</label>
-                                        <input className="form-input" value={billingAddress.state} onChange={(e) => setBillingAddress({ ...billingAddress, state: e.target.value })} />
+                                        <label className="form-label" htmlFor="ba-state">{t('review.state')}</label>
+                                        <input id="ba-state" className="form-input" autoComplete="address-level1" value={billingAddress.state} onChange={(e) => setBillingAddress({ ...billingAddress, state: e.target.value })} />
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label">{t('review.postcode')}</label>
-                                        <input className="form-input" value={billingAddress.postcode} onChange={(e) => setBillingAddress({ ...billingAddress, postcode: e.target.value })} />
+                                        <label className="form-label" htmlFor="ba-postcode">{t('review.postcode')}</label>
+                                        <input id="ba-postcode" className="form-input" autoComplete="postal-code" value={billingAddress.postcode} onChange={(e) => setBillingAddress({ ...billingAddress, postcode: e.target.value })} />
                                     </div>
                                 </div>
                             </div>

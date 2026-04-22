@@ -3431,7 +3431,8 @@
 }
 
 /* --- Utility --- */
-.sr-only {
+.sr-only,
+.visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -3440,6 +3441,30 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+  white-space: nowrap;
+}
+
+/* Show the skip-link when focused. */
+.visually-hidden.focusable:focus,
+.skip-link:focus {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  width: auto;
+  height: auto;
+  padding: 10px 16px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: var(--primary);
+  color: #1c1917;
+  font-weight: 700;
+  font-size: 0.92rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  text-decoration: none;
 }
 
 .mt-0 {
@@ -5877,7 +5902,7 @@
 
 .dash-sidebar-btn.active {
   background: var(--primary-dim);
-  color: var(--primary);
+  color: var(--primary-text);
   font-weight: 700;
   border-left-color: var(--primary);
 }
@@ -6795,7 +6820,7 @@
   padding: 3px 10px;
   border-radius: 999px;
   background: var(--primary-dim);
-  color: var(--primary);
+  color: var(--primary-text);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -6905,7 +6930,7 @@
   align-items: center;
   justify-content: center;
   background: var(--primary-dim);
-  color: var(--primary);
+  color: var(--primary-text);
   flex-shrink: 0;
 }
 
@@ -6949,7 +6974,7 @@
   padding: 6px 14px;
   border-radius: 999px;
   background: var(--primary-dim);
-  color: var(--primary);
+  color: var(--primary-text);
   font-weight: 700;
   font-size: 0.85rem;
   letter-spacing: 0.02em;
@@ -7411,13 +7436,18 @@
   background: var(--primary-dim);
   box-shadow: 0 0 0 3px rgba(254, 191, 29, 0.15);
 }
+.buy-option:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--dark-card), 0 0 0 4px var(--primary);
+  z-index: 1;
+}
 .buy-option-label {
   font-size: 0.9rem;
   font-weight: 600;
 }
 .buy-option-price {
   font-size: 0.85rem;
-  color: var(--primary);
+  color: var(--primary-text);
   font-weight: 700;
 }
 .buy-option-sub {
@@ -7564,6 +7594,11 @@
   border-color: var(--primary);
   background: var(--primary-dim);
 }
+.buy-provider:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--dark-card), 0 0 0 4px var(--primary);
+  z-index: 1;
+}
 .buy-provider-label {
   font-weight: 700;
   font-size: 0.95rem;
@@ -7640,9 +7675,10 @@
   color: var(--danger);
 }
 .dash-link {
-  color: var(--primary);
+  color: var(--primary-text);
   text-decoration: none;
   font-size: 0.88rem;
+  font-weight: 600;
 }
 .dash-link:hover { text-decoration: underline; }
 .dash-muted { color: var(--text-tertiary); font-size: 0.85rem; }

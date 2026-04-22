@@ -55,17 +55,39 @@ function stepMeta(kind: 'order' | 'server', stage: string) {
     }
 }
 
-function Stepper({ kind, stages, current, labelFor }: { kind: 'order' | 'server'; stages: string[]; current: string; labelFor: (s: string) => string }) {
+function Stepper({
+    kind,
+    stages,
+    current,
+    labelFor,
+    ariaLabel,
+    stateLabels,
+}: {
+    kind: 'order' | 'server';
+    stages: string[];
+    current: string;
+    labelFor: (s: string) => string;
+    ariaLabel: string;
+    stateLabels: { done: string; current: string; pending: string };
+}) {
     const idx = Math.max(0, stages.indexOf(current));
     return (
-        <ol className="order-stepper">
+        <ol className="order-stepper" aria-label={ariaLabel}>
             {stages.map((s, i) => {
                 const state = i < idx ? 'done' : i === idx ? 'current' : 'pending';
+                const stepLabel = labelFor(s);
                 return (
-                    <li key={s} className={`order-step order-step--${state}`}>
-                        <div className="order-step-icon">{stepMeta(kind, s)}</div>
-                        <div className="order-step-label">{labelFor(s)}</div>
-                        {i < stages.length - 1 && <div className="order-step-connector" />}
+                    <li
+                        key={s}
+                        className={`order-step order-step--${state}`}
+                        aria-current={state === 'current' ? 'step' : undefined}
+                    >
+                        <span className="visually-hidden">
+                            Step {i + 1} of {stages.length}: {stepLabel} — {stateLabels[state]}.
+                        </span>
+                        <div className="order-step-icon" aria-hidden="true">{stepMeta(kind, s)}</div>
+                        <div className="order-step-label" aria-hidden="true">{stepLabel}</div>
+                        {i < stages.length - 1 && <div className="order-step-connector" aria-hidden="true" />}
                     </li>
                 );
             })}
@@ -160,6 +182,12 @@ export default function OrderDetailsClient() {
                                 stages={ORDER_STAGES}
                                 current={order.orderStage}
                                 labelFor={(s) => t(`orderPipeline.stages.${s}` as any) || s}
+                                ariaLabel={t('orderPipeline.title')}
+                                stateLabels={{
+                                    done: t('stepStates.done'),
+                                    current: t('stepStates.current'),
+                                    pending: t('stepStates.pending'),
+                                }}
                             />
                         </div>
                         <div className="dash-form-card">
@@ -170,6 +198,12 @@ export default function OrderDetailsClient() {
                                 stages={SERVER_STAGES}
                                 current={order.serverStage}
                                 labelFor={(s) => t(`serverPipeline.stages.${s}` as any) || s}
+                                ariaLabel={t('serverPipeline.title')}
+                                stateLabels={{
+                                    done: t('stepStates.done'),
+                                    current: t('stepStates.current'),
+                                    pending: t('stepStates.pending'),
+                                }}
                             />
                         </div>
                     </div>

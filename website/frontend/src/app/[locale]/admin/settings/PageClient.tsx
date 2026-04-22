@@ -176,11 +176,12 @@ export default function AdminSettingsClient() {
                                         const cfg = KEY_LABELS[key];
                                         const isEditing = !!editing[key] || !meta.isSet;
                                         const inputType = cfg.type === 'password' ? 'password' : 'text';
+                                        const keyId = `secret-${key.toLowerCase()}`;
                                         return (
-                                            <div key={key} className="admin-settings-field">
+                                            <div key={key} className="admin-settings-field" role="group" aria-labelledby={keyId}>
                                                 <div className="admin-settings-field-head">
                                                     <div>
-                                                        <div className="admin-settings-key">{key}</div>
+                                                        <div className="admin-settings-key" id={keyId}>{key}</div>
                                                         <div className="admin-settings-label">{cfg.label}</div>
                                                     </div>
                                                     <div className="admin-settings-state">
