@@ -183,6 +183,24 @@ func main() {
 	mux.HandleFunc("/api/admin/settings", s.withCORS(s.handleAdminSettings))
 	mux.HandleFunc("/api/admin/settings/", s.withCORS(s.handleAdminSettingsItem))
 	mux.HandleFunc("/api/admin/settings/audit", s.withCORS(s.handleAdminSettingsAudit))
+	// Admin product catalog
+	mux.HandleFunc("/api/admin/products/billing-cycles", s.withCORS(s.handleAdminBillingCycles))
+	mux.HandleFunc("/api/admin/products/billing-cycles/", s.withCORS(s.handleAdminBillingCycleItem))
+	mux.HandleFunc("/api/admin/products/support-tiers", s.withCORS(s.handleAdminSupportTiers))
+	mux.HandleFunc("/api/admin/products/support-tiers/", s.withCORS(s.handleAdminSupportTierItem))
+	mux.HandleFunc("/api/admin/products/server-tiers", s.withCORS(s.handleAdminServerTiers))
+	mux.HandleFunc("/api/admin/products/server-tiers/", s.withCORS(s.handleAdminServerTierItem))
+	mux.HandleFunc("/api/admin/promo-codes", s.withCORS(s.handleAdminPromoCodes))
+	mux.HandleFunc("/api/admin/promo-codes/", s.withCORS(s.handleAdminPromoCodeItem))
+	// Public catalog + promo apply + checkout + webhook
+	mux.HandleFunc("/api/products/catalog", s.withCORS(s.handlePublicCatalog))
+	mux.HandleFunc("/api/promo-codes/apply", s.withCORS(s.handlePromoApply))
+	mux.HandleFunc("/api/billing/checkout", s.withCORS(s.handleCheckout))
+	mux.HandleFunc("/api/webhooks/stripe", s.handleStripeWebhook) // no CORS — Stripe server-to-server
+	// User orders + invoices
+	mux.HandleFunc("/api/user/invoices", s.withCORS(s.handleUserInvoices))
+	mux.HandleFunc("/api/user/orders", s.withCORS(s.handleUserOrders))
+	mux.HandleFunc("/api/user/orders/", s.withCORS(s.handleOrderByNumber))
 	// Blog
 	mux.HandleFunc("/api/blog/posts", s.withCORS(s.handleBlogPosts))
 	mux.HandleFunc("/api/blog/posts/", s.withCORS(s.handleBlogPost))

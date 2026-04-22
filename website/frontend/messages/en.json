@@ -1,4 +1,80 @@
 {
+  "buy": {
+    "meta": {
+      "title": "Buy GCSS",
+      "description": "Configure your GCSS deployment: billing cycle, support tier, and charger capacity."
+    },
+    "loading": "Loading catalog…",
+    "loadError": "Failed to load product catalog.",
+    "title": "Configure your GCSS deployment",
+    "subtitle": "Choose the billing cycle, support level, and charger capacity that fits your operation.",
+    "productDetails": "Product Details",
+    "productName": "GCSS Charging Management Platform",
+    "productDesc": "Full-stack OCPP 1.6J / 2.0.1 backend with white-label operator app, multi-tenant platform edition, real-time monitoring, and revenue reporting.",
+    "features": {
+      "f1": "Unlimited charger endpoints (within tier)",
+      "f2": "Multi-tenant operator console",
+      "f3": "Cross-region payment integrations",
+      "f4": "Global Admin + operator hierarchies"
+    },
+    "chooseBillingCycle": "Choose Billing Cycle",
+    "supportSystem": "Support System",
+    "chooseServer": "Choose Server",
+    "save": "Save {pct}%",
+    "free": "Included",
+    "perDay": "day",
+    "summary": {
+      "title": "Purchase summary",
+      "totalRecurring": "Total Recurring",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total",
+      "selectAll": "Select all options to see total.",
+      "checkout": "Continue to checkout"
+    },
+    "review": {
+      "title": "Review & Checkout",
+      "backToConfig": "Back to configuration",
+      "reviewOrder": "Review your order",
+      "years": "{n} year(s)",
+      "promoTitle": "Promo Code",
+      "promoPlaceholder": "Enter code (e.g. SAVE10)",
+      "applyPromo": "Apply",
+      "removePromo": "Remove",
+      "promoApplied": "Code {code} applied.",
+      "promoError": "Promo code is not valid.",
+      "billingDetails": "Billing Details",
+      "personalInfo": "Personal Information",
+      "billingAddress": "Billing Address",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "company": "Company Name",
+      "street1": "Street Address",
+      "street2": "Street Address 2",
+      "city": "City",
+      "country": "Country",
+      "state": "State",
+      "postcode": "Postcode",
+      "paymentMethod": "Payment Method",
+      "providerStripe": "Credit / Debit Card",
+      "providerStripeDesc": "Powered by Stripe. Apple Pay & Google Pay supported.",
+      "providerPaypal": "PayPal",
+      "providerPaypalDesc": "Pay with your PayPal balance or linked card.",
+      "providerPingxx": "Alipay / WeChat Pay",
+      "providerPingxxDesc": "Mainland China. Powered by Ping++.",
+      "fillRequired": "Please fill in all required billing fields.",
+      "checkoutError": "Checkout failed. Please try again."
+    },
+    "success": {
+      "paid": "Payment Successful",
+      "processing": "Payment received — processing…",
+      "orderNumber": "Order",
+      "viewInvoice": "View Invoice",
+      "backToDashboard": "Back to Dashboard"
+    }
+  },
   "nav": {
     "home": "Home",
     "product": "Product",
@@ -1499,6 +1575,7 @@
       "description": "View all invoices and payment records for your GCSS subscription.",
       "emptyTitle": "No payments yet",
       "emptyDesc": "Invoices will appear here after your first purchase.",
+      "buyNow": "Browse products",
       "tableLabel": "Payment history",
       "noRecords": "No records to show.",
       "columns": {
@@ -1506,7 +1583,15 @@
         "product": "Product",
         "total": "Total amount",
         "status": "Progress",
-        "details": "Details"
+        "details": "Details",
+        "view": "View invoice",
+        "pending": "Awaiting payment"
+      },
+      "statuses": {
+        "paid": "Paid",
+        "pending": "Pending",
+        "failed": "Failed",
+        "canceled": "Canceled"
       }
     },
     "serverInfo": {
@@ -2190,9 +2275,54 @@
       "blog": "Blog Manager",
       "forum": "Forum Moderation",
       "requests": "Audit Requests",
-      "settings": "Settings & Keys"
+      "settings": "Settings & Keys",
+      "products": "Product Catalog"
     },
     "backToOverview": "Back to Admin",
+    "products": {
+      "title": "Product Catalog",
+      "subtitle": "Manage billing cycles, support tiers, server tiers, and promo codes. Changes apply immediately to the buy page.",
+      "confirmDelete": "Delete this item?",
+      "common": {
+        "active": "Active",
+        "sort": "Sort",
+        "delete": "Delete",
+        "add": "Add"
+      },
+      "billingCycles": {
+        "title": "Billing Cycles",
+        "desc": "Term lengths customers can pick. Multiplier applies a multi-year discount (e.g. 0.9 = 10% off).",
+        "years": "Years",
+        "labelEn": "Label (EN)",
+        "labelZh": "Label (ZH)",
+        "multiplier": "Multiplier"
+      },
+      "supportTiers": {
+        "title": "Support Tiers",
+        "desc": "Support add-ons. Pricing type is fixed (one-time), per_day (× billing cycle days), or per_month.",
+        "labelEn": "Label (EN)",
+        "labelZh": "Label (ZH)",
+        "price": "Price ($)",
+        "pricingType": "Pricing Type"
+      },
+      "serverTiers": {
+        "title": "Server Tiers",
+        "desc": "Deployment capacity tiers. Pick by maximum connected chargers.",
+        "labelEn": "Label (EN)",
+        "labelZh": "Label (ZH)",
+        "maxChargers": "Max Chargers",
+        "price": "Price ($)"
+      },
+      "promoCodes": {
+        "title": "Promo Codes",
+        "desc": "Discount codes applied at checkout. Percent is 1-100. Fixed is in cents (e.g. 500 = $5 off).",
+        "code": "Code",
+        "type": "Type",
+        "value": "Value",
+        "maxRedemptions": "Max",
+        "redeemed": "Redeemed"
+      }
+    },
     "settings": {
       "title": "Settings & Keys",
       "description": "Manage payment gateway keys, SMTP credentials, and CAPTCHA secrets. Values are encrypted at rest and never returned after saving.",

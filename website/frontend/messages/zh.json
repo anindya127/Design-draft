@@ -1,4 +1,80 @@
 {
+  "buy": {
+    "meta": {
+      "title": "购买 GCSS",
+      "description": "配置您的 GCSS 部署：计费周期、支持等级和充电桩容量。"
+    },
+    "loading": "正在加载…",
+    "loadError": "无法加载产品目录。",
+    "title": "配置您的 GCSS 部署",
+    "subtitle": "选择适合您运营规模的计费周期、支持等级和充电桩容量。",
+    "productDetails": "产品详情",
+    "productName": "GCSS 充电管理平台",
+    "productDesc": "完整的 OCPP 1.6J / 2.0.1 后端，包含白标运营商应用、多租户平台版、实时监控和营收报表。",
+    "features": {
+      "f1": "充电桩端点数量不受限（在所选等级内）",
+      "f2": "多租户运营商控制台",
+      "f3": "跨地区支付集成",
+      "f4": "总管理员 + 运营商层级"
+    },
+    "chooseBillingCycle": "选择计费周期",
+    "supportSystem": "支持系统",
+    "chooseServer": "选择服务器",
+    "save": "节省 {pct}%",
+    "free": "已包含",
+    "perDay": "天",
+    "summary": {
+      "title": "购买摘要",
+      "totalRecurring": "续订总额",
+      "subtotal": "小计",
+      "discount": "折扣",
+      "total": "总计",
+      "selectAll": "请选择全部选项以查看总额。",
+      "checkout": "前往结账"
+    },
+    "review": {
+      "title": "核对订单并结账",
+      "backToConfig": "返回配置",
+      "reviewOrder": "核对订单",
+      "years": "{n} 年",
+      "promoTitle": "优惠码",
+      "promoPlaceholder": "输入优惠码（如 SAVE10）",
+      "applyPromo": "应用",
+      "removePromo": "移除",
+      "promoApplied": "优惠码 {code} 已应用。",
+      "promoError": "优惠码无效。",
+      "billingDetails": "账单详情",
+      "personalInfo": "个人信息",
+      "billingAddress": "账单地址",
+      "firstName": "名",
+      "lastName": "姓",
+      "email": "邮箱",
+      "phone": "电话",
+      "company": "公司",
+      "street1": "街道地址",
+      "street2": "街道地址 2",
+      "city": "城市",
+      "country": "国家",
+      "state": "省/州",
+      "postcode": "邮编",
+      "paymentMethod": "支付方式",
+      "providerStripe": "信用卡 / 借记卡",
+      "providerStripeDesc": "由 Stripe 提供支持，支持 Apple Pay 与 Google Pay。",
+      "providerPaypal": "PayPal",
+      "providerPaypalDesc": "使用 PayPal 余额或绑定的银行卡支付。",
+      "providerPingxx": "支付宝 / 微信支付",
+      "providerPingxxDesc": "中国大陆。由 Ping++ 提供支持。",
+      "fillRequired": "请填写所有必填账单信息。",
+      "checkoutError": "结账失败，请重试。"
+    },
+    "success": {
+      "paid": "支付成功",
+      "processing": "已收到支付，正在处理…",
+      "orderNumber": "订单号",
+      "viewInvoice": "查看发票",
+      "backToDashboard": "返回控制台"
+    }
+  },
   "nav": {
     "home": "首页",
     "product": "产品",
@@ -1499,6 +1575,7 @@
       "description": "查看您 GCSS 订阅的所有发票与支付记录。",
       "emptyTitle": "暂无支付记录",
       "emptyDesc": "首次购买后，发票将显示在这里。",
+      "buyNow": "浏览产品",
       "tableLabel": "支付记录",
       "noRecords": "暂无记录。",
       "columns": {
@@ -1506,7 +1583,15 @@
         "product": "产品",
         "total": "总金额",
         "status": "进度",
-        "details": "详情"
+        "details": "详情",
+        "view": "查看发票",
+        "pending": "等待支付"
+      },
+      "statuses": {
+        "paid": "已支付",
+        "pending": "待处理",
+        "failed": "失败",
+        "canceled": "已取消"
       }
     },
     "serverInfo": {
@@ -2190,9 +2275,54 @@
       "blog": "博客管理",
       "forum": "论坛管理",
       "requests": "请求审计",
-      "settings": "设置与密钥"
+      "settings": "设置与密钥",
+      "products": "产品目录"
     },
     "backToOverview": "返回管理面板",
+    "products": {
+      "title": "产品目录",
+      "subtitle": "管理计费周期、支持等级、服务器等级与优惠码。修改立即生效。",
+      "confirmDelete": "确认删除该项？",
+      "common": {
+        "active": "启用",
+        "sort": "顺序",
+        "delete": "删除",
+        "add": "添加"
+      },
+      "billingCycles": {
+        "title": "计费周期",
+        "desc": "可选的订阅时长。倍数用于多年折扣（如 0.9 = 9 折）。",
+        "years": "年数",
+        "labelEn": "英文标签",
+        "labelZh": "中文标签",
+        "multiplier": "倍数"
+      },
+      "supportTiers": {
+        "title": "支持等级",
+        "desc": "附加支持服务。计价类型可为固定、按天或按月。",
+        "labelEn": "英文标签",
+        "labelZh": "中文标签",
+        "price": "价格（美元）",
+        "pricingType": "计价类型"
+      },
+      "serverTiers": {
+        "title": "服务器等级",
+        "desc": "部署容量等级，按最大充电桩数量选择。",
+        "labelEn": "英文标签",
+        "labelZh": "中文标签",
+        "maxChargers": "最大桩数",
+        "price": "价格（美元）"
+      },
+      "promoCodes": {
+        "title": "优惠码",
+        "desc": "结账时应用的折扣码。百分比为 1-100，固定值为分（500 = 减 5 美元）。",
+        "code": "代码",
+        "type": "类型",
+        "value": "值",
+        "maxRedemptions": "最大次数",
+        "redeemed": "已使用"
+      }
+    },
     "settings": {
       "title": "设置与密钥",
       "description": "管理支付网关密钥、SMTP 凭据与 CAPTCHA 密钥。所有值均加密存储，保存后不可再次读取。",

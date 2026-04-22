@@ -244,6 +244,94 @@ func (s *Store) migrate(ctx context.Context) error {
 			FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_email_changes_user_id ON email_changes(user_id);`,
+		`CREATE TABLE IF NOT EXISTS billing_cycles (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			years INTEGER NOT NULL,
+			label_en TEXT NOT NULL,
+			label_zh TEXT NOT NULL DEFAULT '',
+			multiplier REAL NOT NULL DEFAULT 1.0,
+			is_active INTEGER NOT NULL DEFAULT 1,
+			sort_order INTEGER NOT NULL DEFAULT 0
+		);`,
+		`CREATE TABLE IF NOT EXISTS support_tiers (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			label_en TEXT NOT NULL,
+			label_zh TEXT NOT NULL DEFAULT '',
+			description_en TEXT NOT NULL DEFAULT '',
+			description_zh TEXT NOT NULL DEFAULT '',
+			price_cents INTEGER NOT NULL DEFAULT 0,
+			pricing_type TEXT NOT NULL DEFAULT 'fixed',
+			is_active INTEGER NOT NULL DEFAULT 1,
+			sort_order INTEGER NOT NULL DEFAULT 0
+		);`,
+		`CREATE TABLE IF NOT EXISTS server_tiers (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			label_en TEXT NOT NULL,
+			label_zh TEXT NOT NULL DEFAULT '',
+			max_chargers INTEGER NOT NULL,
+			price_cents INTEGER NOT NULL,
+			is_active INTEGER NOT NULL DEFAULT 1,
+			sort_order INTEGER NOT NULL DEFAULT 0
+		);`,
+		`CREATE TABLE IF NOT EXISTS promo_codes (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			code TEXT NOT NULL UNIQUE,
+			discount_type TEXT NOT NULL,
+			discount_value INTEGER NOT NULL,
+			is_active INTEGER NOT NULL DEFAULT 1,
+			max_redemptions INTEGER NOT NULL DEFAULT 0,
+			redeemed_count INTEGER NOT NULL DEFAULT 0,
+			valid_from TEXT,
+			valid_until TEXT,
+			created_at TEXT NOT NULL
+		);`,
+		`CREATE TABLE IF NOT EXISTS orders (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL,
+			order_number TEXT NOT NULL UNIQUE,
+			billing_cycle_id INTEGER,
+			support_tier_id INTEGER,
+			server_tier_id INTEGER,
+			promo_code_id INTEGER,
+			product_label TEXT NOT NULL DEFAULT '',
+			subtotal_cents INTEGER NOT NULL DEFAULT 0,
+			discount_cents INTEGER NOT NULL DEFAULT 0,
+			total_cents INTEGER NOT NULL DEFAULT 0,
+			currency TEXT NOT NULL DEFAULT 'USD',
+			billing_address_json TEXT NOT NULL DEFAULT '{}',
+			provider TEXT NOT NULL DEFAULT '',
+			provider_session_id TEXT,
+			provider_payment_id TEXT,
+			status TEXT NOT NULL DEFAULT 'pending',
+			order_stage TEXT NOT NULL DEFAULT 'received',
+			server_stage TEXT NOT NULL DEFAULT 'not_started',
+			paid_at TEXT,
+			created_at TEXT NOT NULL,
+			updated_at TEXT NOT NULL,
+			FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);`,
+		`CREATE INDEX IF NOT EXISTS idx_orders_provider_session ON orders(provider_session_id);`,
+		`CREATE TABLE IF NOT EXISTS invoices (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			order_id INTEGER,
+			user_id INTEGER NOT NULL,
+			invoice_number TEXT NOT NULL UNIQUE,
+			provider TEXT NOT NULL,
+			provider_invoice_id TEXT,
+			hosted_invoice_url TEXT,
+			product_label TEXT NOT NULL,
+			amount_cents INTEGER NOT NULL,
+			currency TEXT NOT NULL DEFAULT 'USD',
+			status TEXT NOT NULL DEFAULT 'paid',
+			paid_at TEXT,
+			created_at TEXT NOT NULL,
+			FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+			FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE SET NULL
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_invoices_user_id ON invoices(user_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_invoices_order_id ON invoices(order_id);`,
 	}
 	for _, stmt := range stmts {
 		if _, err := s.db.ExecContext(ctx, stmt); err != nil {
@@ -282,6 +370,11 @@ func (s *Store) migrate(ctx context.Context) error {
 }
 
 func (s *Store) seedIfEmpty(ctx context.Context) error {
+	// Seed product catalog (idempotent — only seeds if tables are empty)
+	if err := s.seedCatalog(ctx); err != nil {
+		return err
+	}
+
 	// Always ensure admin user exists
 	var adminCount int
 	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(1) FROM users WHERE username = 'admin';`).Scan(&adminCount); err != nil {
