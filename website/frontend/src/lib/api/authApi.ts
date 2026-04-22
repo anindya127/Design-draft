@@ -166,3 +166,32 @@ export async function apiUserDashboard(token: string): Promise<{ user: AuthUser;
         headers: { Authorization: `Bearer ${token}` },
     });
 }
+
+export async function apiRequestEmailChange(
+    token: string,
+    newEmail: string
+): Promise<{ status: string; expiresAt: string; code?: string }> {
+    const apiBase = getApiBase();
+    return await fetchJson<{ status: string; expiresAt: string; code?: string }>(`${apiBase}/auth/email/change-request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ newEmail }),
+    });
+}
+
+export async function apiConfirmEmailChange(
+    token: string,
+    code: string
+): Promise<{ status: string }> {
+    const apiBase = getApiBase();
+    return await fetchJson<{ status: string }>(`${apiBase}/auth/email/change-confirm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ code }),
+    });
+}
+
+export async function apiPublicConfig(): Promise<{ config: Record<string, string> }> {
+    const apiBase = getApiBase();
+    return await fetchJson<{ config: Record<string, string> }>(`${apiBase}/public/config`, { method: 'GET' });
+}

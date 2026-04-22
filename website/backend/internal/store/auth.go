@@ -382,6 +382,98 @@ func (s *Store) UpdateUserProfile(ctx context.Context, userID int64, firstName, 
 	return &u, nil
 }
 
+// RequestEmailChange generates a verification code for changing the account email.
+// Returns the plaintext code (the caller emails it to newEmail), expiry, and ok=true.
+// If newEmail is already in use by another account, returns ErrEmailInUse.
+var ErrEmailInUse = errors.New("email already in use")
+
+func (s *Store) RequestEmailChange(ctx context.Context, userID int64, newEmail string, ttl time.Duration) (code string, expiresAt time.Time, err error) {
+	newEmail = strings.ToLower(strings.TrimSpace(newEmail))
+	if newEmail == "" {
+		return "", time.Time{}, errors.New("new email is required")
+	}
+	if !strings.Contains(newEmail, "@") || len(newEmail) < 5 {
+		return "", time.Time{}, errors.New("invalid email format")
+	}
+	if ttl <= 0 {
+		ttl = 30 * time.Minute
+	}
+
+	// Check uniqueness against OTHER users.
+	newHash := s.enc.HashForLookup(newEmail)
+	var existingID int64
+	row := s.db.QueryRowContext(ctx, `SELECT id FROM users WHERE (email_hash = ? OR email = ?) AND id != ? LIMIT 1;`, newHash, newEmail, userID)
+	if err := row.Scan(&existingID); err == nil && existingID > 0 {
+		return "", time.Time{}, ErrEmailInUse
+	}
+
+	code, err = newNumericCode(6)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	codeHash := hashToken(code)
+	now := time.Now().UTC()
+	expiresAt = now.Add(ttl)
+
+	// Invalidate previous pending changes for this user.
+	_, _ = s.db.ExecContext(ctx, `UPDATE email_changes SET used_at = ? WHERE user_id = ? AND used_at IS NULL;`, now.Format(time.RFC3339), userID)
+
+	encNewEmail := s.enc.Encrypt(newEmail)
+	_, err = s.db.ExecContext(ctx, `
+		INSERT INTO email_changes (user_id, new_email, new_email_hash, code_hash, created_at, expires_at)
+		VALUES (?, ?, ?, ?, ?, ?);
+	`, userID, encNewEmail, newHash, codeHash, now.Format(time.RFC3339), expiresAt.Format(time.RFC3339))
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	return code, expiresAt, nil
+}
+
+// ConfirmEmailChange verifies the code and applies the pending email change.
+func (s *Store) ConfirmEmailChange(ctx context.Context, userID int64, code string) error {
+	code = strings.TrimSpace(code)
+	if code == "" {
+		return errors.New("code is required")
+	}
+	codeHash := hashToken(code)
+	now := time.Now().UTC()
+	nowS := now.Format(time.RFC3339)
+
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	var encNewEmail, newHash string
+	row := tx.QueryRowContext(ctx, `
+		SELECT new_email, new_email_hash FROM email_changes
+		WHERE user_id = ? AND code_hash = ? AND used_at IS NULL AND expires_at > ?
+		ORDER BY created_at DESC LIMIT 1;
+	`, userID, codeHash, nowS)
+	if err := row.Scan(&encNewEmail, &newHash); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrInvalidResetCode
+		}
+		return err
+	}
+
+	// Re-check uniqueness under lock.
+	var conflictID int64
+	_ = tx.QueryRowContext(ctx, `SELECT id FROM users WHERE email_hash = ? AND id != ? LIMIT 1;`, newHash, userID).Scan(&conflictID)
+	if conflictID > 0 {
+		return ErrEmailInUse
+	}
+
+	if _, err := tx.ExecContext(ctx, `UPDATE users SET email = ?, email_hash = ? WHERE id = ?;`, encNewEmail, newHash, userID); err != nil {
+		return err
+	}
+	if _, err := tx.ExecContext(ctx, `UPDATE email_changes SET used_at = ? WHERE user_id = ? AND code_hash = ?;`, nowS, userID, codeHash); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
 // ChangePassword verifies the current password and sets a new one.
 func (s *Store) ChangePassword(ctx context.Context, userID int64, currentPassword, newPassword string) error {
 	currentPassword = strings.TrimSpace(currentPassword)

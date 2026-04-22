@@ -164,8 +164,12 @@ func main() {
 	mux.HandleFunc("/api/auth/password/reset", s.withCORS(s.handleAuthResetPassword))
 	mux.HandleFunc("/api/auth/profile", s.withCORS(s.handleAuthUpdateProfile))
 	mux.HandleFunc("/api/auth/password/change", s.withCORS(s.handleAuthChangePassword))
+	mux.HandleFunc("/api/auth/email/change-request", s.withCORS(s.handleAuthEmailChangeRequest))
+	mux.HandleFunc("/api/auth/email/change-confirm", s.withCORS(s.handleAuthEmailChangeConfirm))
 	// User dashboard
 	mux.HandleFunc("/api/user/dashboard", s.withCORS(s.handleUserDashboard))
+	// Public config (publishable keys only)
+	mux.HandleFunc("/api/public/config", s.withCORS(s.handlePublicConfig))
 	// Admin
 	mux.HandleFunc("/api/admin/overview", s.withCORS(s.handleAdminOverview))
 	mux.HandleFunc("/api/admin/blog/posts", s.withCORS(s.handleAdminBlogPosts))
@@ -176,6 +180,9 @@ func main() {
 	mux.HandleFunc("/api/admin/forum/topics/", s.withCORS(s.handleAdminForumTopicDelete))
 	mux.HandleFunc("/api/admin/forum/posts/", s.withCORS(s.handleAdminForumPostDelete))
 	mux.HandleFunc("/api/admin/requests", s.withCORS(s.handleAdminRequests))
+	mux.HandleFunc("/api/admin/settings", s.withCORS(s.handleAdminSettings))
+	mux.HandleFunc("/api/admin/settings/", s.withCORS(s.handleAdminSettingsItem))
+	mux.HandleFunc("/api/admin/settings/audit", s.withCORS(s.handleAdminSettingsAudit))
 	// Blog
 	mux.HandleFunc("/api/blog/posts", s.withCORS(s.handleBlogPosts))
 	mux.HandleFunc("/api/blog/posts/", s.withCORS(s.handleBlogPost))
@@ -1147,6 +1154,172 @@ func (s *server) handleAdminRequests(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]interface{}{"requests": records})
+}
+
+// ── Admin: app_secrets / settings ──────────────────────────────────────
+
+func (s *server) handleAdminSettings(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+	metas, err := s.store.ListAppSecretsMeta(r.Context())
+	if err != nil {
+		log.Printf("ListAppSecretsMeta error: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list settings"})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"settings": metas})
+}
+
+func (s *server) handleAdminSettingsItem(w http.ResponseWriter, r *http.Request) {
+	key := strings.TrimPrefix(r.URL.Path, "/api/admin/settings/")
+	key = strings.Trim(key, "/")
+	if key == "" || key == "audit" {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
+		return
+	}
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	admin, ok := s.requireAdmin(w, r)
+	if !ok {
+		return
+	}
+	ip := clientIP(r)
+	ua := r.Header.Get("User-Agent")
+
+	switch r.Method {
+	case http.MethodPut, http.MethodPost:
+		var req struct {
+			Value string `json:"value"`
+		}
+		if err := decodeJSON(r, &req); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		if err := s.store.SetAppSecret(r.Context(), key, req.Value, admin.ID, ip, ua); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]string{"status": "saved"})
+		return
+	case http.MethodDelete:
+		if err := s.store.DeleteAppSecret(r.Context(), key, admin.ID, ip, ua); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]string{"status": "cleared"})
+		return
+	}
+	writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+}
+
+func (s *server) handleAdminSettingsAudit(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+	limit := parseIntDefault(r.URL.Query().Get("limit"), 50)
+	entries, err := s.store.ListAppSecretAudit(r.Context(), limit)
+	if err != nil {
+		log.Printf("ListAppSecretAudit error: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list audit"})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"audit": entries})
+}
+
+// ── Public config (publishable keys only) ──────────────────────────────
+
+func (s *server) handlePublicConfig(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	cfg, err := s.store.GetPublicConfig(r.Context())
+	if err != nil {
+		log.Printf("GetPublicConfig error: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to load config"})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"config": cfg})
+}
+
+// ── Email change flow ──────────────────────────────────────────────────
+
+func (s *server) handleAuthEmailChangeRequest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	user, ok := s.requireAuth(w, r)
+	if !ok {
+		return
+	}
+	var req struct {
+		NewEmail string `json:"newEmail"`
+	}
+	if err := decodeJSON(r, &req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	code, expiresAt, err := s.store.RequestEmailChange(r.Context(), user.ID, req.NewEmail, 30*time.Minute)
+	if err != nil {
+		if errors.Is(err, store.ErrEmailInUse) {
+			writeJSON(w, http.StatusConflict, map[string]string{"error": "email already in use"})
+			return
+		}
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	// In production the code is delivered via email. Until SMTP secrets are
+	// configured, include the code in the response when explicitly enabled.
+	payload := map[string]interface{}{"status": "sent", "expiresAt": expiresAt}
+	if truthyEnv("AUTH_RETURN_RESET_CODE") {
+		payload["code"] = code
+	}
+	writeJSON(w, http.StatusOK, payload)
+}
+
+func (s *server) handleAuthEmailChangeConfirm(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	user, ok := s.requireAuth(w, r)
+	if !ok {
+		return
+	}
+	var req struct {
+		Code string `json:"code"`
+	}
+	if err := decodeJSON(r, &req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	if err := s.store.ConfirmEmailChange(r.Context(), user.ID, req.Code); err != nil {
+		if errors.Is(err, store.ErrEmailInUse) {
+			writeJSON(w, http.StatusConflict, map[string]string{"error": "email already in use"})
+			return
+		}
+		if errors.Is(err, store.ErrInvalidResetCode) {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid or expired code"})
+			return
+		}
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
 }
 
 func bearerToken(r *http.Request) string {

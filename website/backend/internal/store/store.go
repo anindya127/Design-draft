@@ -214,6 +214,36 @@ func (s *Store) migrate(ctx context.Context) error {
 			ua TEXT,
 			payload_json TEXT NOT NULL
 		);`,
+		`CREATE TABLE IF NOT EXISTS app_secrets (
+			key TEXT PRIMARY KEY,
+			group_name TEXT NOT NULL,
+			encrypted_value TEXT NOT NULL,
+			last_four TEXT NOT NULL DEFAULT '',
+			updated_at TEXT NOT NULL,
+			updated_by INTEGER
+		);`,
+		`CREATE TABLE IF NOT EXISTS app_secret_audit (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			key TEXT NOT NULL,
+			action TEXT NOT NULL,
+			actor_user_id INTEGER,
+			ip TEXT,
+			ua TEXT,
+			created_at TEXT NOT NULL
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_app_secret_audit_created_at ON app_secret_audit(created_at);`,
+		`CREATE TABLE IF NOT EXISTS email_changes (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL,
+			new_email TEXT NOT NULL,
+			new_email_hash TEXT NOT NULL,
+			code_hash TEXT NOT NULL,
+			created_at TEXT NOT NULL,
+			expires_at TEXT NOT NULL,
+			used_at TEXT,
+			FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_email_changes_user_id ON email_changes(user_id);`,
 	}
 	for _, stmt := range stmts {
 		if _, err := s.db.ExecContext(ctx, stmt); err != nil {

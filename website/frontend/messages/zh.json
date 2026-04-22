@@ -1419,7 +1419,10 @@
       "overview": "概览",
       "posts": "我的帖子",
       "profile": "个人资料",
-      "security": "安全设置"
+      "security": "安全设置",
+      "dashboard": "控制台",
+      "paymentHistory": "支付记录",
+      "serverInfo": "服务器信息"
     },
     "saveProfile": "保存修改",
     "profileUpdated": "资料更新成功。",
@@ -1430,7 +1433,10 @@
       "firstName": "名",
       "lastName": "姓",
       "phone": "电话",
-      "company": "公司"
+      "company": "公司",
+      "currentEmail": "当前邮箱",
+      "newEmail": "新邮箱",
+      "verificationCode": "验证码"
     },
     "stats": {
       "email": "邮箱",
@@ -1439,6 +1445,25 @@
       "posts": "回复",
       "memberSince": "注册时间",
       "activeSessions": "活跃会话"
+    },
+    "profile": {
+      "title": "个人资料",
+      "subscription": "订阅",
+      "freePlan": "免费版",
+      "personalInfo": "个人信息"
+    },
+    "email": {
+      "title": "修改邮箱",
+      "sendCode": "发送验证码",
+      "required": "请输入新邮箱地址。",
+      "codeRequired": "请输入验证码。",
+      "sent": "验证码已发送，请查收邮箱。",
+      "verify": "验证并更新",
+      "cancel": "取消",
+      "verifyDesc": "我们已向 {email} 发送了 6 位验证码，请在下方输入以确认修改。",
+      "updated": "邮箱更新成功。",
+      "error": "修改邮箱失败。",
+      "debugCode": "调试验证码：{code}"
     },
     "security": {
       "changePassword": "修改密码",
@@ -1468,6 +1493,35 @@
       "blog": "最新文章",
       "docs": "帮助文档",
       "contact": "联系客服"
+    },
+    "paymentHistory": {
+      "title": "支付记录",
+      "description": "查看您 GCSS 订阅的所有发票与支付记录。",
+      "emptyTitle": "暂无支付记录",
+      "emptyDesc": "首次购买后，发票将显示在这里。",
+      "tableLabel": "支付记录",
+      "noRecords": "暂无记录。",
+      "columns": {
+        "invoice": "发票编号",
+        "product": "产品",
+        "total": "总金额",
+        "status": "进度",
+        "details": "详情"
+      }
+    },
+    "serverInfo": {
+      "title": "服务器信息",
+      "description": "您的 GCSS CPMS 部署的凭据与状态。",
+      "credentials": {
+        "title": "API 凭据",
+        "desc": "API 地址、API 密钥与 Webhook 地址，用于将您的充电桩接入 GCSS。"
+      },
+      "status": {
+        "title": "部署状态",
+        "desc": "区域、在线率、已连接充电桩数量与最近备份时间。"
+      },
+      "emptyTitle": "尚未分配服务器",
+      "emptyDesc": "首次购买后将自动为您开通 GCSS 实例。"
     }
   },
   "forgot": {
@@ -2135,7 +2189,33 @@
       "users": "用户管理",
       "blog": "博客管理",
       "forum": "论坛管理",
-      "requests": "请求审计"
+      "requests": "请求审计",
+      "settings": "设置与密钥"
+    },
+    "backToOverview": "返回管理面板",
+    "settings": {
+      "title": "设置与密钥",
+      "description": "管理支付网关密钥、SMTP 凭据与 CAPTCHA 密钥。所有值均加密存储，保存后不可再次读取。",
+      "subtitle": "保存后的值不可读取，只能替换。",
+      "setBadge": "已设置",
+      "notSetBadge": "未设置",
+      "save": "保存",
+      "update": "更新",
+      "cancel": "取消",
+      "clear": "清除",
+      "newValuePlaceholder": "输入新值以替换现有值",
+      "updatedAt": "最近更新：{date}",
+      "confirmClear": "清除 {key}？依赖此密钥的功能在重新配置前将停止工作。",
+      "audit": {
+        "title": "最近变更",
+        "desc": "最近 20 次密钥变更记录，不可修改。",
+        "empty": "暂无变更记录。",
+        "when": "时间",
+        "key": "密钥",
+        "action": "操作",
+        "actor": "操作者",
+        "ip": "IP"
+      }
     }
   },
   "adminUsers": {

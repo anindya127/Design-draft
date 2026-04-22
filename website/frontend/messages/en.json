@@ -1419,7 +1419,10 @@
       "overview": "Overview",
       "posts": "My Posts",
       "profile": "Profile",
-      "security": "Security"
+      "security": "Security",
+      "dashboard": "Dashboard",
+      "paymentHistory": "Payment History",
+      "serverInfo": "Server Info"
     },
     "saveProfile": "Save Changes",
     "profileUpdated": "Profile updated successfully.",
@@ -1430,7 +1433,10 @@
       "firstName": "First Name",
       "lastName": "Last Name",
       "phone": "Phone",
-      "company": "Company"
+      "company": "Company",
+      "currentEmail": "Current email",
+      "newEmail": "New email",
+      "verificationCode": "Verification code"
     },
     "stats": {
       "email": "Email",
@@ -1439,6 +1445,25 @@
       "posts": "replies",
       "memberSince": "Member Since",
       "activeSessions": "Active Sessions"
+    },
+    "profile": {
+      "title": "Profile",
+      "subscription": "Subscription",
+      "freePlan": "Free plan",
+      "personalInfo": "Personal information"
+    },
+    "email": {
+      "title": "Change email",
+      "sendCode": "Send verification code",
+      "required": "Please enter a new email address.",
+      "codeRequired": "Please enter the verification code.",
+      "sent": "Verification code sent. Check your inbox.",
+      "verify": "Verify & update",
+      "cancel": "Cancel",
+      "verifyDesc": "We sent a 6-digit code to {email}. Enter it below to confirm the change.",
+      "updated": "Email updated successfully.",
+      "error": "Email change failed.",
+      "debugCode": "DEBUG verification code: {code}"
     },
     "security": {
       "changePassword": "Change Password",
@@ -1468,6 +1493,35 @@
       "blog": "Latest Articles",
       "docs": "Documentation",
       "contact": "Contact Support"
+    },
+    "paymentHistory": {
+      "title": "Payment History",
+      "description": "View all invoices and payment records for your GCSS subscription.",
+      "emptyTitle": "No payments yet",
+      "emptyDesc": "Invoices will appear here after your first purchase.",
+      "tableLabel": "Payment history",
+      "noRecords": "No records to show.",
+      "columns": {
+        "invoice": "Invoice number",
+        "product": "Product",
+        "total": "Total amount",
+        "status": "Progress",
+        "details": "Details"
+      }
+    },
+    "serverInfo": {
+      "title": "Server Info",
+      "description": "Credentials and status for your GCSS CPMS deployment.",
+      "credentials": {
+        "title": "API credentials",
+        "desc": "API endpoint, API key, and webhook URLs for integrating your chargers with GCSS."
+      },
+      "status": {
+        "title": "Deployment status",
+        "desc": "Region, uptime, connected chargers, and last backup."
+      },
+      "emptyTitle": "No server assigned yet",
+      "emptyDesc": "Your GCSS instance will be provisioned after your first purchase."
     }
   },
   "forgot": {
@@ -2135,7 +2189,33 @@
       "users": "User Management",
       "blog": "Blog Manager",
       "forum": "Forum Moderation",
-      "requests": "Audit Requests"
+      "requests": "Audit Requests",
+      "settings": "Settings & Keys"
+    },
+    "backToOverview": "Back to Admin",
+    "settings": {
+      "title": "Settings & Keys",
+      "description": "Manage payment gateway keys, SMTP credentials, and CAPTCHA secrets. Values are encrypted at rest and never returned after saving.",
+      "subtitle": "Once saved, a value cannot be read back — only replaced.",
+      "setBadge": "SET",
+      "notSetBadge": "NOT SET",
+      "save": "Save",
+      "update": "Update",
+      "cancel": "Cancel",
+      "clear": "Clear",
+      "newValuePlaceholder": "Enter new value to replace existing",
+      "updatedAt": "Last updated {date}",
+      "confirmClear": "Clear {key}? The feature that uses this key will stop working until re-entered.",
+      "audit": {
+        "title": "Recent changes",
+        "desc": "Last 20 changes to any secret. Immutable audit log.",
+        "empty": "No changes logged yet.",
+        "when": "When",
+        "key": "Key",
+        "action": "Action",
+        "actor": "Actor",
+        "ip": "IP"
+      }
     }
   },
   "adminUsers": {
