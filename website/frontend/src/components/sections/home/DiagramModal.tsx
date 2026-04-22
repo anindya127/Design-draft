@@ -1,8 +1,8 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import Diagram2D from './Diagram2D';
 import './DiagramModal.css';
 
 type DiagramType = 'B2C' | 'B2B';
@@ -84,7 +84,16 @@ export function DiagramModalProvider({ children }: { children: ReactNode }) {
                             </h2>
                         </div>
                         <div className="diagram-modal-body">
-                            <Diagram2D type={diagramType} />
+                            <div className="diagram-modal-image-wrap">
+                                <Image
+                                    src={diagramType === 'B2C' ? '/images/B2C.png' : '/images/B2B.png'}
+                                    alt={title}
+                                    fill
+                                    sizes="96vw"
+                                    style={{ objectFit: 'contain' }}
+                                    priority
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -776,36 +776,6 @@ html {
   color: var(--text-secondary);
 }
 
-.model-card--with-media {
-  padding-top: 0;
-  overflow: hidden;
-}
-
-.model-card-media {
-  position: relative;
-  width: calc(100% + 80px);
-  margin: 0 -40px 24px;
-  aspect-ratio: 600 / 340;
-  background: #2b3340;
-  border-bottom: 1px solid var(--border-subtle);
-  overflow: hidden;
-}
-
-.model-card-media :global(img),
-.model-card-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-@media (max-width: 768px) {
-  .model-card-media {
-    width: calc(100% + 48px);
-    margin: 0 -24px 20px;
-  }
-}
-
 /* --- Global Map Section --- */
 .map-section {
   background: var(--dark);
