@@ -6830,24 +6830,24 @@
 .dash-stat-card--purple { border-left-color: #A78BFA; }
 
 .dash-stat-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-tertiary);
-  margin-bottom: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0;
+  margin-bottom: 8px;
 }
 
 .dash-stat-value {
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-size: 1.35rem;
+  font-weight: 600;
   color: var(--text-primary);
-  letter-spacing: -0.01em;
-  line-height: 1.15;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }
 
 .dash-stat-sub {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--text-tertiary);
   margin-top: 4px;
 }
