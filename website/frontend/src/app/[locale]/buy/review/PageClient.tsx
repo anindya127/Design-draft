@@ -69,6 +69,11 @@ export default function BuyReviewClient() {
     const [promoMsg, setPromoMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     const [provider, setProvider] = useState<Provider>('stripe');
+
+    // Default provider based on locale — zh users get Ping++ preselected, others Stripe.
+    useEffect(() => {
+        if (locale === 'zh') setProvider('pingxx');
+    }, [locale]);
     const [checkoutBusy, setCheckoutBusy] = useState(false);
     const [error, setError] = useState('');
 

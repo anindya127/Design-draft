@@ -182,6 +182,14 @@ export async function apiGetOrderByNumber(token: string, orderNumber: string): P
     return res.order;
 }
 
+export async function apiPayPalCapture(token: string, paypalOrderId: string): Promise<{ status: string; order: Order }> {
+    return await fetchJson(`${getApiBase()}/billing/paypal/capture`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ paypalOrderId }),
+    });
+}
+
 // ── Admin catalog ──────────────────────────────────────────────────────
 
 export async function apiAdminListBillingCycles(token: string): Promise<BillingCycle[]> {

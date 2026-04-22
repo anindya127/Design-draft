@@ -196,7 +196,10 @@ func main() {
 	mux.HandleFunc("/api/products/catalog", s.withCORS(s.handlePublicCatalog))
 	mux.HandleFunc("/api/promo-codes/apply", s.withCORS(s.handlePromoApply))
 	mux.HandleFunc("/api/billing/checkout", s.withCORS(s.handleCheckout))
-	mux.HandleFunc("/api/webhooks/stripe", s.handleStripeWebhook) // no CORS — Stripe server-to-server
+	mux.HandleFunc("/api/billing/paypal/capture", s.withCORS(s.handlePayPalCapture))
+	mux.HandleFunc("/api/webhooks/stripe", s.handleStripeWebhook) // no CORS — server-to-server
+	mux.HandleFunc("/api/webhooks/paypal", s.handlePayPalWebhook)
+	mux.HandleFunc("/api/webhooks/pingxx", s.handlePingxxWebhook)
 	// User orders + invoices
 	mux.HandleFunc("/api/user/invoices", s.withCORS(s.handleUserInvoices))
 	mux.HandleFunc("/api/user/orders", s.withCORS(s.handleUserOrders))

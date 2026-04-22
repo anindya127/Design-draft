@@ -6,21 +6,37 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/providers/AuthProvider';
 import { getAuthToken } from '@/lib/api/authApi';
-import { apiGetOrderByNumber, type Order } from '@/lib/api/billingApi';
+import { apiGetOrderByNumber, apiPayPalCapture, type Order } from '@/lib/api/billingApi';
 
 export default function BuySuccessClient() {
     const t = useTranslations('buy.success');
     const params = useSearchParams();
     const orderNum = params.get('order') || '';
+    const paypalOrderID = params.get('paypal_order') || params.get('token') || '';
     const { user, loading } = useAuth();
     const [order, setOrder] = useState<Order | null>(null);
     const [err, setErr] = useState('');
+    const [capturing, setCapturing] = useState(false);
 
+    // If we came back from PayPal, capture the approved order first.
     useEffect(() => {
-        if (!orderNum || loading || !user) return;
+        if (!paypalOrderID || loading || !user) return;
         const token = getAuthToken();
         if (!token) return;
-        // Poll for a few seconds because the Stripe webhook may arrive after the redirect.
+        let cancelled = false;
+        setCapturing(true);
+        apiPayPalCapture(token, paypalOrderID)
+            .then((res) => { if (!cancelled) setOrder(res.order); })
+            .catch((e) => { if (!cancelled) setErr(e instanceof Error ? e.message : 'Capture failed'); })
+            .finally(() => { if (!cancelled) setCapturing(false); });
+        return () => { cancelled = true; };
+    }, [paypalOrderID, loading, user]);
+
+    useEffect(() => {
+        if (!orderNum || loading || !user || paypalOrderID) return;
+        const token = getAuthToken();
+        if (!token) return;
+        // Poll for a few seconds because the webhook may arrive after the redirect.
         let cancelled = false;
         let tries = 0;
         const fetchOnce = async () => {
@@ -38,7 +54,7 @@ export default function BuySuccessClient() {
         };
         void fetchOnce();
         return () => { cancelled = true; };
-    }, [orderNum, loading, user]);
+    }, [orderNum, loading, user, paypalOrderID]);
 
     return (
         <section className="section">
@@ -51,7 +67,7 @@ export default function BuySuccessClient() {
                         </svg>
                     </div>
                     <h1 className="buy-success-title">
-                        {order?.status === 'paid' ? t('paid') : t('processing')}
+                        {order?.status === 'paid' ? t('paid') : capturing ? t('capturing') : t('processing')}
                     </h1>
                     {orderNum && (
                         <p className="buy-success-order">

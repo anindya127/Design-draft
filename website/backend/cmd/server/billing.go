@@ -501,14 +501,336 @@ func (s *server) handleCheckout(w http.ResponseWriter, r *http.Request) {
 		s.createStripeCheckout(w, r, order, productLabel, total, req)
 		return
 	case "paypal":
-		writeJSON(w, http.StatusNotImplemented, map[string]string{"error": "paypal integration coming in phase 3"})
+		s.createPayPalCheckout(w, r, order, productLabel, total, req)
 		return
 	case "pingxx":
-		writeJSON(w, http.StatusNotImplemented, map[string]string{"error": "pingxx integration coming in phase 3"})
+		s.createPingxxCheckout(w, r, order, productLabel, total, req)
 		return
 	default:
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "unsupported provider"})
 	}
+}
+
+// ── PayPal Orders v2 ───────────────────────────────────────────────────
+
+func (s *server) createPayPalCheckout(w http.ResponseWriter, r *http.Request, order *store.Order, productLabel string, total int64, req checkoutRequest) {
+	ctx := r.Context()
+	clientID, _ := s.store.GetAppSecret(ctx, "PAYPAL_CLIENT_ID")
+	clientSecret, _ := s.store.GetAppSecret(ctx, "PAYPAL_CLIENT_SECRET")
+	env, _ := s.store.GetAppSecret(ctx, "PAYPAL_ENV")
+	if clientID == "" || clientSecret == "" {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "billing_not_configured", "message": "PayPal is not configured. Admin must set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET in /admin/settings."})
+		return
+	}
+
+	client := payments.NewPayPalClient(clientID, clientSecret, env)
+	ppOrder, err := client.CreateOrder(ctx, payments.PayPalCreateOrderInput{
+		AmountCents: total,
+		Currency:    "USD",
+		InvoiceID:   order.OrderNumber,
+		Description: productLabel,
+		BrandName:   "GCSS",
+		CustomID:    strconv.FormatInt(order.ID, 10),
+		ReturnURL:   req.SuccessURL + "?order=" + order.OrderNumber + "&paypal_order={id}",
+		CancelURL:   req.CancelURL + "?order=" + order.OrderNumber,
+	})
+	if err != nil {
+		log.Printf("PayPal create order error: %v", err)
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "failed to create PayPal order", "message": err.Error()})
+		return
+	}
+
+	// Stash the PayPal order id so the webhook can look up our order.
+	if err := s.store.SetOrderProviderSession(ctx, order.ID, ppOrder.ID); err != nil {
+		log.Printf("SetOrderProviderSession error: %v", err)
+	}
+
+	approveURL := ppOrder.ApproveURL()
+	if approveURL == "" {
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "PayPal approve URL missing"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"url":         approveURL,
+		"sessionId":   ppOrder.ID,
+		"orderNumber": order.OrderNumber,
+	})
+}
+
+// handlePayPalCapture is called by the frontend success page with the PayPal
+// order id that the redirect came back with. It captures the funds and marks
+// the order paid. This is a defensive path; the webhook is the authoritative
+// one, but capture must happen synchronously for a one-step UX.
+func (s *server) handlePayPalCapture(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	user, ok := s.requireAuth(w, r)
+	if !ok {
+		return
+	}
+	var req struct {
+		PayPalOrderID string `json:"paypalOrderId"`
+	}
+	if err := decodeJSON(r, &req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	if req.PayPalOrderID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "paypalOrderId required"})
+		return
+	}
+	ctx := r.Context()
+	clientID, _ := s.store.GetAppSecret(ctx, "PAYPAL_CLIENT_ID")
+	clientSecret, _ := s.store.GetAppSecret(ctx, "PAYPAL_CLIENT_SECRET")
+	env, _ := s.store.GetAppSecret(ctx, "PAYPAL_ENV")
+	if clientID == "" || clientSecret == "" {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "billing_not_configured"})
+		return
+	}
+
+	order, err := s.store.GetOrderBySession(ctx, req.PayPalOrderID)
+	if err != nil || order == nil || order.UserID != user.ID {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "order not found"})
+		return
+	}
+	if order.Status == "paid" {
+		writeJSON(w, http.StatusOK, map[string]interface{}{"status": "already_paid", "order": order})
+		return
+	}
+
+	client := payments.NewPayPalClient(clientID, clientSecret, env)
+	cap, err := client.CaptureOrder(ctx, req.PayPalOrderID)
+	if err != nil {
+		log.Printf("PayPal capture error: %v", err)
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "capture_failed", "message": err.Error()})
+		return
+	}
+	if cap.Status != "COMPLETED" {
+		writeJSON(w, http.StatusAccepted, map[string]interface{}{"status": cap.Status})
+		return
+	}
+	captureID := ""
+	if len(cap.PurchaseUnits) > 0 && len(cap.PurchaseUnits[0].Payments.Captures) > 0 {
+		captureID = cap.PurchaseUnits[0].Payments.Captures[0].ID
+	}
+	if err := s.store.MarkOrderPaid(ctx, order.ID, captureID, ""); err != nil {
+		log.Printf("MarkOrderPaid error: %v", err)
+	}
+	updated, _ := s.store.GetOrder(ctx, order.ID)
+	writeJSON(w, http.StatusOK, map[string]interface{}{"status": "ok", "order": updated})
+}
+
+func (s *server) handlePayPalWebhook(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	ctx := r.Context()
+	body, err := io.ReadAll(io.LimitReader(r.Body, 1<<20))
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "failed to read body"})
+		return
+	}
+
+	clientID, _ := s.store.GetAppSecret(ctx, "PAYPAL_CLIENT_ID")
+	clientSecret, _ := s.store.GetAppSecret(ctx, "PAYPAL_CLIENT_SECRET")
+	env, _ := s.store.GetAppSecret(ctx, "PAYPAL_ENV")
+	webhookID, _ := s.store.GetAppSecret(ctx, "PAYPAL_WEBHOOK_ID")
+	if clientID == "" || webhookID == "" {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "paypal_not_configured"})
+		return
+	}
+
+	client := payments.NewPayPalClient(clientID, clientSecret, env)
+	if err := client.VerifyWebhookSignature(ctx, r.Header, body, webhookID); err != nil {
+		log.Printf("PayPal webhook verification failed: %v", err)
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid signature"})
+		return
+	}
+
+	var event payments.PayPalEvent
+	if err := json.Unmarshal(body, &event); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "parse error"})
+		return
+	}
+
+	switch event.EventType {
+	case "CHECKOUT.ORDER.APPROVED":
+		// Customer approved; capture happens from our frontend. Ack.
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	case "PAYMENT.CAPTURE.COMPLETED":
+		// This is the authoritative "paid" signal.
+		var cap struct {
+			ID           string `json:"id"`
+			CustomID     string `json:"custom_id"`
+			InvoiceID    string `json:"invoice_id"`
+			Status       string `json:"status"`
+			Links        []struct {
+				Href string `json:"href"`
+				Rel  string `json:"rel"`
+			} `json:"links"`
+			SupplementaryData struct {
+				RelatedIDs struct {
+					OrderID string `json:"order_id"`
+				} `json:"related_ids"`
+			} `json:"supplementary_data"`
+		}
+		if err := json.Unmarshal(event.Resource, &cap); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "parse resource"})
+			return
+		}
+		ppOrderID := cap.SupplementaryData.RelatedIDs.OrderID
+		if ppOrderID == "" {
+			writeJSON(w, http.StatusOK, map[string]string{"status": "missing_order_id"})
+			return
+		}
+		order, err := s.store.GetOrderBySession(ctx, ppOrderID)
+		if err != nil || order == nil {
+			log.Printf("PayPal webhook: order not found for paypal_order=%s", ppOrderID)
+			writeJSON(w, http.StatusOK, map[string]string{"status": "ignored"})
+			return
+		}
+		if order.Status == "paid" {
+			writeJSON(w, http.StatusOK, map[string]string{"status": "already_paid"})
+			return
+		}
+		if err := s.store.MarkOrderPaid(ctx, order.ID, cap.ID, ""); err != nil {
+			log.Printf("MarkOrderPaid error: %v", err)
+		}
+		log.Printf("PayPal webhook: order %s marked paid", order.OrderNumber)
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	default:
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ignored"})
+	}
+}
+
+// ── Ping++ (Alipay / WeChat Pay) ───────────────────────────────────────
+
+func (s *server) createPingxxCheckout(w http.ResponseWriter, r *http.Request, order *store.Order, productLabel string, total int64, req checkoutRequest) {
+	ctx := r.Context()
+	appID, _ := s.store.GetAppSecret(ctx, "PINGXX_APP_ID")
+	secretKey, _ := s.store.GetAppSecret(ctx, "PINGXX_SECRET_KEY")
+	privateKey, _ := s.store.GetAppSecret(ctx, "PINGXX_PRIVATE_KEY")
+	if appID == "" || secretKey == "" || privateKey == "" {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "billing_not_configured", "message": "Ping++ is not configured. Admin must set PINGXX_APP_ID, PINGXX_SECRET_KEY, PINGXX_PRIVATE_KEY in /admin/settings."})
+		return
+	}
+
+	// For web desktop checkout we use alipay_pc_direct by default. The frontend
+	// can override via a `channel` field on the request (phase 4 — add it).
+	channel := "alipay_pc_direct"
+
+	client, err := payments.NewPingxxClient(appID, secretKey, privateKey)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "pingxx_init_failed", "message": err.Error()})
+		return
+	}
+	extra := map[string]interface{}{
+		"success_url": req.SuccessURL + "?order=" + order.OrderNumber,
+	}
+
+	charge, err := client.CreateCharge(ctx, payments.PingxxCreateChargeInput{
+		OrderNo:     order.OrderNumber,
+		AmountCents: total, // Ping++ treats amount as CNY fen — admin must price in cents/CNY; USD->CNY is out of scope
+		Currency:    "cny",
+		Channel:     channel,
+		Subject:     productLabel,
+		Body:        fmt.Sprintf("GCSS order %s", order.OrderNumber),
+		ClientIP:    clientIP(r),
+		Metadata: map[string]string{
+			"order_id":     strconv.FormatInt(order.ID, 10),
+			"order_number": order.OrderNumber,
+		},
+		Extra: extra,
+	})
+	if err != nil {
+		log.Printf("Pingxx charge error: %v", err)
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "pingxx_charge_failed", "message": err.Error()})
+		return
+	}
+
+	if err := s.store.SetOrderProviderSession(ctx, order.ID, charge.ID); err != nil {
+		log.Printf("SetOrderProviderSession error: %v", err)
+	}
+
+	// For alipay_pc_direct the credential contains a "url" we redirect to.
+	redirectURL := ""
+	if charge.Credential != nil {
+		if v, ok := charge.Credential["alipay_pc_direct"].(map[string]interface{}); ok {
+			if u, ok := v["url"].(string); ok {
+				redirectURL = u
+			}
+		}
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"url":         redirectURL,
+		"sessionId":   charge.ID,
+		"orderNumber": order.OrderNumber,
+		"credential":  charge.Credential,
+		"channel":     channel,
+	})
+}
+
+func (s *server) handlePingxxWebhook(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	ctx := r.Context()
+	body, err := io.ReadAll(io.LimitReader(r.Body, 1<<20))
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "read error"})
+		return
+	}
+	// Ping++ public key is published; admins put it in PINGXX_WEBHOOK_SECRET slot.
+	pubKey, _ := s.store.GetAppSecret(ctx, "PINGXX_WEBHOOK_SECRET")
+	sig := r.Header.Get("X-Pingplusplus-Signature")
+	if pubKey == "" || sig == "" {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "webhook_not_configured"})
+		return
+	}
+	if err := payments.VerifyPingxxWebhookSignature(body, sig, pubKey); err != nil {
+		log.Printf("Pingxx webhook verification failed: %v", err)
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid signature"})
+		return
+	}
+
+	var event payments.PingxxEvent
+	if err := json.Unmarshal(body, &event); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "parse error"})
+		return
+	}
+	if event.Type != "charge.succeeded" {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ignored"})
+		return
+	}
+	var charge payments.PingxxCharge
+	if err := json.Unmarshal(event.Data.Object, &charge); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "parse resource"})
+		return
+	}
+	if !charge.Paid {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "not_paid"})
+		return
+	}
+	order, err := s.store.GetOrderBySession(ctx, charge.ID)
+	if err != nil || order == nil {
+		log.Printf("Pingxx webhook: order not found for charge=%s", charge.ID)
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ignored"})
+		return
+	}
+	if order.Status == "paid" {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "already_paid"})
+		return
+	}
+	if err := s.store.MarkOrderPaid(ctx, order.ID, charge.ID, ""); err != nil {
+		log.Printf("MarkOrderPaid error: %v", err)
+	}
+	log.Printf("Pingxx webhook: order %s marked paid", order.OrderNumber)
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
 func (s *server) createStripeCheckout(w http.ResponseWriter, r *http.Request, order *store.Order, productLabel string, total int64, req checkoutRequest) {

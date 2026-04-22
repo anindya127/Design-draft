@@ -70,6 +70,7 @@
     "success": {
       "paid": "支付成功",
       "processing": "已收到支付，正在处理…",
+      "capturing": "正在向 PayPal 确认支付…",
       "orderNumber": "订单号",
       "viewInvoice": "查看发票",
       "backToDashboard": "返回控制台"
@@ -2245,7 +2246,7 @@
       "description": "仅管理员可访问的平台活动概览。"
     },
     "title": "管理后台",
-    "subtitle": "面向管理员的安全概览页（演示环境）。",
+    "subtitle": "GCSS 平台运营控制台。",
     "signedInAs": "当前登录：{username}",
     "actions": {
       "backToSite": "返回网站",
