@@ -559,7 +559,21 @@ func (s *Store) SetOrderProviderSession(ctx context.Context, orderID int64, sess
 	return err
 }
 
-func (s *Store) MarkOrderPaid(ctx context.Context, orderID int64, providerPaymentID, hostedInvoiceURL string) error {
+// MarkPaidInput captures the gateway-specific identifiers we stamp on the
+// order + invoice when a payment settles. providerInvoiceID is stored on
+// the invoice row (for Stripe this is the Stripe invoice id; for PayPal /
+// Ping++ pass the provider-native id). If empty, providerPaymentID is
+// re-used for backward compatibility.
+type MarkPaidInput struct {
+	ProviderPaymentID  string
+	ProviderInvoiceID  string
+	HostedInvoiceURL   string
+}
+
+func (s *Store) MarkOrderPaidWith(ctx context.Context, orderID int64, in MarkPaidInput) error {
+	if in.ProviderInvoiceID == "" {
+		in.ProviderInvoiceID = in.ProviderPaymentID
+	}
 	now := time.Now().UTC()
 	nowS := now.Format(time.RFC3339)
 	tx, err := s.db.BeginTx(ctx, nil)
@@ -568,7 +582,16 @@ func (s *Store) MarkOrderPaid(ctx context.Context, orderID int64, providerPaymen
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	if _, err := tx.ExecContext(ctx, `UPDATE orders SET status='paid', order_stage='processing', server_stage='starting', paid_at=?, provider_payment_id=?, updated_at=? WHERE id = ?;`, nowS, providerPaymentID, nowS, orderID); err != nil {
+	// Short-circuit if already paid — guards against double invoice rows.
+	var existingStatus string
+	if err := tx.QueryRowContext(ctx, `SELECT status FROM orders WHERE id = ?;`, orderID).Scan(&existingStatus); err != nil {
+		return err
+	}
+	if existingStatus == "paid" {
+		return nil
+	}
+
+	if _, err := tx.ExecContext(ctx, `UPDATE orders SET status='paid', order_stage='processing', server_stage='starting', paid_at=?, provider_payment_id=?, updated_at=? WHERE id = ?;`, nowS, in.ProviderPaymentID, nowS, orderID); err != nil {
 		return err
 	}
 
@@ -586,7 +609,7 @@ func (s *Store) MarkOrderPaid(ctx context.Context, orderID int64, providerPaymen
 	// Derive invoice number from order.
 	invoiceNum := strings.Replace(order.OrderNumber, "GCSS-", "INV-", 1)
 	if _, err := tx.ExecContext(ctx, `INSERT INTO invoices (order_id, user_id, invoice_number, provider, provider_invoice_id, hosted_invoice_url, product_label, amount_cents, currency, status, paid_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'paid', ?, ?);`,
-		orderID, order.UserID, invoiceNum, order.Provider, providerPaymentID, hostedInvoiceURL, order.ProductLabel, order.TotalCents, order.Currency, nowS, nowS); err != nil {
+		orderID, order.UserID, invoiceNum, order.Provider, in.ProviderInvoiceID, in.HostedInvoiceURL, order.ProductLabel, order.TotalCents, order.Currency, nowS, nowS); err != nil {
 		return err
 	}
 
@@ -596,6 +619,24 @@ func (s *Store) MarkOrderPaid(ctx context.Context, orderID int64, providerPaymen
 	}
 
 	return tx.Commit()
+}
+
+// MarkOrderPaid is the legacy signature kept for call-site compatibility.
+func (s *Store) MarkOrderPaid(ctx context.Context, orderID int64, providerPaymentID, hostedInvoiceURL string) error {
+	return s.MarkOrderPaidWith(ctx, orderID, MarkPaidInput{
+		ProviderPaymentID: providerPaymentID,
+		HostedInvoiceURL:  hostedInvoiceURL,
+	})
+}
+
+// GetOrderByNumberForUser looks up one order by its order_number, scoped to
+// the requesting user. Preferred over scanning ListOrdersForUser.
+func (s *Store) GetOrderByNumberForUser(ctx context.Context, userID int64, orderNumber string) (*Order, error) {
+	row := s.db.QueryRowContext(ctx, `
+		SELECT id, user_id, order_number, billing_cycle_id, support_tier_id, server_tier_id, promo_code_id, product_label, subtotal_cents, discount_cents, total_cents, currency, billing_address_json, provider, COALESCE(provider_session_id, ''), COALESCE(provider_payment_id, ''), status, order_stage, server_stage, paid_at, created_at, updated_at
+		FROM orders WHERE order_number = ? AND user_id = ? LIMIT 1;
+	`, orderNumber, userID)
+	return scanOrder(row)
 }
 
 // OrderStages and ServerStages are the ordered 5-step pipelines surfaced to

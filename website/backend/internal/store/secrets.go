@@ -38,10 +38,11 @@ var AllowedSecretKeys = map[string]string{
 	"STRIPE_WEBHOOK_SECRET":  "stripe",
 	"STRIPE_PUBLISHABLE_KEY": "stripe",
 	// Ping++
-	"PINGXX_APP_ID":         "pingxx",
-	"PINGXX_SECRET_KEY":     "pingxx",
-	"PINGXX_WEBHOOK_SECRET": "pingxx",
-	"PINGXX_PRIVATE_KEY":    "pingxx",
+	"PINGXX_APP_ID":            "pingxx",
+	"PINGXX_SECRET_KEY":        "pingxx",
+	"PINGXX_WEBHOOK_PUBLIC_KEY": "pingxx",
+	"PINGXX_PRIVATE_KEY":       "pingxx",
+	"PINGXX_USD_TO_CNY_RATE":   "pingxx",
 	// PayPal
 	"PAYPAL_CLIENT_ID":      "paypal",
 	"PAYPAL_CLIENT_SECRET":  "paypal",
@@ -119,6 +120,16 @@ func (s *Store) SetAppSecret(ctx context.Context, key, value string, actorUserID
 		return errors.New("encryption is not configured")
 	}
 
+	// Determine audit action BEFORE the upsert — "set" if this key has never
+	// been written, "update" otherwise. Checking app_secrets (not audit log)
+	// avoids an off-by-one because our own audit row hasn't been inserted yet.
+	action := "set"
+	var existed int
+	_ = s.db.QueryRowContext(ctx, `SELECT COUNT(1) FROM app_secrets WHERE key = ?;`, key).Scan(&existed)
+	if existed > 0 {
+		action = "update"
+	}
+
 	encrypted := s.enc.Encrypt(value)
 	lastFour := ""
 	if len(value) >= 4 {
@@ -143,13 +154,6 @@ func (s *Store) SetAppSecret(ctx context.Context, key, value string, actorUserID
 		return err
 	}
 
-	// Audit
-	action := "update"
-	var existed int
-	_ = s.db.QueryRowContext(ctx, `SELECT COUNT(1) FROM app_secret_audit WHERE key = ? AND action IN ('set','update');`, key).Scan(&existed)
-	if existed <= 1 {
-		action = "set"
-	}
 	_, _ = s.db.ExecContext(ctx, `
 		INSERT INTO app_secret_audit (key, action, actor_user_id, ip, ua, created_at)
 		VALUES (?, ?, ?, ?, ?, ?);

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -379,9 +378,24 @@ func (s *server) handleCheckout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Load catalog items for pricing.
-	cycles, _ := s.store.ListBillingCycles(ctx, true)
-	supports, _ := s.store.ListSupportTiers(ctx, true)
-	servers, _ := s.store.ListServerTiers(ctx, true)
+	cycles, err := s.store.ListBillingCycles(ctx, true)
+	if err != nil {
+		log.Printf("ListBillingCycles error: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "catalog_unavailable"})
+		return
+	}
+	supports, err := s.store.ListSupportTiers(ctx, true)
+	if err != nil {
+		log.Printf("ListSupportTiers error: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "catalog_unavailable"})
+		return
+	}
+	servers, err := s.store.ListServerTiers(ctx, true)
+	if err != nil {
+		log.Printf("ListServerTiers error: %v", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "catalog_unavailable"})
+		return
+	}
 
 	var billingCycle *store.BillingCycle
 	for i := range cycles {
@@ -531,8 +545,11 @@ func (s *server) createPayPalCheckout(w http.ResponseWriter, r *http.Request, or
 		Description: productLabel,
 		BrandName:   "GCSS",
 		CustomID:    strconv.FormatInt(order.ID, 10),
-		ReturnURL:   req.SuccessURL + "?order=" + order.OrderNumber + "&paypal_order={id}",
-		CancelURL:   req.CancelURL + "?order=" + order.OrderNumber,
+		// PayPal appends ?token=<orderID>&PayerID=<...> to return_url on
+		// approval. The success page reads either ?token= or ?paypal_order=
+		// and triggers capture.
+		ReturnURL: req.SuccessURL + "?order=" + order.OrderNumber,
+		CancelURL: req.CancelURL + "?order=" + order.OrderNumber,
 	})
 	if err != nil {
 		log.Printf("PayPal create order error: %v", err)
@@ -714,13 +731,35 @@ func (s *server) createPingxxCheckout(w http.ResponseWriter, r *http.Request, or
 	appID, _ := s.store.GetAppSecret(ctx, "PINGXX_APP_ID")
 	secretKey, _ := s.store.GetAppSecret(ctx, "PINGXX_SECRET_KEY")
 	privateKey, _ := s.store.GetAppSecret(ctx, "PINGXX_PRIVATE_KEY")
+	rateStr, _ := s.store.GetAppSecret(ctx, "PINGXX_USD_TO_CNY_RATE")
 	if appID == "" || secretKey == "" || privateKey == "" {
-		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "billing_not_configured", "message": "Ping++ is not configured. Admin must set PINGXX_APP_ID, PINGXX_SECRET_KEY, PINGXX_PRIVATE_KEY in /admin/settings."})
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{
+			"error":   "billing_not_configured",
+			"message": "Ping++ is not configured. Admin must set PINGXX_APP_ID, PINGXX_SECRET_KEY, PINGXX_PRIVATE_KEY, and PINGXX_USD_TO_CNY_RATE in /admin/settings.",
+		})
 		return
 	}
 
-	// For web desktop checkout we use alipay_pc_direct by default. The frontend
-	// can override via a `channel` field on the request (phase 4 — add it).
+	// Ping++ charge amounts for Alipay / WeChat Pay are in CNY fen.
+	// Our catalog is priced in USD cents; convert using the admin-configured
+	// rate before sending. Refuse to charge if rate is not configured — this
+	// prevents silently under-charging (e.g. $100 USD → 10000 fen = ¥100 ≈ $14).
+	rate, parseErr := strconv.ParseFloat(strings.TrimSpace(rateStr), 64)
+	if parseErr != nil || rate <= 0 {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{
+			"error":   "billing_not_configured",
+			"message": "Ping++ requires an admin-configured USD→CNY conversion rate. Set PINGXX_USD_TO_CNY_RATE in /admin/settings (e.g. \"7.2\").",
+		})
+		return
+	}
+	// total is USD cents. Convert to CNY fen: (USD dollars) * rate * 100 = fen.
+	totalCNYFen := int64(float64(total) * rate)
+	if totalCNYFen <= 0 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "amount_too_small"})
+		return
+	}
+
+	// For web desktop checkout we use alipay_pc_direct by default.
 	channel := "alipay_pc_direct"
 
 	client, err := payments.NewPingxxClient(appID, secretKey, privateKey)
@@ -734,7 +773,7 @@ func (s *server) createPingxxCheckout(w http.ResponseWriter, r *http.Request, or
 
 	charge, err := client.CreateCharge(ctx, payments.PingxxCreateChargeInput{
 		OrderNo:     order.OrderNumber,
-		AmountCents: total, // Ping++ treats amount as CNY fen — admin must price in cents/CNY; USD->CNY is out of scope
+		AmountCents: totalCNYFen,
 		Currency:    "cny",
 		Channel:     channel,
 		Subject:     productLabel,
@@ -756,10 +795,14 @@ func (s *server) createPingxxCheckout(w http.ResponseWriter, r *http.Request, or
 		log.Printf("SetOrderProviderSession error: %v", err)
 	}
 
-	// For alipay_pc_direct the credential contains a "url" we redirect to.
+	// For alipay_pc_direct the credential is typically a string URL but
+	// some SDK versions return { url } object — handle both.
 	redirectURL := ""
 	if charge.Credential != nil {
-		if v, ok := charge.Credential["alipay_pc_direct"].(map[string]interface{}); ok {
+		switch v := charge.Credential["alipay_pc_direct"].(type) {
+		case string:
+			redirectURL = v
+		case map[string]interface{}:
 			if u, ok := v["url"].(string); ok {
 				redirectURL = u
 			}
@@ -785,8 +828,9 @@ func (s *server) handlePingxxWebhook(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "read error"})
 		return
 	}
-	// Ping++ public key is published; admins put it in PINGXX_WEBHOOK_SECRET slot.
-	pubKey, _ := s.store.GetAppSecret(ctx, "PINGXX_WEBHOOK_SECRET")
+	// Ping++ publishes a PEM RSA public key for webhook verification.
+	// Admins paste it into the PINGXX_WEBHOOK_PUBLIC_KEY slot.
+	pubKey, _ := s.store.GetAppSecret(ctx, "PINGXX_WEBHOOK_PUBLIC_KEY")
 	sig := r.Header.Get("X-Pingplusplus-Signature")
 	if pubKey == "" || sig == "" {
 		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "webhook_not_configured"})
@@ -936,18 +980,25 @@ func (s *server) handleStripeWebhook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Fetch full session to get hosted_invoice_url.
+		// Fetch Stripe invoice to persist the hosted URL and invoice ID
+		// so the user-facing "View invoice" link works.
 		secretKey, _ := s.store.GetAppSecret(ctx, "STRIPE_SECRET_KEY")
 		hostedURL := ""
+		stripeInvoiceID := sess.Invoice
 		if secretKey != "" && sess.Invoice != "" {
-			// Best-effort: not blocking on failure.
-			if full, err := payments.NewStripeClient(secretKey).RetrieveCheckoutSession(ctx, sess.ID); err == nil && full != nil {
-				// hosted_invoice_url is on the invoice object, not session — skip for now.
-				_ = full
+			if inv, invErr := payments.NewStripeClient(secretKey).RetrieveInvoice(ctx, sess.Invoice); invErr == nil && inv != nil {
+				hostedURL = inv.HostedInvoiceURL
+				stripeInvoiceID = inv.ID
+			} else if invErr != nil {
+				log.Printf("Stripe retrieve invoice failed (non-fatal): %v", invErr)
 			}
 		}
 
-		if err := s.store.MarkOrderPaid(ctx, order.ID, sess.PaymentIntent, hostedURL); err != nil {
+		if err := s.store.MarkOrderPaidWith(ctx, order.ID, store.MarkPaidInput{
+			ProviderPaymentID: sess.PaymentIntent,
+			ProviderInvoiceID: stripeInvoiceID,
+			HostedInvoiceURL:  hostedURL,
+		}); err != nil {
 			log.Printf("MarkOrderPaid error: %v", err)
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to mark paid"})
 			return
@@ -1013,19 +1064,16 @@ func (s *server) handleOrderByNumber(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
 		return
 	}
-	// Find by order_number.
-	orders, err := s.store.ListOrdersForUser(r.Context(), user.ID)
+	order, err := s.store.GetOrderByNumberForUser(r.Context(), user.ID, num)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
-	for _, o := range orders {
-		if o.OrderNumber == num {
-			writeJSON(w, http.StatusOK, map[string]interface{}{"order": o})
-			return
-		}
+	if order == nil {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "order not found"})
+		return
 	}
-	writeJSON(w, http.StatusNotFound, map[string]string{"error": "order not found"})
+	writeJSON(w, http.StatusOK, map[string]interface{}{"order": order})
 }
 
 // ── Admin: order management ────────────────────────────────────────────
@@ -1142,5 +1190,3 @@ func (s *server) handleUserInvoiceByNumber(w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusOK, map[string]interface{}{"invoice": inv, "order": order, "user": user})
 }
 
-// guard so "errors" and "strings" import pruning doesn't remove used packages
-var _ = errors.New

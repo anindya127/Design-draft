@@ -24,7 +24,16 @@ function formatDT(iso?: string) {
 export default function AdminOrdersClient() {
     const t = useTranslations('admin.orders');
     const tCommon = useTranslations('admin');
+    const tOrderStages = useTranslations('dashboard.orderDetails.orderPipeline.stages');
+    const tServerStages = useTranslations('dashboard.orderDetails.serverPipeline.stages');
     const router = useRouter();
+
+    const orderStageLabel = (s: string) => {
+        try { return tOrderStages(s as any); } catch { return s; }
+    };
+    const serverStageLabel = (s: string) => {
+        try { return tServerStages(s as any); } catch { return s; }
+    };
     const { user, loading } = useAuth();
 
     const [orders, setOrders] = useState<Order[] | null>(null);
@@ -147,7 +156,7 @@ export default function AdminOrdersClient() {
                                                     disabled={busyId === o.id}
                                                     onChange={(e) => setStage(o.id, 'orderStage', e.target.value)}
                                                 >
-                                                    {orderStages.map((s) => <option key={s} value={s}>{s}</option>)}
+                                                    {orderStages.map((s) => <option key={s} value={s}>{orderStageLabel(s)}</option>)}
                                                 </select>
                                             </td>
                                             <td>
@@ -157,7 +166,7 @@ export default function AdminOrdersClient() {
                                                     disabled={busyId === o.id}
                                                     onChange={(e) => setStage(o.id, 'serverStage', e.target.value)}
                                                 >
-                                                    {serverStages.map((s) => <option key={s} value={s}>{s}</option>)}
+                                                    {serverStages.map((s) => <option key={s} value={s}>{serverStageLabel(s)}</option>)}
                                                 </select>
                                             </td>
                                             <td className="dash-muted">{formatDT(o.createdAt)}</td>

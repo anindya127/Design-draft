@@ -162,6 +162,44 @@ func (c *StripeClient) RetrieveCheckoutSession(ctx context.Context, sessionID st
 	return &sess, nil
 }
 
+// StripeInvoice is a minimal projection of the Stripe invoice object.
+type StripeInvoice struct {
+	ID                    string `json:"id"`
+	Status                string `json:"status"`
+	HostedInvoiceURL      string `json:"hosted_invoice_url"`
+	InvoicePDF            string `json:"invoice_pdf"`
+	Number                string `json:"number"`
+	AmountPaid            int64  `json:"amount_paid"`
+	Currency              string `json:"currency"`
+}
+
+// RetrieveInvoice fetches a Stripe invoice. Used after a Checkout Session
+// completes so we can persist hosted_invoice_url + invoice_pdf for display.
+func (c *StripeClient) RetrieveInvoice(ctx context.Context, invoiceID string) (*StripeInvoice, error) {
+	if c.secretKey == "" {
+		return nil, errors.New("stripe: secret key not configured")
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, stripeBaseURL+"/invoices/"+url.PathEscape(invoiceID), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+c.secretKey)
+	res, err := c.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return nil, fmt.Errorf("stripe: retrieve invoice (%d): %s", res.StatusCode, truncate(string(body), 500))
+	}
+	var out StripeInvoice
+	if err := json.Unmarshal(body, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // VerifyStripeSignature validates the Stripe-Signature header per
 // https://stripe.com/docs/webhooks/signatures
 // - header format: "t=<timestamp>,v1=<signature>,v1=<signature2>,..."
@@ -197,7 +235,11 @@ func VerifyStripeSignature(payload []byte, sigHeader, secret string, tolerance t
 	}
 
 	eventTime := time.Unix(timestamp, 0)
-	if time.Since(eventTime) > tolerance {
+	diff := time.Since(eventTime)
+	if diff < 0 {
+		diff = -diff
+	}
+	if diff > tolerance {
 		return errors.New("stripe: webhook timestamp outside tolerance")
 	}
 
