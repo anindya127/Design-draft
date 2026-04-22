@@ -71,6 +71,10 @@
   font-size: 0.85rem;
 }
 
+.btn-full {
+  width: 100%;
+}
+
 /* --- Header / Navigation --- */
 .header {
   position: fixed;
@@ -80,8 +84,8 @@
   height: var(--header-height);
   z-index: 100;
   background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-subtle);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -263,8 +267,8 @@
   min-width: 260px;
   background: var(--dark-elevated);
   border: 1px solid var(--border-light);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   box-shadow: var(--shadow-lg);
   border-radius: var(--radius-md);
   padding: 8px;
@@ -456,8 +460,8 @@
   height: 44px;
   border-radius: 50%;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   color: var(--text-secondary);
   display: flex;

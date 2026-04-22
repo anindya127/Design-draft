@@ -15,6 +15,20 @@ NEXT_PUBLIC_FORMS_API=false
 # When enabled, auth pages (Login / Register / Forgot Password) will call the backend auth endpoints.
 # When disabled or unset, auth pages behave as demo-only.
 NEXT_PUBLIC_AUTH_API=false
+
+# CAPTCHA (optional)
+# Set to one of: none | auto | turnstile | tencent
+# - none: CAPTCHA disabled (default)
+# - auto: uses Tencent for zh locale, Turnstile otherwise
+# - turnstile: always show Turnstile
+# - tencent: always show Tencent Captcha
+NEXT_PUBLIC_CAPTCHA_PROVIDER=none
+
+# Cloudflare Turnstile (frontend site key)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+
+# Tencent Captcha (frontend app id)
+NEXT_PUBLIC_TENCENT_CAPTCHA_APP_ID=
 ```
 
 ## Deployment & Scripts

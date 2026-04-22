@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useMemo, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { apiLogin, isAuthApiEnabled, setAuthToken } from '@/lib/api/authApi';
 import { useAuth } from '@/providers/AuthProvider';
+import CaptchaWidget, { type CaptchaProvider, type CaptchaValue } from '@/components/ui/CaptchaWidget';
 
 function EyeIcon() {
   return (
@@ -46,6 +47,7 @@ function AlertIcon() {
 
 export default function LoginPage() {
   const t = useTranslations();
+  const locale = useLocale();
   const router = useRouter();
   const { refresh } = useAuth();
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -53,6 +55,26 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [captcha, setCaptcha] = useState<CaptchaValue>(null);
+  const [captchaNonce, setCaptchaNonce] = useState(0);
+
+  const captchaProvider: CaptchaProvider = useMemo(() => {
+    const raw = (process.env.NEXT_PUBLIC_CAPTCHA_PROVIDER || 'none').toLowerCase().trim();
+    if (!raw || raw === 'none' || raw === 'off' || raw === 'false' || raw === '0') return 'none';
+    if (raw === 'auto') return locale === 'zh' ? 'tencent' : 'turnstile';
+    if (raw === 'turnstile') return 'turnstile';
+    if (raw === 'tencent') return 'tencent';
+    return 'none';
+  }, [locale]);
+
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const tencentAppId = process.env.NEXT_PUBLIC_TENCENT_CAPTCHA_APP_ID;
+
+  const captchaEnabled = useMemo(() => {
+    if (captchaProvider === 'turnstile') return !!turnstileSiteKey;
+    if (captchaProvider === 'tencent') return !!tencentAppId;
+    return false;
+  }, [captchaProvider, turnstileSiteKey, tencentAppId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -72,8 +94,18 @@ export default function LoginPage() {
       return;
     }
 
+    if (captchaEnabled && !captcha) {
+      setLoading(false);
+      setError(t('login.errors.captchaRequired'));
+      return;
+    }
+
     try {
-      const { session, user } = await apiLogin({ identifier: formData.username, password: formData.password });
+      const { session, user } = await apiLogin({
+        identifier: formData.username,
+        password: formData.password,
+        captcha: captchaEnabled && captcha ? (captcha as any) : undefined,
+      });
       setAuthToken(session.token);
       await refresh();
       setSubmitted(true);
@@ -85,6 +117,8 @@ export default function LoginPage() {
     } catch {
       setLoading(false);
       setError(t('login.errors.invalid'));
+      setCaptcha(null);
+      setCaptchaNonce((n) => n + 1);
     }
   };
 
@@ -174,15 +208,34 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {captchaEnabled && (
+              <div className="form-group">
+                <label className="form-label">{t('login.captchaLabel')}</label>
+                <CaptchaWidget
+                  key={captchaNonce}
+                  provider={captchaProvider}
+                  turnstileSiteKey={turnstileSiteKey}
+                  tencentAppId={tencentAppId}
+                  disabled={loading}
+                  onChange={setCaptcha}
+                  strings={{
+                    verify: t('login.captcha.verify'),
+                    verified: t('login.captcha.verified'),
+                    loading: t('login.captcha.loading'),
+                    errorGeneric: t('login.captcha.error'),
+                  }}
+                />
+              </div>
+            )}
+
             <div className="forgot-link">
               <Link href="/forgot-password" className="auth-link">{t('login.forgot')}</Link>
             </div>
 
             <button
               type="submit"
-              className={`btn btn-primary btn-lg${loading ? ' btn-loading' : ''}`}
+              className={`btn btn-primary btn-lg btn-full${loading ? ' btn-loading' : ''}`}
               disabled={loading}
-              style={{ width: '100%' }}
             >
               {t('login.btn')}
             </button>
