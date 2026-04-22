@@ -7,6 +7,9 @@ import { useAuth } from '@/providers/AuthProvider';
 import { getAuthToken } from '@/lib/api/authApi';
 import { apiListInvoices, apiListOrders, type Invoice, type Order } from '@/lib/api/billingApi';
 
+// Casts for dynamic Link hrefs that Next.js' typed routes doesn't know about.
+type AnyHref = any;
+
 function formatUSD(cents: number, currency = 'USD') {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(cents / 100);
 }
@@ -80,13 +83,9 @@ export default function PaymentHistoryClient() {
                                         </span>
                                     </td>
                                     <td>
-                                        {inv.hostedInvoiceUrl ? (
-                                            <a href={inv.hostedInvoiceUrl} target="_blank" rel="noopener noreferrer" className="dash-link">
-                                                {t('columns.view')}
-                                            </a>
-                                        ) : (
-                                            <span className="dash-muted">—</span>
-                                        )}
+                                        <Link href={`/invoices/${inv.invoiceNumber}` as AnyHref} className="dash-link">
+                                            {t('columns.view')}
+                                        </Link>
                                     </td>
                                 </tr>
                             ))}
@@ -103,7 +102,23 @@ export default function PaymentHistoryClient() {
                                             </span>
                                         </td>
                                         <td>
-                                            <span className="dash-muted">{t('columns.pending')}</span>
+                                            <Link href={`/dashboard/orders/${o.orderNumber}` as AnyHref} className="dash-link">
+                                                {t('columns.orderDetails')}
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))}
+                            {orders
+                                .filter((o) => o.status === 'paid' && o.orderStage !== 'ready')
+                                .map((o) => (
+                                    <tr key={`track-${o.id}`}>
+                                        <td colSpan={4} className="dash-muted">
+                                            {t('trackOrder')}: <code>{o.orderNumber}</code>
+                                        </td>
+                                        <td>
+                                            <Link href={`/dashboard/orders/${o.orderNumber}` as AnyHref} className="dash-link">
+                                                {t('columns.orderDetails')}
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))}

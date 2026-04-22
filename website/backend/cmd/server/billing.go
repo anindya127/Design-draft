@@ -1028,5 +1028,119 @@ func (s *server) handleOrderByNumber(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusNotFound, map[string]string{"error": "order not found"})
 }
 
+// ── Admin: order management ────────────────────────────────────────────
+
+func (s *server) handleAdminOrders(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+	limit := parseIntDefault(r.URL.Query().Get("limit"), 100)
+	items, err := s.store.ListAllOrders(r.Context(), limit)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"orders":       items,
+		"orderStages":  store.OrderStages,
+		"serverStages": store.ServerStages,
+	})
+}
+
+func (s *server) handleAdminOrderItem(w http.ResponseWriter, r *http.Request) {
+	// PUT /api/admin/orders/{id}/stage
+	// POST /api/admin/orders/{id}/mark-paid
+	rest := strings.TrimPrefix(r.URL.Path, "/api/admin/orders/")
+	rest = strings.Trim(rest, "/")
+	parts := strings.Split(rest, "/")
+	if len(parts) < 2 {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
+		return
+	}
+	idStr, action := parts[0], parts[1]
+	id, _ := strconv.ParseInt(idStr, 10, 64)
+	if id <= 0 {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
+		return
+	}
+	if _, ok := s.requireAdmin(w, r); !ok {
+		return
+	}
+	ctx := r.Context()
+
+	switch action {
+	case "stage":
+		if r.Method != http.MethodPut && r.Method != http.MethodPost {
+			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+			return
+		}
+		var req struct {
+			OrderStage  string `json:"orderStage"`
+			ServerStage string `json:"serverStage"`
+		}
+		if err := decodeJSON(r, &req); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		if err := s.store.UpdateOrderStages(ctx, id, req.OrderStage, req.ServerStage); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		order, _ := s.store.GetOrder(ctx, id)
+		writeJSON(w, http.StatusOK, map[string]interface{}{"order": order})
+	case "mark-paid":
+		if r.Method != http.MethodPost {
+			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+			return
+		}
+		if err := s.store.AdminMarkOrderPaid(ctx, id); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		order, _ := s.store.GetOrder(ctx, id)
+		writeJSON(w, http.StatusOK, map[string]interface{}{"order": order})
+	default:
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "unknown action"})
+	}
+}
+
+// ── User-facing: invoice by number for the print view ──────────────────
+
+func (s *server) handleUserInvoiceByNumber(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	user, ok := s.requireAuth(w, r)
+	if !ok {
+		return
+	}
+	num := strings.TrimPrefix(r.URL.Path, "/api/user/invoices/")
+	num = strings.Trim(num, "/")
+	if num == "" {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
+		return
+	}
+	inv, err := s.store.GetInvoiceByNumberForUser(r.Context(), user.ID, num)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	if inv == nil {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "invoice not found"})
+		return
+	}
+	// Also attach the backing order for full display.
+	var order *store.Order
+	if inv.OrderID != nil {
+		order, _ = s.store.GetOrder(r.Context(), *inv.OrderID)
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"invoice": inv, "order": order, "user": user})
+}
+
 // guard so "errors" and "strings" import pruning doesn't remove used packages
 var _ = errors.New

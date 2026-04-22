@@ -76,6 +76,24 @@
       "backToDashboard": "返回控制台"
     }
   },
+  "invoice": {
+    "back": "返回支付记录",
+    "download": "下载 / 打印",
+    "invoiceNumber": "发票号",
+    "billedTo": "付款方",
+    "from": "收款方",
+    "details": "明细",
+    "description": "说明",
+    "amount": "金额",
+    "discount": "折扣",
+    "total": "总额",
+    "paidInFull": "已全额支付",
+    "unpaid": "未支付",
+    "paymentMethod": "支付方式",
+    "paidOn": "支付日期",
+    "orderNumber": "订单号",
+    "thankYou": "感谢您的支持。"
+  },
   "nav": {
     "home": "首页",
     "product": "产品",
@@ -1579,6 +1597,7 @@
       "buyNow": "浏览产品",
       "tableLabel": "支付记录",
       "noRecords": "暂无记录。",
+      "trackOrder": "追踪订单",
       "columns": {
         "invoice": "发票编号",
         "product": "产品",
@@ -1586,13 +1605,50 @@
         "status": "进度",
         "details": "详情",
         "view": "查看发票",
-        "pending": "等待支付"
+        "pending": "等待支付",
+        "orderDetails": "查看订单详情"
       },
       "statuses": {
         "paid": "已支付",
         "pending": "待处理",
         "failed": "失败",
         "canceled": "已取消"
+      }
+    },
+    "orderDetails": {
+      "title": "订单详情",
+      "back": "返回支付记录",
+      "orderNumber": "订单号",
+      "total": "已支付总额",
+      "status": "状态",
+      "autoRefresh": "页面每 10 秒自动刷新一次。",
+      "statuses": {
+        "paid": "已支付",
+        "pending": "待处理",
+        "failed": "失败",
+        "canceled": "已取消"
+      },
+      "orderPipeline": {
+        "title": "订单处理中…",
+        "desc": "您的 GCSS 部署订单进度。",
+        "stages": {
+          "received": "已收到您的订单",
+          "processing": "订单处理中",
+          "provisioning": "正在分配资源",
+          "testing": "最终测试",
+          "ready": "订单已就绪"
+        }
+      },
+      "serverPipeline": {
+        "title": "服务器部署中…",
+        "desc": "您专属 GCSS 实例的部署进度。",
+        "stages": {
+          "not_started": "等待订单",
+          "starting": "服务器部署已开始",
+          "deploying": "部署容器中",
+          "configuring": "配置 OCPP",
+          "ready": "服务器可以使用"
+        }
       }
     },
     "serverInfo": {
@@ -2277,7 +2333,8 @@
       "forum": "论坛管理",
       "requests": "请求审计",
       "settings": "设置与密钥",
-      "products": "产品目录"
+      "products": "产品目录",
+      "orders": "订单"
     },
     "backToOverview": "返回管理面板",
     "products": {
@@ -2322,6 +2379,26 @@
         "value": "值",
         "maxRedemptions": "最大次数",
         "redeemed": "已使用"
+      }
+    },
+    "orders": {
+      "title": "订单",
+      "subtitle": "查看全部客户订单，推进处理与服务器部署阶段，或为银行汇款场景手动标记为已支付。",
+      "ordersTitle": "全部订单",
+      "ordersDesc": "修改阶段立即生效。客户订单详情页每 10 秒轮询一次。",
+      "empty": "暂无订单。",
+      "confirmMarkPaid": "将此订单标记为已支付？此操作会生成发票记录，仅用于银行汇款等手动场景。",
+      "markPaid": "标记已支付",
+      "cols": {
+        "order": "订单号",
+        "user": "用户",
+        "product": "产品",
+        "total": "总额",
+        "status": "状态",
+        "orderStage": "订单阶段",
+        "serverStage": "服务器阶段",
+        "created": "创建时间",
+        "actions": "操作"
       }
     },
     "settings": {

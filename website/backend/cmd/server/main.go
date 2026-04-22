@@ -202,8 +202,11 @@ func main() {
 	mux.HandleFunc("/api/webhooks/pingxx", s.handlePingxxWebhook)
 	// User orders + invoices
 	mux.HandleFunc("/api/user/invoices", s.withCORS(s.handleUserInvoices))
+	mux.HandleFunc("/api/user/invoices/", s.withCORS(s.handleUserInvoiceByNumber))
 	mux.HandleFunc("/api/user/orders", s.withCORS(s.handleUserOrders))
 	mux.HandleFunc("/api/user/orders/", s.withCORS(s.handleOrderByNumber))
+	mux.HandleFunc("/api/admin/orders", s.withCORS(s.handleAdminOrders))
+	mux.HandleFunc("/api/admin/orders/", s.withCORS(s.handleAdminOrderItem))
 	// Blog
 	mux.HandleFunc("/api/blog/posts", s.withCORS(s.handleBlogPosts))
 	mux.HandleFunc("/api/blog/posts/", s.withCORS(s.handleBlogPost))

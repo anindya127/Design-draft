@@ -76,6 +76,24 @@
       "backToDashboard": "Back to Dashboard"
     }
   },
+  "invoice": {
+    "back": "Back to payments",
+    "download": "Download / Print",
+    "invoiceNumber": "Invoice #",
+    "billedTo": "Billed to",
+    "from": "From",
+    "details": "Details",
+    "description": "Description",
+    "amount": "Amount",
+    "discount": "Discount",
+    "total": "Total",
+    "paidInFull": "Paid in full",
+    "unpaid": "Unpaid",
+    "paymentMethod": "Payment method",
+    "paidOn": "Paid on",
+    "orderNumber": "Order number",
+    "thankYou": "Thank you for your business."
+  },
   "nav": {
     "home": "Home",
     "product": "Product",
@@ -1579,6 +1597,7 @@
       "buyNow": "Browse products",
       "tableLabel": "Payment history",
       "noRecords": "No records to show.",
+      "trackOrder": "Track your order",
       "columns": {
         "invoice": "Invoice number",
         "product": "Product",
@@ -1586,13 +1605,50 @@
         "status": "Progress",
         "details": "Details",
         "view": "View invoice",
-        "pending": "Awaiting payment"
+        "pending": "Awaiting payment",
+        "orderDetails": "See order details"
       },
       "statuses": {
         "paid": "Paid",
         "pending": "Pending",
         "failed": "Failed",
         "canceled": "Canceled"
+      }
+    },
+    "orderDetails": {
+      "title": "Order Details",
+      "back": "Back to payments",
+      "orderNumber": "Order",
+      "total": "Total paid",
+      "status": "Status",
+      "autoRefresh": "Page refreshes automatically every 10 seconds.",
+      "statuses": {
+        "paid": "Paid",
+        "pending": "Pending",
+        "failed": "Failed",
+        "canceled": "Canceled"
+      },
+      "orderPipeline": {
+        "title": "Your order is processing…",
+        "desc": "Progress of your GCSS deployment order.",
+        "stages": {
+          "received": "We received your order",
+          "processing": "Your order is processing",
+          "provisioning": "Provisioning resources",
+          "testing": "Final testing",
+          "ready": "Your order is ready"
+        }
+      },
+      "serverPipeline": {
+        "title": "Server setup processing…",
+        "desc": "Progress of your dedicated GCSS instance.",
+        "stages": {
+          "not_started": "Waiting for order",
+          "starting": "Server setup started",
+          "deploying": "Deploying containers",
+          "configuring": "Configuring OCPP stack",
+          "ready": "Server ready to use"
+        }
       }
     },
     "serverInfo": {
@@ -2277,7 +2333,8 @@
       "forum": "Forum Moderation",
       "requests": "Audit Requests",
       "settings": "Settings & Keys",
-      "products": "Product Catalog"
+      "products": "Product Catalog",
+      "orders": "Orders"
     },
     "backToOverview": "Back to Admin",
     "products": {
@@ -2322,6 +2379,26 @@
         "value": "Value",
         "maxRedemptions": "Max",
         "redeemed": "Redeemed"
+      }
+    },
+    "orders": {
+      "title": "Orders",
+      "subtitle": "View all customer orders, advance their processing + server setup stages, and mark orders paid manually for bank-transfer scenarios.",
+      "ordersTitle": "All orders",
+      "ordersDesc": "Changing a stage takes effect immediately. The customer's order details page polls every 10 seconds.",
+      "empty": "No orders yet.",
+      "confirmMarkPaid": "Mark this order as paid? This will create an invoice record and should only be used for manual bank transfers.",
+      "markPaid": "Mark paid",
+      "cols": {
+        "order": "Order #",
+        "user": "User",
+        "product": "Product",
+        "total": "Total",
+        "status": "Status",
+        "orderStage": "Order stage",
+        "serverStage": "Server stage",
+        "created": "Created",
+        "actions": "Actions"
       }
     },
     "settings": {

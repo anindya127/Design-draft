@@ -190,6 +190,51 @@ export async function apiPayPalCapture(token: string, paypalOrderId: string): Pr
     });
 }
 
+export async function apiGetInvoiceByNumber(token: string, invoiceNumber: string): Promise<{
+    invoice: Invoice;
+    order: Order | null;
+    user: { id: number; username: string; email: string; firstName: string; lastName: string; phone: string; company?: string };
+}> {
+    return await fetchJson(`${getApiBase()}/user/invoices/${encodeURIComponent(invoiceNumber)}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+}
+
+// ── Admin order management ─────────────────────────────────────────────
+
+export type AdminOrdersResponse = {
+    orders: Order[];
+    orderStages: string[];
+    serverStages: string[];
+};
+
+export async function apiAdminListOrders(token: string, limit = 100): Promise<AdminOrdersResponse> {
+    return await fetchJson(`${getApiBase()}/admin/orders?limit=${limit}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+}
+
+export async function apiAdminUpdateOrderStage(
+    token: string,
+    orderId: number,
+    stages: { orderStage?: string; serverStage?: string }
+): Promise<{ order: Order }> {
+    return await fetchJson(`${getApiBase()}/admin/orders/${orderId}/stage`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(stages),
+    });
+}
+
+export async function apiAdminMarkOrderPaid(token: string, orderId: number): Promise<{ order: Order }> {
+    return await fetchJson(`${getApiBase()}/admin/orders/${orderId}/mark-paid`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+}
+
 // ── Admin catalog ──────────────────────────────────────────────────────
 
 export async function apiAdminListBillingCycles(token: string): Promise<BillingCycle[]> {

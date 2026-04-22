@@ -598,6 +598,107 @@ func (s *Store) MarkOrderPaid(ctx context.Context, orderID int64, providerPaymen
 	return tx.Commit()
 }
 
+// OrderStages and ServerStages are the ordered 5-step pipelines surfaced to
+// both the customer dashboard and the admin order manager.
+var OrderStages = []string{"received", "processing", "provisioning", "testing", "ready"}
+var ServerStages = []string{"not_started", "starting", "deploying", "configuring", "ready"}
+
+func isValidStage(list []string, s string) bool {
+	for _, v := range list {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
+
+// UpdateOrderStages lets admins advance an order's order_stage / server_stage.
+// Pass empty string to leave a field unchanged.
+func (s *Store) UpdateOrderStages(ctx context.Context, orderID int64, orderStage, serverStage string) error {
+	if orderID <= 0 {
+		return errors.New("invalid order id")
+	}
+	if orderStage != "" && !isValidStage(OrderStages, orderStage) {
+		return fmt.Errorf("invalid order_stage: %s", orderStage)
+	}
+	if serverStage != "" && !isValidStage(ServerStages, serverStage) {
+		return fmt.Errorf("invalid server_stage: %s", serverStage)
+	}
+	now := time.Now().UTC().Format(time.RFC3339)
+	if orderStage != "" && serverStage != "" {
+		_, err := s.db.ExecContext(ctx, `UPDATE orders SET order_stage = ?, server_stage = ?, updated_at = ? WHERE id = ?;`, orderStage, serverStage, now, orderID)
+		return err
+	}
+	if orderStage != "" {
+		_, err := s.db.ExecContext(ctx, `UPDATE orders SET order_stage = ?, updated_at = ? WHERE id = ?;`, orderStage, now, orderID)
+		return err
+	}
+	if serverStage != "" {
+		_, err := s.db.ExecContext(ctx, `UPDATE orders SET server_stage = ?, updated_at = ? WHERE id = ?;`, serverStage, now, orderID)
+		return err
+	}
+	return nil
+}
+
+// AdminMarkOrderPaid manually marks an order paid without a gateway hit.
+// For manual invoicing / bank transfer scenarios.
+func (s *Store) AdminMarkOrderPaid(ctx context.Context, orderID int64) error {
+	return s.MarkOrderPaid(ctx, orderID, "manual", "")
+}
+
+// ListAllOrders returns every order for admin viewing. Paginate as needed.
+func (s *Store) ListAllOrders(ctx context.Context, limit int) ([]Order, error) {
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	rows, err := s.db.QueryContext(ctx, `
+		SELECT id, user_id, order_number, billing_cycle_id, support_tier_id, server_tier_id, promo_code_id, product_label, subtotal_cents, discount_cents, total_cents, currency, billing_address_json, provider, COALESCE(provider_session_id, ''), COALESCE(provider_payment_id, ''), status, order_stage, server_stage, paid_at, created_at, updated_at
+		FROM orders ORDER BY created_at DESC LIMIT ?;
+	`, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []Order
+	for rows.Next() {
+		o, err := scanOrder(rows)
+		if err != nil {
+			return nil, err
+		}
+		if o != nil {
+			out = append(out, *o)
+		}
+	}
+	return out, rows.Err()
+}
+
+// GetInvoiceByNumberForUser looks up an invoice by its number, scoped to the user.
+func (s *Store) GetInvoiceByNumberForUser(ctx context.Context, userID int64, invoiceNumber string) (*Invoice, error) {
+	row := s.db.QueryRowContext(ctx, `
+		SELECT id, COALESCE(order_id, 0), user_id, invoice_number, provider, COALESCE(provider_invoice_id, ''), COALESCE(hosted_invoice_url, ''), product_label, amount_cents, currency, status, paid_at, created_at
+		FROM invoices WHERE invoice_number = ? AND user_id = ?;
+	`, invoiceNumber, userID)
+	var inv Invoice
+	var orderID int64
+	var paidAt sql.NullString
+	var createdAt string
+	if err := row.Scan(&inv.ID, &orderID, &inv.UserID, &inv.InvoiceNumber, &inv.Provider, &inv.ProviderInvoiceID, &inv.HostedInvoiceURL, &inv.ProductLabel, &inv.AmountCents, &inv.Currency, &inv.Status, &paidAt, &createdAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if orderID > 0 {
+		inv.OrderID = &orderID
+	}
+	if paidAt.Valid && paidAt.String != "" {
+		t, _ := parseTimeRFC3339(paidAt.String)
+		inv.PaidAt = &t
+	}
+	inv.CreatedAt, _ = parseTimeRFC3339(createdAt)
+	return &inv, nil
+}
+
 func (s *Store) ListOrdersForUser(ctx context.Context, userID int64) ([]Order, error) {
 	rows, err := s.db.QueryContext(ctx, `
 		SELECT id, user_id, order_number, billing_cycle_id, support_tier_id, server_tier_id, promo_code_id, product_label, subtotal_cents, discount_cents, total_cents, currency, billing_address_json, provider, COALESCE(provider_session_id, ''), COALESCE(provider_payment_id, ''), status, order_stage, server_stage, paid_at, created_at, updated_at
