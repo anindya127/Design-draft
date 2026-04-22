@@ -243,24 +243,25 @@ func (s *Store) DeleteAppSecret(ctx context.Context, key string, actorUserID int
 	return nil
 }
 
-// ListAppSecretAudit returns the most recent audit entries.
+// ListAppSecretAudit returns the most recent audit entries. Always returns a
+// non-nil slice so the JSON response is "[]" rather than "null".
 func (s *Store) ListAppSecretAudit(ctx context.Context, limit int) ([]AppSecretAudit, error) {
 	if limit <= 0 || limit > 200 {
 		limit = 50
 	}
+	out := []AppSecretAudit{}
 	rows, err := s.db.QueryContext(ctx, `
 		SELECT id, key, action, COALESCE(actor_user_id, 0), COALESCE(ip, ''), COALESCE(ua, ''), created_at
 		FROM app_secret_audit ORDER BY created_at DESC LIMIT ?;`, limit)
 	if err != nil {
-		return nil, err
+		return out, err
 	}
 	defer rows.Close()
-	var out []AppSecretAudit
 	for rows.Next() {
 		var a AppSecretAudit
 		var createdAt string
 		if err := rows.Scan(&a.ID, &a.Key, &a.Action, &a.ActorUserID, &a.IP, &a.UA, &createdAt); err != nil {
-			return nil, err
+			return out, err
 		}
 		a.CreatedAt, _ = parseTimeRFC3339(createdAt)
 		out = append(out, a)

@@ -219,11 +219,11 @@ export type AppSecretAudit = {
 
 export async function apiAdminListSettings(token: string): Promise<AppSecretMeta[]> {
     const apiBase = getApiBase();
-    const res = await fetchJson<{ settings: AppSecretMeta[] }>(`${apiBase}/admin/settings`, {
+    const res = await fetchJson<{ settings: AppSecretMeta[] | null }>(`${apiBase}/admin/settings`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
     });
-    return res.settings;
+    return res.settings ?? [];
 }
 
 export async function apiAdminSetSetting(token: string, key: string, value: string): Promise<void> {
@@ -245,11 +245,11 @@ export async function apiAdminDeleteSetting(token: string, key: string): Promise
 
 export async function apiAdminListSettingsAudit(token: string, limit = 50): Promise<AppSecretAudit[]> {
     const apiBase = getApiBase();
-    const res = await fetchJson<{ audit: AppSecretAudit[] }>(`${apiBase}/admin/settings/audit?limit=${limit}`, {
+    const res = await fetchJson<{ audit: AppSecretAudit[] | null }>(`${apiBase}/admin/settings/audit?limit=${limit}`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
     });
-    return res.audit;
+    return res.audit ?? [];
 }
 
 export async function apiUploadFile(token: string, file: File): Promise<string> {

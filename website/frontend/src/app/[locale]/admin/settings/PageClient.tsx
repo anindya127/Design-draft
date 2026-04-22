@@ -253,7 +253,7 @@ export default function AdminSettingsClient() {
                                                                 {t('clear')}
                                                             </button>
                                                         </div>
-                                                        {meta.updatedAt && (
+                                                        {meta.isSet && meta.updatedAt && !meta.updatedAt.startsWith('0001-') && (
                                                             <div className="admin-settings-updated">
                                                                 {t('updatedAt', { date: new Date(meta.updatedAt).toLocaleString() })}
                                                             </div>
