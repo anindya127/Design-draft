@@ -961,12 +961,15 @@ main :not(pre) > code {
 
 /* ──────────────────────────────────────────────────────────────────
    Site-wide Golden Orbs background + frosted-glass overlay
-   - The 3D canvas drifts gold spheres around the viewport.
-   - A blurred/tinted layer sits between orbs and page content so the
-     orbs read as a soft atmospheric glow behind a sheet of glass.
-   - .orbs-root is z-index 0; all page content is lifted to z-index 1+
-     so it stacks above. Header / scroll-progress / scroll-to-top keep
-     their existing higher z-indices.
+   - Large heavily-blurred radial-gradient "balls" drift around the
+     viewport, bouncing off the edges (JS driven in
+     GoldenOrbsBackground.tsx).
+   - A blurred/tinted glass layer sits between the balls and page
+     content so the orbs read as a soft atmospheric glow behind a
+     sheet of frosted glass.
+   - .orbs-root is z-index 0; main + footer are lifted to z-index 1
+     via the rules below. Header / scroll widgets keep their higher
+     z-indices.
    ────────────────────────────────────────────────────────────────── */
 .orbs-root {
   position: fixed;
@@ -980,11 +983,36 @@ main :not(pre) > code {
   position: absolute;
   inset: 0;
 }
-.orbs-canvas-layer canvas {
+.orb-ball {
+  position: absolute;
+  left: 0;
+  top: 0;
   display: block;
-  width: 100% !important;
-  height: 100% !important;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+  pointer-events: none;
+  will-change: transform;
 }
+/* 4 gold variants — same hue family, different centers so the orbs
+   don't look photocopied from each other. */
+.orb-ball--a {
+  background: radial-gradient(circle, rgba(254, 191, 29, 1) 0%, rgba(230, 168, 23, 1) 100%);
+}
+.orb-ball--b {
+  background: radial-gradient(circle, rgba(255, 214, 102, 1) 0%, rgba(245, 158, 11, 1) 100%);
+}
+.orb-ball--c {
+  background: radial-gradient(circle, rgba(255, 224, 138, 1) 0%, rgba(254, 191, 29, 1) 100%);
+}
+.orb-ball--d {
+  background: radial-gradient(circle, rgba(245, 158, 11, 1) 0%, rgba(217, 119, 6, 1) 100%);
+}
+[data-theme='light'] .orb-ball {
+  opacity: 0.28;
+  filter: blur(90px);
+}
+
 .orbs-glass-layer {
   position: absolute;
   inset: 0;
@@ -1011,16 +1039,6 @@ main :not(pre) > code {
    a relative position + z-index: 1 so they stack above .orbs-root.
    The header / skip-link / scroll widgets already have their own
    higher z-indices and are unaffected. */
-body > main,
-body > footer,
-body > .next-intl-provider > main,
-body > .next-intl-provider > footer {
-  position: relative;
-  z-index: 1;
-}
-/* Defensive — NextIntlClientProvider renders children directly with no
-   wrapper in modern versions, but if a wrapper appears we still want
-   main/footer to be on top of the orbs. */
 main {
   position: relative;
   z-index: 1;
@@ -1031,11 +1049,11 @@ footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .orbs-canvas-layer {
-    display: none;
-  }
   .orbs-glass-layer {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
   }
+  /* Balls stay put (no JS motion) but still render as static blobs of
+     ambient gold light — skipping the scene entirely would kill the
+     atmosphere for reduced-motion users. */
 }
