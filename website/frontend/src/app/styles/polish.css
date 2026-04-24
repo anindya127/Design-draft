@@ -982,29 +982,6 @@ main :not(pre) > code {
 .orb-ball--d {
   background: radial-gradient(circle, rgba(245, 158, 11, 1) 0%, rgba(217, 119, 6, 1) 100%);
 }
-/* Light-mode orbs: background is pure white (body's --black token
-   resolves to #ffffff in light theme) and the balls themselves are
-   the visible accent. No frosted-glass wash on top — that's a dark-
-   mode affordance. Balls use warm, saturated gold gradients and stay
-   soft-edged via a heavy blur, so they read as painterly gold blobs
-   drifting across a clean white canvas. */
-[data-theme='light'] .orb-ball {
-  opacity: 0.38;
-  filter: blur(80px);
-}
-[data-theme='light'] .orb-ball--a {
-  background: radial-gradient(circle, rgba(255, 204, 102, 1) 0%, rgba(255, 178, 51, 1) 100%);
-}
-[data-theme='light'] .orb-ball--b {
-  background: radial-gradient(circle, rgba(255, 215, 128, 1) 0%, rgba(254, 191, 29, 1) 100%);
-}
-[data-theme='light'] .orb-ball--c {
-  background: radial-gradient(circle, rgba(255, 224, 156, 1) 0%, rgba(255, 196, 82, 1) 100%);
-}
-[data-theme='light'] .orb-ball--d {
-  background: radial-gradient(circle, rgba(255, 195, 89, 1) 0%, rgba(245, 158, 11, 1) 100%);
-}
-
 .orbs-glass-layer {
   position: absolute;
   inset: 0;
@@ -1018,12 +995,12 @@ main :not(pre) > code {
   );
   pointer-events: none;
 }
-/* Light mode skips the frosted-glass sheet entirely — clean white
-   background with the balls themselves as the accent. */
-[data-theme='light'] .orbs-glass-layer {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: transparent;
+/* Light mode: no orbs, no glass — just the clean white page. The whole
+   background layer is hidden so it costs nothing to render, and the
+   raf loop in GoldenOrbsBackground.tsx still runs but has nothing
+   visible to move (negligible cost; it auto-pauses on hidden tabs). */
+[data-theme='light'] .orbs-root {
+  display: none;
 }
 
 /* Lift page content above the orbs layer. Direct body children get
