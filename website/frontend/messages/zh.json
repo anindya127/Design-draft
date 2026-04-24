@@ -118,6 +118,11 @@
       "total": "总计",
       "selectAll": "请选择全部选项以查看总额。",
       "checkout": "前往结账",
+      "checkoutDeposit": "支付 {amount} 立即启动",
+      "checkoutDepositShort": "支付 {amount}",
+      "continue": "继续确认订单",
+      "continueDeposit": "{amount} 即可启动",
+      "continueShort": "继续",
       "plan": "方案",
       "deployment": "部署方式",
       "billing": "计费方式",
@@ -127,7 +132,11 @@
       "addonsCount": "附加选项",
       "dueNow": "当前应付（在线）",
       "dueLater": "余款（银行转账）",
-      "bankTransferAmount": "银行转账金额"
+      "bankTransferAmount": "银行转账金额",
+      "fullPrice": "原价",
+      "payToday": "今日支付",
+      "remainingVia": "余款 {amount} 将在项目启动后通过银行转账支付。",
+      "wasPrice": "原价 {amount}"
     },
     "lineSaasCharging": "按桩计费",
     "lineSetup": "软件安装",
@@ -179,9 +188,9 @@
       "providerBankDesc": "电汇至我们的银行账户，并上传汇款凭证确认。",
       "bankTransferRequired": "超过 {threshold} 的订单必须通过银行转账支付。",
       "depositTitle": "付款方式",
-      "depositLabel": "先支付 {amount} 订金，余款通过银行转账结算",
+      "depositLabel": "仅需 {amount} 即可启动",
       "depositBalance": "余款",
-      "depositHelp": "订金到账后启动开发，余款在系统交付后通过银行转账支付。"
+      "depositHelp": "今天即可启动项目。先在线支付 {amount} 订金，系统交付时再通过银行转账支付余款。"
     },
     "success": {
       "paid": "支付成功",

@@ -364,7 +364,7 @@ type checkoutRequest struct {
 	WithHosting bool               `json:"withHosting,omitempty"`
 	Addons      []checkoutAddonReq `json:"addons,omitempty"`
 	// UseDeposit is only honored for one-time platform plans (appent /
-	// webplat / appplat). When true, the customer pays a $1,000 deposit
+	// webplat / appplat). When true, the customer pays a $200 deposit
 	// via an online gateway and the remainder via bank transfer.
 	UseDeposit bool `json:"useDeposit,omitempty"`
 
@@ -384,7 +384,7 @@ type checkoutRequest struct {
 // Payment policy constants, in USD cents.
 const (
 	// DepositCents is the fixed deposit amount charged online for platform plans.
-	DepositCents int64 = 100000 // $1,000
+	DepositCents int64 = 20000 // $200
 	// BankTransferThresholdCents — above this, only bank transfer is allowed.
 	BankTransferThresholdCents int64 = 150000 // $1,500
 )

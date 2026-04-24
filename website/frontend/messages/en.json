@@ -118,6 +118,11 @@
       "total": "Total",
       "selectAll": "Select all options to see total.",
       "checkout": "Continue to checkout",
+      "checkoutDeposit": "Pay {amount} to get started",
+      "checkoutDepositShort": "Pay {amount}",
+      "continue": "Continue to review",
+      "continueDeposit": "Get started for {amount}",
+      "continueShort": "Continue",
       "plan": "Plan",
       "deployment": "Deployment",
       "billing": "Billing",
@@ -127,7 +132,11 @@
       "addonsCount": "Add-ons",
       "dueNow": "Due now (online)",
       "dueLater": "Balance (bank transfer)",
-      "bankTransferAmount": "Bank transfer total"
+      "bankTransferAmount": "Bank transfer total",
+      "fullPrice": "Full price",
+      "payToday": "You pay today",
+      "remainingVia": "Remaining {amount} paid via bank transfer after kickoff.",
+      "wasPrice": "was {amount}"
     },
     "lineSaasCharging": "Per-charger billing",
     "lineSetup": "Software setup",
@@ -179,9 +188,9 @@
       "providerBankDesc": "Wire to our bank account. You'll upload the transfer slip for confirmation.",
       "bankTransferRequired": "Orders over {threshold} must be paid by bank transfer.",
       "depositTitle": "Payment plan",
-      "depositLabel": "Pay {amount} deposit now, balance via bank transfer",
+      "depositLabel": "Get started for just {amount}",
       "depositBalance": "balance",
-      "depositHelp": "We start development after the deposit clears. The remaining balance is due by bank transfer when the build is complete."
+      "depositHelp": "Kick off your project today. Pay the {amount} deposit now via card and settle the remaining balance by bank transfer when the system is ready for delivery."
     },
     "success": {
       "paid": "Payment Successful",

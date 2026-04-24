@@ -16,6 +16,12 @@ import {
 
 const CART_KEY = 'gcss_buy_cart';
 
+// Mirror of backend/cmd/server/billing.go — platform plans (one-time
+// appent / webplat / appplat) can be started with a $200 deposit instead
+// of the full price. Surface this in the summary so users see the hook.
+const DEPOSIT_CENTS = 20_000; // $200
+const PLATFORM_PLANS = new Set(['appent', 'webplat', 'appplat']);
+
 function emptyCart(): Cart {
     return { planKey: '', billingMode: 'yearly', years: 1, chargers: 10, withHosting: false, addons: [] };
 }
@@ -213,10 +219,41 @@ export default function BuyClient() {
                         disabled={!plan || total < 50}
                         onClick={handleCheckout}
                     >
-                        {t('summary.checkout')}
+                        {plan && PLATFORM_PLANS.has(plan.key) && total > DEPOSIT_CENTS
+                            ? t('summary.continueDeposit', { amount: formatUSD(DEPOSIT_CENTS) })
+                            : t('summary.continue')}
                     </button>
                 </aside>
             </div>
+
+            {/* Mobile-only sticky bottom CTA — summary is always in view */}
+            {plan && total >= 50 && (
+                <div className="buy-mobile-bar" role="region" aria-label={t('summary.title')}>
+                    <div className="buy-mobile-bar-info">
+                        {PLATFORM_PLANS.has(plan.key) && total > DEPOSIT_CENTS ? (
+                            <>
+                                <span className="buy-mobile-bar-label">{t('summary.payToday')}</span>
+                                <span className="buy-mobile-bar-amount">{formatUSD(DEPOSIT_CENTS)}</span>
+                                <span className="buy-mobile-bar-sub">
+                                    {t('summary.wasPrice', { amount: formatUSD(total) })}
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="buy-mobile-bar-label">{t('summary.total')}</span>
+                                <span className="buy-mobile-bar-amount">{formatUSD(total)}</span>
+                            </>
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        className="btn btn-primary buy-mobile-bar-btn"
+                        onClick={handleCheckout}
+                    >
+                        {t('summary.continueShort')}
+                    </button>
+                </div>
+            )}
         </section>
     );
 }
@@ -232,6 +269,7 @@ function SummaryDetail({ plan, cart, addons, locale, total }: {
     const items = buildLineItems(plan, cart, addons, locale, (k, v) => t(k as never, v as never));
     const metaRows = buildMetaRows(plan, cart, locale, (k, v) => t(k as never, v as never));
     const subtotal = items.reduce((s, i) => s + i.amountCents, 0);
+    const depositEligible = PLATFORM_PLANS.has(plan.key) && total > DEPOSIT_CENTS;
 
     return (
         <>
@@ -267,10 +305,26 @@ function SummaryDetail({ plan, cart, addons, locale, total }: {
                 </div>
             )}
 
-            <div className="buy-summary-total">
-                <span>{t('summary.total')}</span>
-                <span>{formatUSD(total)}</span>
-            </div>
+            {depositEligible ? (
+                <>
+                    <div className="buy-summary-row buy-summary-row--strike">
+                        <span>{t('summary.fullPrice')}</span>
+                        <span className="buy-summary-strike">{formatUSD(total)}</span>
+                    </div>
+                    <div className="buy-summary-hero">
+                        <span className="buy-summary-hero-label">{t('summary.payToday')}</span>
+                        <span className="buy-summary-hero-amount">{formatUSD(DEPOSIT_CENTS)}</span>
+                        <span className="buy-summary-hero-note">
+                            {t('summary.remainingVia', { amount: formatUSD(total - DEPOSIT_CENTS) })}
+                        </span>
+                    </div>
+                </>
+            ) : (
+                <div className="buy-summary-total">
+                    <span>{t('summary.total')}</span>
+                    <span>{formatUSD(total)}</span>
+                </div>
+            )}
         </>
     );
 }

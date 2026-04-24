@@ -32,7 +32,7 @@ type Provider = 'stripe' | 'paypal' | 'pingxx' | 'bank_transfer';
 
 // Mirror of backend/cmd/server/billing.go — any change there must be
 // mirrored here so the UI gates match the server's rules.
-const DEPOSIT_CENTS = 100_000; // $1,000
+const DEPOSIT_CENTS = 20_000; // $200
 const BANK_TRANSFER_THRESHOLD_CENTS = 150_000; // $1,500
 const PLATFORM_PLANS = new Set(['appent', 'webplat', 'appplat']);
 
@@ -65,7 +65,9 @@ export default function BuyReviewClient() {
     const [promoMsg, setPromoMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     const [provider, setProvider] = useState<Provider>('stripe');
-    const [useDeposit, setUseDeposit] = useState(false);
+    // Deposit defaults ON for eligible platform plans. The actual gating still
+    // happens on depositEligible below; backend double-checks too.
+    const [useDeposit, setUseDeposit] = useState(true);
     const [invalidFields, setInvalidFields] = useState<string[]>([]);
     const isInvalid = (f: string) => invalidFields.includes(f);
 
@@ -376,7 +378,7 @@ export default function BuyReviewClient() {
                                         <span className="buy-deposit-title">{t('review.depositLabel', { amount: formatUSD(DEPOSIT_CENTS) })}</span>
                                         <span className="buy-deposit-chip">{formatUSD(pricing.total - DEPOSIT_CENTS)} {t('review.depositBalance')}</span>
                                     </div>
-                                    <p className="buy-deposit-help">{t('review.depositHelp')}</p>
+                                    <p className="buy-deposit-help">{t('review.depositHelp', { amount: formatUSD(DEPOSIT_CENTS) })}</p>
                                 </div>
                             </label>
                         </div>
@@ -455,21 +457,24 @@ export default function BuyReviewClient() {
 
                     <div className="buy-summary-divider" />
 
-                    <div className="buy-summary-total">
-                        <span>{t('summary.total')}</span>
-                        <span>{formatUSD(pricing.total)}</span>
-                    </div>
-
-                    {useDeposit && depositEligible && (
-                        <div className="buy-summary-split" aria-live="polite">
-                            <div className="buy-summary-split-row">
-                                <span>{t('summary.dueNow')}</span>
-                                <span className="buy-summary-split-amt">{formatUSD(chargeAmount)}</span>
+                    {useDeposit && depositEligible ? (
+                        <>
+                            <div className="buy-summary-row buy-summary-row--strike" aria-live="polite">
+                                <span>{t('summary.fullPrice')}</span>
+                                <span className="buy-summary-strike">{formatUSD(pricing.total)}</span>
                             </div>
-                            <div className="buy-summary-split-row buy-summary-split-row--muted">
-                                <span>{t('summary.dueLater')}</span>
-                                <span>{formatUSD(balanceAmount)}</span>
+                            <div className="buy-summary-hero" aria-live="polite">
+                                <span className="buy-summary-hero-label">{t('summary.payToday')}</span>
+                                <span className="buy-summary-hero-amount">{formatUSD(chargeAmount)}</span>
+                                <span className="buy-summary-hero-note">
+                                    {t('summary.remainingVia', { amount: formatUSD(balanceAmount) })}
+                                </span>
                             </div>
+                        </>
+                    ) : (
+                        <div className="buy-summary-total">
+                            <span>{t('summary.total')}</span>
+                            <span>{formatUSD(pricing.total)}</span>
                         </div>
                     )}
 
@@ -490,9 +495,41 @@ export default function BuyReviewClient() {
                         disabled={checkoutBusy}
                         onClick={handleCheckout}
                     >
-                        {t('summary.checkout')}
+                        {useDeposit && depositEligible
+                            ? t('summary.checkoutDeposit', { amount: formatUSD(chargeAmount) })
+                            : t('summary.checkout')}
                     </button>
                 </aside>
+            </div>
+
+            {/* Mobile-only sticky bottom CTA — summary is always in view */}
+            <div className="buy-mobile-bar" role="region" aria-label={t('summary.title')}>
+                <div className="buy-mobile-bar-info">
+                    {useDeposit && depositEligible ? (
+                        <>
+                            <span className="buy-mobile-bar-label">{t('summary.payToday')}</span>
+                            <span className="buy-mobile-bar-amount">{formatUSD(chargeAmount)}</span>
+                            <span className="buy-mobile-bar-sub">
+                                {t('summary.wasPrice', { amount: formatUSD(pricing.total) })}
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <span className="buy-mobile-bar-label">{t('summary.total')}</span>
+                            <span className="buy-mobile-bar-amount">{formatUSD(pricing.total)}</span>
+                        </>
+                    )}
+                </div>
+                <button
+                    type="button"
+                    className={`btn btn-primary buy-mobile-bar-btn${checkoutBusy ? ' btn-loading' : ''}`}
+                    disabled={checkoutBusy}
+                    onClick={handleCheckout}
+                >
+                    {useDeposit && depositEligible
+                        ? t('summary.checkoutDepositShort', { amount: formatUSD(chargeAmount) })
+                        : t('summary.checkout')}
+                </button>
             </div>
         </section>
     );

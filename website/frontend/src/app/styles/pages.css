@@ -8285,6 +8285,17 @@
   border-radius: var(--radius-lg);
   padding: 24px;
   height: fit-content;
+  max-height: calc(100vh - var(--header-height) - 32px);
+  overflow-y: auto;
+}
+/* Thin, unobtrusive scrollbar when the summary overflows */
+.buy-summary::-webkit-scrollbar { width: 6px; }
+.buy-summary::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 3px;
+}
+.buy-summary::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
 }
 .buy-summary-title {
   font-size: 0.95rem;
@@ -8412,6 +8423,59 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Deposit flow: strikethrough full price row + gold hero "Pay today" block */
+.buy-summary-row--strike {
+  align-items: baseline;
+  font-size: 0.86rem;
+  color: var(--text-tertiary);
+  padding: 6px 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+.buy-summary-strike {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: rgba(239, 68, 68, 0.7);
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+.buy-summary-hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  row-gap: 6px;
+  align-items: baseline;
+  margin: 4px 0 16px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(254, 191, 29, 0.14), rgba(254, 191, 29, 0.06));
+  border: 1px solid rgba(254, 191, 29, 0.4);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 3px rgba(254, 191, 29, 0.08);
+}
+.buy-summary-hero-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary-text);
+}
+.buy-summary-hero-amount {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  align-self: center;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--primary-text);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.buy-summary-hero-note {
+  grid-column: 1;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
 .buy-summary-line,
 .buy-summary-row,
 .buy-review-line {
@@ -8419,6 +8483,87 @@
 }
 .buy-checkout-btn {
   width: 100%;
+}
+
+/* Mobile-only sticky bottom CTA bar — keeps purchase summary always visible.
+   Hidden on desktop (sidebar sticky already covers that). */
+.buy-mobile-bar {
+  display: none;
+}
+@media (max-width: 900px) {
+  .buy-mobile-bar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--dark-card);
+    border-top: 1px solid var(--border-light);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+  }
+  .buy-mobile-bar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+  .buy-mobile-bar-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    font-weight: 700;
+  }
+  .buy-mobile-bar-amount {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--primary-text);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .buy-mobile-bar-sub {
+    font-size: 0.72rem;
+    color: var(--text-tertiary);
+  }
+  .buy-mobile-bar-sub::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 1px;
+    background: rgba(239, 68, 68, 0.7);
+    vertical-align: middle;
+    margin: 0 4px 3px 0;
+  }
+  .buy-mobile-bar-btn {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+  /* Reserve space at the bottom so the fixed bar doesn't cover content */
+  .buy-layout {
+    padding-bottom: 96px;
+  }
+  /* Condense the hero block on narrow screens */
+  .buy-summary-hero {
+    padding: 12px 14px;
+  }
+  .buy-summary-hero-amount {
+    font-size: 1.6rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .buy-mobile-bar {
+    backdrop-filter: none;
+  }
 }
 
 .buy-review-lines {

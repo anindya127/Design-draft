@@ -393,7 +393,7 @@ func (s *Store) migrate(ctx context.Context) error {
 	_, _ = s.db.ExecContext(ctx, `UPDATE blog_posts SET updated_at = published_at WHERE updated_at = '';`)
 
 	// Deposit / balance tracking on orders — used for platform plans where
-	// the customer pays a $1,000 deposit online and the balance via bank
+	// the customer pays a $200 deposit online and the balance via bank
 	// transfer, and for bank-transfer-only orders > $1,500.
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE orders ADD COLUMN deposit_cents INTEGER NOT NULL DEFAULT 0;`)
 	_, _ = s.db.ExecContext(ctx, `ALTER TABLE orders ADD COLUMN balance_cents INTEGER NOT NULL DEFAULT 0;`)
