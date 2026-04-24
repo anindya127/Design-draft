@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import ScrollProgress from '@/components/layout/ScrollProgress';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import GlobalEffects from '@/components/effects/GlobalEffects';
+import GoldenOrbsBackground from '@/components/effects/GoldenOrbsBackground';
 import { routing } from '@/i18n/routing';
 import '../globals.css';
 import '../enhancements.css';
@@ -33,6 +34,7 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <body>
+        <GoldenOrbsBackground />
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             <AuthProvider>

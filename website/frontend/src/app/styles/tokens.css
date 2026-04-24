@@ -24,9 +24,9 @@
   --text-muted: #8a8a8a;
 
   --primary: #FEBF1D;
-  --primary-hover: #FFD04A;
-  --primary-dim: rgba(254, 191, 29, 0.12);
-  --primary-glow: rgba(254, 191, 29, 0.06);
+  --primary-hover: #FFCA3F;
+  --primary-dim: rgba(254, 191, 29, 0.14);
+  --primary-glow: rgba(254, 191, 29, 0.12);
   /* AA-contrast text variant of --primary for light mode (4.8:1 on white).
      Use this where gold is applied as body text / label text instead of
      --primary which is reserved for decorative borders / backgrounds /
@@ -44,7 +44,7 @@
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
-  --shadow-glow: 0 0 40px rgba(254,191,29,0.08);
+  --shadow-glow: 0 0 48px rgba(254,191,29,0.14);
 
   /* Legacy shadow aliases */
   --shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -108,8 +108,8 @@
   --text-muted: #57534e;
   --primary: #E6A817;
   --primary-hover: #F5C946;
-  --primary-dim: rgba(230, 168, 23, 0.12);
-  --primary-glow: rgba(230, 168, 23, 0.06);
+  --primary-dim: rgba(230, 168, 23, 0.18);
+  --primary-glow: rgba(230, 168, 23, 0.14);
   /* Dark mode: gold on dark bg already passes AA — keep same brand color. */
   --primary-text: #FEBF1D;
   --glass-bg: rgba(255, 255, 255, 0.03);

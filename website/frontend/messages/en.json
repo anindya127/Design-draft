@@ -807,27 +807,27 @@
       "desc": "Choose the plan that fits your business. Start free and scale as you grow."
     },
     "plan1": {
-      "name": "H5 Free Edition",
-      "price": "Free",
-      "period": "Forever free",
-      "f1": "Free download & deployment",
-      "f2": "Stripe payment integration",
-      "f3": "Basic OCPP 1.6 support",
-      "f4": "Community forum access",
-      "f5": "Includes GCSS brand watermark",
-      "btn": "Download Free"
+      "name": "SaaS Hosted",
+      "price": "$84",
+      "period": "per year / charger",
+      "f1": "Shared hosting on Hong Kong node",
+      "f2": "OCPP 1.6J support",
+      "f3": "GCSS-branded Global Charge APP",
+      "f4": "One payment method included",
+      "f5": "EN + ZH languages",
+      "btn": "Start Subscription"
     },
     "plan2": {
-      "name": "H5 Enterprise",
-      "period": "one-time payment",
-      "f1": "All Community features",
-      "f2": "Hosted cloud deployment",
-      "f3": "Custom branding (no watermark)",
-      "f4": "Multi-language support",
-      "f5": "Global payment gateways",
-      "f6": "Fast launch setup",
-      "f7": "Email support",
-      "btn": "Get Started"
+      "name": "Custom Web APP",
+      "period": "$300 setup + $120/month",
+      "f1": "Custom-branded Web APP",
+      "f2": "Unlimited chargers",
+      "f3": "Self-hosted or lease GCSS server",
+      "f4": "One custom payment gateway",
+      "f5": "Custom logo + app name",
+      "f6": "Full mobile + admin translation",
+      "f7": "API access included",
+      "btn": "Configure"
     },
     "plan3": {
       "name": "APP Enterprise",
@@ -970,7 +970,7 @@
   "pricing": {
     "label": "Pricing",
     "title": "Simple, Transparent Pricing",
-    "desc": "Two hosting models, six tiers, one platform. All prices in USD.",
+    "desc": "Two hosting models, five tiers, one platform. All prices in USD.",
     "perCharger": "per charger",
     "oneTime": "one-time",
     "perMonth": "/month",
@@ -1359,7 +1359,7 @@
     },
     "cta": {
       "title": "Ready to Deploy?",
-      "desc": "Start your EV charging business today with GCSS. Free community edition available.",
+      "desc": "Start your EV charging business today with GCSS. SaaS Hosted from $84/year/charger — or go full white-label with just a $200 deposit.",
       "btn1": "View Pricing",
       "btn2": "Try Live Demo"
     }
@@ -2197,8 +2197,8 @@
       "title": "7×24 Professional Technical Support",
       "desc": "From deployment to daily operations, our engineering team protects your business around the clock.",
       "standard": {
-        "title": "H5 Platform Edition",
-        "price": "$18,600",
+        "title": "Web APP Platform",
+        "price": "$21,800",
         "features": [
           "Web application",
           "Free deployment, maintenance, updates",
@@ -2210,7 +2210,7 @@
         ]
       },
       "enhanced": {
-        "title": "App Platform Edition",
+        "title": "APP Platform",
         "price": "$34,200",
         "features": [
           "Includes iOS & Android applications",
@@ -2331,8 +2331,8 @@
       "q1": "What is GCSS?",
       "a1": "GCSS (Global Charger System Service) is a comprehensive EV charging management platform that enables operators to manage charging stations, users, payments, and analytics from a single dashboard. It supports both B2C (individual station) and B2B (multi-tenant network) deployment models.",
       "c1": "general",
-      "q2": "Is there a free version available?",
-      "a2": "Yes! GCSS offers a free Community Edition that includes core charging station management features. You can upgrade to Pro or Enterprise plans as your business grows to unlock advanced features like multi-site management, custom branding, and priority support.",
+      "q2": "What's the entry point to get started?",
+      "a2": "Our SaaS Hosted tier starts at $84 per year per charger on our Hong Kong node — ideal for operators who just want to plug in and go. For custom branding and your own server, the Custom Web APP tier is $300 setup + $120/month. Platform plans with white-label iOS & Android apps start at $16,900 one-time and can kick off for a $200 deposit online with the balance via bank transfer.",
       "c2": "billing",
       "q3": "What charger protocols are supported?",
       "a3": "GCSS supports OCPP 1.6 and OCPP 2.0.1 protocols, which are compatible with the vast majority of EV chargers on the market. We also support integration with chargers via proprietary APIs on request.",
@@ -2353,7 +2353,7 @@
       "a8": "Yes, GCSS provides a comprehensive RESTful API that allows you to integrate with your existing systems — including fleet management, CRM, ERP, and energy management platforms. Full API documentation with interactive examples is available in our docs.",
       "c8": "integration",
       "q9": "What kind of support do you offer?",
-      "a9": "Community Edition users get access to our forum and documentation. Pro users receive email support with 24-hour response time. Enterprise customers get dedicated support with a named account manager, priority response, and custom SLA agreements.",
+      "a9": "SaaS Hosted and Custom Web APP customers get email support during business hours plus full access to our forum and documentation. Platform-tier customers (APP Enterprise / Web APP Platform / APP Platform) get a named account manager, priority response, 3 years of free updates, and 24×7 technical support with custom SLA options.",
       "c9": "general",
       "q10": "Can I manage multiple locations from one dashboard?",
       "a10": "Absolutely. GCSS is designed for multi-site management. You can monitor all your charging stations across different locations in real-time, compare performance metrics, and manage operations centrally. The B2B platform extends this further with multi-tenant capabilities.",
